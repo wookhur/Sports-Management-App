@@ -1,0 +1,86 @@
+// Sports Management App — data model
+// SQLite for local dev; switch `provider` to "postgresql" for production.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ATHLETE
+  COACH
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(ATHLETE)
+  createdAt DateTime @default(now())
+
+  records  Record[]
+  comments Comment[]
+
+  // A coach can be linked to many athletes and vice-versa.
+  coachLinks   CoachAthlete[] @relation("CoachSide")
+  athleteLinks CoachAthlete[] @relation("AthleteSide")
+}
+
+// Explicit many-to-many link between a coach and an athlete.
+model CoachAthlete {
+  id        String   @id @default(cuid())
+  coach     User     @relation("CoachSide", fields: [coachId], references: [id], onDelete: Cascade)
+  coachId   String
+  athlete   User     @relation("AthleteSide", fields: [athleteId], references: [id], onDelete: Cascade)
+  athleteId String
+  createdAt DateTime @default(now())
+
+  @@unique([coachId, athleteId])
+  @@index([coachId])
+  @@index([athleteId])
+}
+
+// A single performance record. Sport-agnostic core with optional
+// structured fields so new sports/metrics can be added without migrations.
+model Record {
+  id       String @id @default(cuid())
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+
+  sport      String // sport id from the registry, e.g. "swimming"
+  metricKey  String // metric id, e.g. "freestyle_50m"
+  metricName String // human label snapshot, e.g. "자유형 50m"
+
+  // Structured measurements (all optional; used per metric)
+  distanceM  Float? // meters
+  durationMs Int? //   milliseconds
+  value      Float? // generic numeric value
+  unit       String? // unit for `value`
+
+  notes     String?
+  shared    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  comments Comment[]
+
+  @@index([userId])
+  @@index([sport])
+}
+
+// Coach feedback on a shared record.
+model Comment {
+  id       String   @id @default(cuid())
+  record   Record   @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId String
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  body     String
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
