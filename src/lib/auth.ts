@@ -41,6 +41,10 @@ const cookieOptions = {
   httpOnly: true,
   secure: !insecure,
   sameSite: insecure ? ("lax" as const) : ("none" as const),
+  // CHIPS: a partitioned cookie is stored per top-level site, so it survives
+  // third-party-cookie blocking when the app is embedded in a cross-site
+  // iframe (e.g. a hosted preview). Without this the session is dropped.
+  partitioned: !insecure,
   path: "/",
 };
 

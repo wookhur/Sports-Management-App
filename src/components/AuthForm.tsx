@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
 type Mode = "login" | "signup";
 
 export default function AuthForm({ mode }: { mode: Mode }) {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +32,9 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       setLoading(false);
       return;
     }
-    router.replace("/");
-    router.refresh();
+    // Hard navigation (not client router) so the freshly-set session cookie is
+    // sent on a full document request — reliable even inside an embedded frame.
+    window.location.assign("/");
   }
 
   return (
