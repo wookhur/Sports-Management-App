@@ -11,7 +11,7 @@ export default async function SignupPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <Link href="/login" className="text-3xl font-bold">
-            🏅 SportsHub
+            🏅 sideline365
           </Link>
           <p className="mt-2 text-sm text-slate-500">몇 초면 시작할 수 있어요</p>
         </div>

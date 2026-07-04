@@ -13,7 +13,7 @@ export default async function NavBar() {
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <span className="text-xl">🏅</span>
-          <span>SportsHub</span>
+          <span>sideline365</span>
         </Link>
         <div className="flex items-center gap-1 text-sm">
           <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">

@@ -11,7 +11,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <Link href="/login" className="text-3xl font-bold">
-            🏅 SportsHub
+            🏅 sideline365
           </Link>
           <p className="mt-2 text-sm text-slate-500">기록을 측정하고 코치와 공유하세요</p>
         </div>
