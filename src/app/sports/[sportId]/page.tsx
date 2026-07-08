@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getSport } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
-import Stopwatch from "@/components/Stopwatch";
+import RecordEntry from "@/components/RecordEntry";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
 
 const levelColors: Record<string, string> = {
@@ -92,7 +92,7 @@ export default async function SportPage({
         {/* Measurement (swimming) */}
         {canMeasure && sport.metrics && (
           <section className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Stopwatch sportId={sportId} metrics={sport.metrics} />
+            <RecordEntry sportId={sportId} metrics={sport.metrics} />
 
             <div>
               <h2 className="mb-3 text-lg font-bold">최근 기록</h2>

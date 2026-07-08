@@ -13,6 +13,10 @@ const schema = z.object({
   unit: z.string().optional(),
   notes: z.string().max(500).optional(),
   shared: z.boolean().optional(),
+  // Optional measured date for manually entered records. The app uses
+  // `createdAt` as the record's date everywhere, so setting it here makes a
+  // hand-entered past result sort and display on the day it happened.
+  occurredAt: z.string().datetime().optional(),
 });
 
 export async function POST(req: Request) {
@@ -38,6 +42,16 @@ export async function POST(req: Request) {
     return fail("측정 시간이 필요합니다");
   }
 
+  // For manual entries the athlete may pick the date it happened. Reject a
+  // date in the future so a typo can't push a record ahead of real ones.
+  let occurredAt: Date | undefined;
+  if (data.occurredAt) {
+    const d = new Date(data.occurredAt);
+    if (Number.isNaN(d.getTime())) return fail("측정 날짜가 올바르지 않습니다");
+    if (d.getTime() > Date.now() + 60_000) return fail("측정 날짜는 미래일 수 없습니다");
+    occurredAt = d;
+  }
+
   const record = await prisma.record.create({
     data: {
       userId: session.userId,
@@ -50,6 +64,8 @@ export async function POST(req: Request) {
       unit: data.unit ?? null,
       notes: data.notes?.trim() || null,
       shared: data.shared ?? false,
+      // Fall back to the DB default (now) when no date was supplied.
+      ...(occurredAt ? { createdAt: occurredAt } : {}),
     },
   });
 
