@@ -1,0 +1,14 @@
+# Netlify configuration for sideline365 (Next.js + Prisma/Postgres)
+
+[build]
+  # Sync the schema, seed demo data (idempotent upserts), then build.
+  # Requires DATABASE_URL (+ AUTH_SECRET) to be set in the Netlify UI.
+  command = "npm run netlify:build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Netlify auto-installs this when it detects Next.js; declaring it is explicit.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

@@ -21,20 +21,32 @@ export default function AuthForm({ mode }: { mode: Mode }) {
     setLoading(true);
     const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
     const payload = isSignup ? { name, email, password, role } : { email, password };
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "오류가 발생했습니다");
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      // The server may return a non-JSON error page (e.g. a 500 from a broken
+      // DB connection). Parse defensively so the UI never hangs.
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(
+          data?.error ??
+            (res.status >= 500
+              ? "서버 오류가 발생했습니다. 데이터베이스 설정을 확인해주세요."
+              : `요청을 처리하지 못했습니다 (${res.status})`)
+        );
+        setLoading(false);
+        return;
+      }
+      // Hard navigation (not client router) so the freshly-set session cookie is
+      // sent on a full document request — reliable even inside an embedded frame.
+      window.location.assign("/");
+    } catch {
+      setError("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
       setLoading(false);
-      return;
     }
-    // Hard navigation (not client router) so the freshly-set session cookie is
-    // sent on a full document request — reliable even inside an embedded frame.
-    window.location.assign("/");
   }
 
   return (

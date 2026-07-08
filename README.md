@@ -25,19 +25,22 @@
 ## 기술 스택
 
 - **Next.js 15** (App Router, React 19, TypeScript)
-- **Prisma + SQLite** — 로컬은 SQLite, 운영은 `schema.prisma`의 `provider`만 `postgresql`로 교체
+- **Prisma + PostgreSQL** (로컬·운영 동일) — 배포는 Neon/Supabase 등 호스팅 Postgres
 - **Tailwind CSS**
 - 인증: `jose`(JWT) + `bcryptjs`, 유효성 검증: `zod`
 
 ## 로컬 실행
 
 ```bash
+createdb sideline      # 로컬 Postgres 준비
 npm install            # 의존성 설치 (+ prisma generate)
-cp .env.example .env   # 환경변수 (DATABASE_URL, AUTH_SECRET)
+cp .env.example .env   # DATABASE_URL(Postgres), AUTH_SECRET 설정
 npm run db:push        # 스키마를 DB에 반영
 npm run db:seed        # 데모 계정 + 샘플 기록 생성
 npm run dev            # http://localhost:3000
 ```
+
+> ☁️ **Netlify 배포는 [`DEPLOY.md`](./DEPLOY.md) 참고** — 호스팅 Postgres(Neon 등) 연결 + 환경변수 2개.
 
 ### 데모 계정
 
