@@ -18,13 +18,21 @@ export async function POST(req: Request) {
   }
   const { name, email, password, role } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return fail("이미 가입된 이메일입니다", 409);
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return fail("이미 가입된 이메일입니다", 409);
 
-  const user = await prisma.user.create({
-    data: { name, email, password: await hashPassword(password), role },
-  });
+    const user = await prisma.user.create({
+      data: { name, email, password: await hashPassword(password), role },
+    });
 
-  await createSession({ userId: user.id, role: user.role, name: user.name });
-  return ok({ id: user.id, name: user.name, role: user.role }, 201);
+    await createSession({ userId: user.id, role: user.role, name: user.name });
+    return ok({ id: user.id, name: user.name, role: user.role }, 201);
+  } catch (err) {
+    // Most commonly a database connection/setup failure (e.g. SQLite is not
+    // available on a serverless host). Return JSON so the client shows a real
+    // error instead of hanging on an unparseable HTML 500 page.
+    console.error("[signup] unexpected error", err);
+    return fail("서버 오류로 가입하지 못했습니다. 데이터베이스 설정을 확인하세요.", 500);
+  }
 }
