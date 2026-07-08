@@ -1,0 +1,17 @@
+# Netlify build configuration for sideline365 (Next.js + Prisma/Postgres).
+#
+# Required environment variables (set in Netlify → Site settings → Environment):
+#   DATABASE_URL  — connection string for a managed Postgres (Neon/Supabase/…).
+#                   Neon is the easiest fit; Netlify has a one-click Neon add-on.
+#   AUTH_SECRET   — a long random string used to sign the session JWT.
+#
+# The build command below creates the tables (`prisma db push`) and inserts the
+# demo accounts (`prisma db seed`) against DATABASE_URL, then builds the app.
+# If DATABASE_URL is missing the build fails fast with a clear error instead of
+# deploying an app whose login is broken.
+
+[build]
+  command = "npm run build:netlify"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

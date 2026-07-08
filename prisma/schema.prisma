@@ -1,12 +1,18 @@
 // Sports Management App — data model
-// SQLite for local dev; switch `provider` to "postgresql" for production.
+// Postgres for both local dev and production (Netlify runs on serverless
+// Lambda with a read-only filesystem, so file-based SQLite cannot be used).
+// Point DATABASE_URL at any managed Postgres (Neon, Supabase, Railway, …).
 
 generator client {
   provider = "prisma-client-js"
+  // "native" covers local dev; "rhel-openssl-3.0.x" is the engine Netlify's
+  // serverless functions (Amazon Linux 2023) need — without it the deployed
+  // functions crash with "Query engine binary not found".
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

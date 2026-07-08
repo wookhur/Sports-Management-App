@@ -25,7 +25,8 @@
 ## 기술 스택
 
 - **Next.js 15** (App Router, React 19, TypeScript)
-- **Prisma + SQLite** — 로컬은 SQLite, 운영은 `schema.prisma`의 `provider`만 `postgresql`로 교체
+- **Prisma + PostgreSQL** — 로컬·운영 모두 Postgres (Neon/Supabase 등). Netlify는
+  서버리스(읽기 전용 파일시스템)라 파일 기반 SQLite를 쓸 수 없어 관리형 Postgres가 필요합니다.
 - **Tailwind CSS**
 - 인증: `jose`(JWT) + `bcryptjs`, 유효성 검증: `zod`
 
@@ -33,11 +34,31 @@
 
 ```bash
 npm install            # 의존성 설치 (+ prisma generate)
-cp .env.example .env   # 환경변수 (DATABASE_URL, AUTH_SECRET)
+cp .env.example .env   # 환경변수 (DATABASE_URL, AUTH_SECRET) — Postgres 연결 문자열 입력
 npm run db:push        # 스키마를 DB에 반영
 npm run db:seed        # 데모 계정 + 샘플 기록 생성
 npm run dev            # http://localhost:3000
 ```
+
+로컬에도 Postgres가 필요합니다. 가장 간단한 방법은 [Neon](https://neon.tech) 무료 DB를
+만들어 그 연결 문자열을 `DATABASE_URL`에 넣는 것입니다(로컬·배포 동일 사용 가능).
+
+## Netlify 배포
+
+Netlify는 서버리스라 SQLite를 쓸 수 없으므로 **관리형 Postgres**가 필요합니다.
+
+1. **Postgres 준비** — [Neon](https://neon.tech)(또는 Supabase 등)에서 DB 생성 후
+   연결 문자열 복사. Netlify 대시보드의 Neon 애드온을 쓰면 `DATABASE_URL`이 자동 주입됩니다.
+2. **환경변수 설정** — Netlify → Site settings → Environment variables:
+   - `DATABASE_URL` = Postgres 연결 문자열
+   - `AUTH_SECRET` = 긴 랜덤 문자열
+3. **배포** — GitHub 저장소를 Netlify에 연결하면 `netlify.toml`의 빌드 명령
+   (`npm run build:netlify`)이 테이블 생성(`prisma db push`)과 데모 계정 시드
+   (`prisma db seed`)를 실행한 뒤 앱을 빌드합니다. `DATABASE_URL`이 없으면 빌드가
+   즉시 실패하므로, 로그인이 깨진 채로 배포되지 않습니다.
+
+> ⚠️ 데모 계정(`athlete@example.com` / `password123`)이 운영 DB에도 시드됩니다.
+> 실제 서비스에서는 시드를 제거하거나 비밀번호를 변경하세요.
 
 ### 데모 계정
 
