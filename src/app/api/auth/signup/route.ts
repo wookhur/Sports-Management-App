@@ -1,13 +1,25 @@
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
+import { SPORT_LIST } from "@/lib/sports";
 import { ok, fail } from "@/lib/api";
 
+const sportIds = SPORT_LIST.map((s) => s.id) as [string, ...string[]];
+
 const schema = z.object({
-  name: z.string().min(1, "이름을 입력하세요").max(50),
+  username: z
+    .string()
+    .min(3, "아이디는 3자 이상이어야 합니다")
+    .max(20, "아이디는 20자 이하여야 합니다")
+    .regex(/^[a-zA-Z0-9_]+$/, "아이디는 영문/숫자/밑줄만 사용할 수 있습니다"),
   email: z.string().email("올바른 이메일을 입력하세요"),
   password: z.string().min(6, "비밀번호는 6자 이상이어야 합니다").max(100),
   role: z.enum(["ATHLETE", "COACH"]),
+  school: z.string().max(100).optional(),
+  sportInterests: z.array(z.enum(sportIds)).max(sportIds.length).optional(),
+  experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  dob: z.string().optional(),
+  grade: z.string().max(50).optional(),
 });
 
 export async function POST(req: Request) {
@@ -16,13 +28,35 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
   }
-  const { name, email, password, role } = parsed.data;
+  const { username, email, password, role, school, sportInterests, experienceLevel, dob, grade } =
+    parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return fail("이미 가입된 이메일입니다", 409);
+  const [existingEmail, existingUsername] = await Promise.all([
+    prisma.user.findUnique({ where: { email } }),
+    prisma.user.findUnique({ where: { username } }),
+  ]);
+  if (existingEmail) return fail("이미 가입된 이메일입니다", 409);
+  if (existingUsername) return fail("이미 사용 중인 아이디입니다", 409);
+
+  const parsedDob = dob ? new Date(dob) : undefined;
+  if (dob && Number.isNaN(parsedDob?.getTime())) return fail("생년월일 형식이 올바르지 않습니다");
 
   const user = await prisma.user.create({
-    data: { name, email, password: await hashPassword(password), role },
+    data: {
+      name: username,
+      username,
+      email,
+      password: await hashPassword(password),
+      role,
+      school: school || null,
+      sportInterests: sportInterests ?? [],
+      experienceLevel: experienceLevel ?? null,
+      dob: parsedDob ?? null,
+      grade: grade || null,
+      // The onboarding wizard itself explains the app, so there's no need
+      // to also auto-show the post-login feature tour for these users.
+      onboarded: true,
+    },
   });
 
   await createSession({ userId: user.id, role: user.role, name: user.name });

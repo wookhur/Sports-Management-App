@@ -28,6 +28,11 @@ export default async function NavBar() {
               내 기록
             </Link>
           )}
+          {/* Plain <a>, not <Link>: forces a full navigation so the server
+              re-reads ?tutorial=1 instead of reusing a cached render of "/". */}
+          <a href="/?tutorial=1" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+            도움말
+          </a>
           <div className="ml-2 flex items-center gap-2 border-l border-slate-200 pl-3">
             <span className="hidden text-xs text-slate-500 sm:inline">
               {session.name} · {isCoach ? "코치" : "선수"}

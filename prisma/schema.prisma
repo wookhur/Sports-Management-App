@@ -24,7 +24,17 @@ model User {
   name      String
   password  String
   role      Role     @default(ATHLETE)
+  onboarded Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  // Profile fields collected by the Roy onboarding wizard (all optional so
+  // existing rows and API callers that omit them stay valid).
+  username        String?   @unique
+  school          String?
+  sportInterests  String[]  @default([])
+  experienceLevel String?
+  dob             DateTime?
+  grade           String?
 
   records  Record[]
   comments Comment[]

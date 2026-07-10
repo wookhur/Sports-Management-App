@@ -4,13 +4,24 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
+import OnboardingTour from "@/components/OnboardingTour";
 import { formatDate, formatDuration } from "@/lib/format";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tutorial?: string }>;
+}) {
   const session = await getSession();
   if (!session) redirect("/login");
 
   const isCoach = session.role === "COACH";
+  const { tutorial } = await searchParams;
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { onboarded: true },
+  });
+  const showTour = tutorial === "1" || !user?.onboarded;
 
   const recentRecords = isCoach
     ? []
@@ -27,6 +38,7 @@ export default async function HomePage() {
   return (
     <>
       <NavBar />
+      <OnboardingTour role={session.role} initialOpen={showTour} />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <section className="mb-8">
           <h1 className="text-2xl font-bold sm:text-3xl">

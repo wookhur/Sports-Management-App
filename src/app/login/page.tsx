@@ -17,7 +17,7 @@ export default async function LoginPage() {
         </div>
         <div className="card p-6 sm:p-8">
           <h1 className="mb-6 text-xl font-bold">로그인</h1>
-          <AuthForm mode="login" />
+          <AuthForm />
         </div>
         <div className="mt-4 rounded-xl bg-slate-800/90 p-4 text-xs text-slate-300">
           <p className="font-semibold text-slate-100">데모 계정</p>
