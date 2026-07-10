@@ -8,7 +8,7 @@ import { formatDate, formatDuration } from "@/lib/format";
 
 export default async function HomePage() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/onboarding");
 
   const isCoach = session.role === "COACH";
 

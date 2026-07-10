@@ -1,17 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { SPORTS } from "@/lib/sports";
+import { GOALS, loadOnboarding } from "@/lib/onboarding";
 
 type Mode = "login" | "signup";
 
-export default function AuthForm({ mode }: { mode: Mode }) {
-  const [name, setName] = useState("");
+export default function AuthForm({
+  mode,
+  initialName = "",
+  initialRole = "ATHLETE",
+}: {
+  mode: Mode;
+  initialName?: string;
+  initialRole?: "ATHLETE" | "COACH";
+}) {
+  const [name, setName] = useState(initialName);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"ATHLETE" | "COACH">("ATHLETE");
+  const [role, setRole] = useState<"ATHLETE" | "COACH">(initialRole);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [recap, setRecap] = useState<string[]>([]);
+
+  // Show a friendly recap of the answers captured during onboarding so the
+  // visitor sees their choices carried over into signup.
+  useEffect(() => {
+    if (mode !== "signup") return;
+    const data = loadOnboarding();
+    if (!data) return;
+    const chips: string[] = [];
+    for (const id of data.sports ?? []) {
+      const sport = SPORTS[id];
+      if (sport) chips.push(`${sport.emoji} ${sport.name}`);
+    }
+    const goal = GOALS.find((g) => g.id === data.goal);
+    if (goal) chips.push(`${goal.emoji} ${goal.title}`);
+    setRecap(chips);
+  }, [mode]);
 
   const isSignup = mode === "signup";
 
@@ -51,6 +78,18 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      {isSignup && recap.length > 0 && (
+        <div className="rounded-xl bg-brand/5 p-3">
+          <p className="mb-2 text-xs font-semibold text-brand">내 관심사</p>
+          <div className="flex flex-wrap gap-1.5">
+            {recap.map((c) => (
+              <span key={c} className="badge bg-white text-slate-600 shadow-sm">
+                {c}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       {isSignup && (
         <div>
           <label className="label">이름</label>
