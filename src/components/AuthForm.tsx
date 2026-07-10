@@ -1,44 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { SPORTS } from "@/lib/sports";
-import { GOALS, loadOnboarding } from "@/lib/onboarding";
+import { useState } from "react";
 
 type Mode = "login" | "signup";
 
-export default function AuthForm({
-  mode,
-  initialName = "",
-  initialRole = "ATHLETE",
-}: {
-  mode: Mode;
-  initialName?: string;
-  initialRole?: "ATHLETE" | "COACH";
-}) {
-  const [name, setName] = useState(initialName);
+export default function AuthForm({ mode }: { mode: Mode }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"ATHLETE" | "COACH">(initialRole);
+  const [role, setRole] = useState<"ATHLETE" | "COACH">("ATHLETE");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [recap, setRecap] = useState<string[]>([]);
-
-  // Show a friendly recap of the answers captured during onboarding so the
-  // visitor sees their choices carried over into signup.
-  useEffect(() => {
-    if (mode !== "signup") return;
-    const data = loadOnboarding();
-    if (!data) return;
-    const chips: string[] = [];
-    for (const id of data.sports ?? []) {
-      const sport = SPORTS[id];
-      if (sport) chips.push(`${sport.emoji} ${sport.name}`);
-    }
-    const goal = GOALS.find((g) => g.id === data.goal);
-    if (goal) chips.push(`${goal.emoji} ${goal.title}`);
-    setRecap(chips);
-  }, [mode]);
 
   const isSignup = mode === "signup";
 
@@ -69,7 +42,9 @@ export default function AuthForm({
       }
       // Hard navigation (not client router) so the freshly-set session cookie is
       // sent on a full document request — reliable even inside an embedded frame.
-      window.location.assign("/");
+      // New sign-ups go through the onboarding tutorial first; returning users
+      // land straight on the home dashboard.
+      window.location.assign(isSignup ? "/onboarding" : "/");
     } catch {
       setError("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
       setLoading(false);
@@ -78,18 +53,6 @@ export default function AuthForm({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      {isSignup && recap.length > 0 && (
-        <div className="rounded-xl bg-brand/5 p-3">
-          <p className="mb-2 text-xs font-semibold text-brand">내 관심사</p>
-          <div className="flex flex-wrap gap-1.5">
-            {recap.map((c) => (
-              <span key={c} className="badge bg-white text-slate-600 shadow-sm">
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
       {isSignup && (
         <div>
           <label className="label">이름</label>
