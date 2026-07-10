@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Barlow, Barlow_Condensed } from "next/font/google";
 import { useMemo, useState, type ReactElement } from "react";
 import { SPORT_LIST } from "@/lib/sports";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
@@ -21,8 +20,24 @@ import {
 } from "./icons";
 
 // Scoped to this wizard only — the rest of the app keeps the system font stack.
-const barlow = Barlow({ subsets: ["latin"], weight: ["400", "500", "600"] });
-const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["600", "700"] });
+// Loaded via a runtime <link> (not next/font/google) so `next build` never
+// depends on reaching Google's servers; the browser fetches it, with a system
+// font fallback while it loads (font-display: swap).
+const BODY_FONT = "'Barlow', ui-sans-serif, system-ui, sans-serif";
+const HEADING_FONT = "'Barlow Condensed', ui-sans-serif, system-ui, sans-serif";
+
+function RoyFontLink() {
+  return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap"
+      />
+    </>
+  );
+}
 
 const SPORT_ICONS: Record<string, (props: { className?: string }) => ReactElement> = {
   lacrosse: LacrosseIcon,
@@ -115,7 +130,8 @@ export default function SignupWizard() {
   }
 
   return (
-    <div className={`${barlow.className} flex min-h-screen flex-col bg-[#0B1412] text-[#EAFBF6]`}>
+    <div className="flex min-h-screen flex-col bg-[#0B1412] text-[#EAFBF6]" style={{ fontFamily: BODY_FONT }}>
+      <RoyFontLink />
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 py-6">
         {/* Top bar: back + skip */}
         {step > 0 && (
@@ -198,7 +214,7 @@ export default function SignupWizard() {
 function IntroStep({ onOkay }: { onOkay: () => void }) {
   return (
     <div className="flex flex-1 flex-col">
-      <h1 className={`${barlowCondensed.className} text-3xl font-bold leading-tight tracking-tight`}>
+      <h1 className="text-3xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
         안녕하세요! 저는 여러분의 AI 코치 <span className="text-teal-400">Roy</span>예요.
       </h1>
       <p className="mt-3 text-lg text-[#9CB3AE]">
@@ -224,7 +240,9 @@ function IntroStep({ onOkay }: { onOkay: () => void }) {
 function StepHeading({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-6">
-      <h2 className={`${barlowCondensed.className} text-2xl font-bold leading-tight tracking-tight`}>{title}</h2>
+      <h2 className="text-2xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
+        {title}
+      </h2>
       {subtitle && <p className="mt-2 text-[#9CB3AE]">{subtitle}</p>}
     </div>
   );
