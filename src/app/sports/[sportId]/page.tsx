@@ -79,19 +79,30 @@ export default async function SportPage({
           </Link>
         )}
         {sportId === "soccer" && (
-          <Link
-            href="/sports/soccer/program"
-            className="mt-6 flex items-center justify-between rounded-2xl border border-indigo-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 transition hover:shadow-md"
-          >
-            <div>
-              <p className="text-sm font-medium text-indigo-700">훈련 프로그램</p>
-              <p className="mt-0.5 text-lg font-bold text-slate-800">학년별 세션 플랜 · 스트레칭 루틴</p>
-              <p className="mt-1 text-sm text-slate-500">
-                웜업·코디네이션·패스·미니게임·쿨다운으로 구성된 실제 훈련 커리큘럼이에요.
-              </p>
-            </div>
-            <span className="text-2xl text-indigo-600">→</span>
-          </Link>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <Link
+              href="/sports/soccer/drills"
+              className="flex items-center justify-between rounded-2xl border border-indigo-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 transition hover:shadow-md"
+            >
+              <div>
+                <p className="text-sm font-medium text-indigo-700">드릴 (그림 설명)</p>
+                <p className="mt-0.5 text-lg font-bold text-slate-800">연령대별 드릴 다이어그램</p>
+                <p className="mt-1 text-sm text-slate-500">콘 배치와 움직임을 그림으로 확인하세요.</p>
+              </div>
+              <span className="text-2xl text-indigo-600">→</span>
+            </Link>
+            <Link
+              href="/sports/soccer/program"
+              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-5 transition hover:shadow-md"
+            >
+              <div>
+                <p className="text-sm font-medium text-slate-600">훈련 프로그램</p>
+                <p className="mt-0.5 text-lg font-bold text-slate-800">학년별 세션 플랜 · 스트레칭</p>
+                <p className="mt-1 text-sm text-slate-500">실제 훈련 커리큘럼과 루틴이에요.</p>
+              </div>
+              <span className="text-2xl text-slate-500">→</span>
+            </Link>
+          </div>
         )}
 
         {/* Guides (lacrosse / soccer) */}

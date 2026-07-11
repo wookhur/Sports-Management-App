@@ -93,6 +93,24 @@ export function getWorkoutCount(): number {
   return INDEX.length;
 }
 
+export function searchWorkouts(query: string, limit = 8): SwimIndexRow[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return INDEX.filter((w) => {
+    const hay = [
+      w.id,
+      w.stroke,
+      STROKE_KO[w.stroke],
+      w.level,
+      LEVEL_KO[w.level],
+      `${w.base}m`,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return hay.includes(q);
+  }).slice(0, limit);
+}
+
 // Lazy: only the detail route pulls in the 1MB full-workout file.
 export async function getWorkout(id: string): Promise<SwimWorkout | null> {
   const mod = await import("@/data/swimming/workouts.json");

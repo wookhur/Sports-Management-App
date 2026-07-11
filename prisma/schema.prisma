@@ -36,12 +36,36 @@ model User {
   dob             DateTime?
   grade           String?
 
+  // Daily-activity streak ("연속 출석"). Counts any visit on a given day.
+  lastActiveOn  DateTime?
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+
   records  Record[]
   comments Comment[]
+  posts    BlogPost[]
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
   athleteLinks CoachAthlete[] @relation("AthleteSide")
+}
+
+// Blog posts, authored in-app (currently by coaches) or seeded.
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  body      String // markdown-ish plain text
+  emoji     String   @default("📝")
+  tag       String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId  String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, createdAt])
 }
 
 // Explicit many-to-many link between a coach and an athlete.

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "./LogoutButton";
+import SearchBox from "./SearchBox";
 
 export default async function NavBar() {
   const session = await getSession();
@@ -16,6 +17,9 @@ export default async function NavBar() {
           <span>sideline365</span>
         </Link>
         <div className="flex items-center gap-1 text-sm">
+          <div className="mr-1 hidden sm:block">
+            <SearchBox compact />
+          </div>
           <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
             홈
           </Link>
@@ -28,9 +32,12 @@ export default async function NavBar() {
               내 기록
             </Link>
           )}
+          <Link href="/blog" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+            블로그
+          </Link>
           {/* Plain <a>, not <Link>: forces a full navigation so the server
               re-reads ?tutorial=1 instead of reusing a cached render of "/". */}
-          <a href="/?tutorial=1" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+          <a href="/?tutorial=1" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 md:block">
             도움말
           </a>
           <div className="ml-2 flex items-center gap-2 border-l border-slate-200 pl-3">

@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import OnboardingTour from "@/components/OnboardingTour";
+import StreakCard from "@/components/StreakCard";
+import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration } from "@/lib/format";
 
 export default async function HomePage({
@@ -22,6 +24,10 @@ export default async function HomePage({
     select: { onboarded: true },
   });
   const showTour = tutorial === "1" || !user?.onboarded;
+
+  // Record today's visit and read the leaderboard (idempotent per day).
+  const streak = await touchStreak(session.userId);
+  const leaders = await topStreaks(5);
 
   const recentRecords = isCoach
     ? []
@@ -49,6 +55,10 @@ export default async function HomePage({
               ? "선수들의 기록을 확인하고 피드백을 남겨보세요."
               : "종목을 선택해 훈련하고 기록을 측정하세요."}
           </p>
+        </section>
+
+        <section className="mb-8">
+          <StreakCard streak={streak} leaders={leaders} myName={session.name} />
         </section>
 
         {isCoach && (
