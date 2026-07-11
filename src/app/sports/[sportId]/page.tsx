@@ -60,6 +60,40 @@ export default async function SportPage({
           </div>
         </header>
 
+        {/* Reference content from coach-provided databases */}
+        {sportId === "swimming" && (
+          <Link
+            href="/sports/swimming/workouts"
+            className="mt-6 flex items-center justify-between rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 p-5 transition hover:shadow-md"
+          >
+            <div>
+              <p className="text-sm font-medium text-cyan-700">추천 훈련 프로그램</p>
+              <p className="mt-0.5 text-lg font-bold text-slate-800">
+                1,440개 완성 워크아웃 · 영법·거리·레벨별
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                웜업부터 쿨다운까지 5단계 세트와 검증된 드릴 영상을 제공해요.
+              </p>
+            </div>
+            <span className="text-2xl text-cyan-600">→</span>
+          </Link>
+        )}
+        {sportId === "soccer" && (
+          <Link
+            href="/sports/soccer/program"
+            className="mt-6 flex items-center justify-between rounded-2xl border border-indigo-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 transition hover:shadow-md"
+          >
+            <div>
+              <p className="text-sm font-medium text-indigo-700">훈련 프로그램</p>
+              <p className="mt-0.5 text-lg font-bold text-slate-800">학년별 세션 플랜 · 스트레칭 루틴</p>
+              <p className="mt-1 text-sm text-slate-500">
+                웜업·코디네이션·패스·미니게임·쿨다운으로 구성된 실제 훈련 커리큘럼이에요.
+              </p>
+            </div>
+            <span className="text-2xl text-indigo-600">→</span>
+          </Link>
+        )}
+
         {/* Guides (lacrosse / soccer) */}
         {sport.guides && sport.guides.length > 0 && (
           <section className="mt-8">

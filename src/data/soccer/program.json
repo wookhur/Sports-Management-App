@@ -1,0 +1,213 @@
+{
+ "sessions": [
+  {
+   "title": "유치원~2학년",
+   "phases": [
+    {
+     "name": "Warming-up",
+     "time": "10min",
+     "items": [
+      "Stretching",
+      "Footwork"
+     ]
+    },
+    {
+     "name": "Coordination",
+     "time": "10 min",
+     "items": [
+      "Ladder"
+     ]
+    },
+    {
+     "name": "Passing&Ball Control",
+     "time": "20 min",
+     "items": [
+      "Juggling variation",
+      "First touch",
+      "2:1 passing",
+      "Turning excercises",
+      "Soccer fundamentals(passing, defending, goalkeeping, etc)",
+      "3 vs 2 deep ball"
+     ]
+    },
+    {
+     "name": "Mini Game",
+     "time": "40 min",
+     "items": [
+      "1:1 with goals",
+      "1:1 with GK",
+      "Practice Match",
+      "4 + GK vs 4",
+      "King of the Ring",
+      "Classic 3 v 3, winner stays",
+      "Triangle Passing"
+     ]
+    },
+    {
+     "name": "Cool-down & Stretching",
+     "time": "10 min",
+     "items": [
+      "Cool-down stretch"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "3~5학년",
+   "phases": [
+    {
+     "name": "Warming-up",
+     "time": "10min",
+     "items": [
+      "Juggling",
+      "Normal Rondo(4v1)",
+      "Stretching"
+     ]
+    },
+    {
+     "name": "Coordination",
+     "time": "10 min",
+     "items": [
+      "Ladder, cones w/ and w/out ball"
+     ]
+    },
+    {
+     "name": "Passing&Ball Control",
+     "time": "20 min",
+     "items": [
+      "Advanced Rondo",
+      "Possession 10:4 (3 in the middle)",
+      "1 on 1 different passing techniques",
+      "Control with player behind",
+      "Soccer tennis 2 vs 2 / 1 vs 1"
+     ]
+    },
+    {
+     "name": "Mini Game",
+     "time": "40 min",
+     "items": [
+      "1:1 moves and finishing",
+      "Goalkeeper training Ex: Tennis",
+      "1:1 to 2:1 to 2:1... to 5:5 with goals",
+      "Freekicks/Cornerkicks practice",
+      "Practice Match",
+      "1:1 soccer tournament",
+      "King of the Ring",
+      "The Gauntlet"
+     ]
+    },
+    {
+     "name": "Cool-down & Stretching",
+     "time": "10 min",
+     "items": [
+      "Cool-down stretch"
+     ]
+    }
+   ]
+  }
+ ],
+ "warmup": [
+  {
+   "name": "Easy jog",
+   "variations": []
+  },
+  {
+   "name": "Backwards jogging",
+   "variations": []
+  },
+  {
+   "name": "High knees",
+   "variations": []
+  },
+  {
+   "name": "Butt kicks",
+   "variations": []
+  },
+  {
+   "name": "Stretch thigh",
+   "variations": [
+    "Adductors",
+    "Hamstring",
+    "Quads"
+   ]
+  },
+  {
+   "name": "Neck stretches",
+   "variations": []
+  },
+  {
+   "name": "Hip rotation",
+   "variations": []
+  },
+  {
+   "name": "Leg swings",
+   "variations": [
+    "Back",
+    "Forth",
+    "Sideways"
+   ]
+  },
+  {
+   "name": "Skipping",
+   "variations": []
+  },
+  {
+   "name": "Sidesteps",
+   "variations": []
+  },
+  {
+   "name": "Lunges",
+   "variations": []
+  },
+  {
+   "name": "Jumping Squats",
+   "variations": []
+  },
+  {
+   "name": "Sit ups",
+   "variations": []
+  },
+  {
+   "name": "Finish off with Sprints",
+   "variations": []
+  }
+ ],
+ "cooldown": [
+  {
+   "name": "Quad stretch",
+   "variations": []
+  },
+  {
+   "name": "Hamstring stretch",
+   "variations": []
+  },
+  {
+   "name": "Calf stretch",
+   "variations": []
+  },
+  {
+   "name": "Hip flexor stretch",
+   "variations": []
+  },
+  {
+   "name": "Glute stretch",
+   "variations": []
+  },
+  {
+   "name": "Shoulder stretch",
+   "variations": []
+  },
+  {
+   "name": "Triceps stretch",
+   "variations": []
+  },
+  {
+   "name": "Lower back stretch",
+   "variations": []
+  },
+  {
+   "name": "Neck stretch",
+   "variations": []
+  }
+ ]
+}
