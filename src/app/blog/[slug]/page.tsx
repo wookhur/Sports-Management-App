@@ -1,11 +1,16 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+// A short numbered line ("1. The Mbappé Factor") is treated as a section
+// heading instead of body text.
+const HEADING_RE = /^\d+\.\s+\S.{0,80}$/;
 
 export default async function BlogPostPage({
   params,
@@ -32,7 +37,7 @@ export default async function BlogPostPage({
         </Link>
 
         <header className="mt-4">
-          <div className="text-5xl">{post.emoji}</div>
+          {!post.coverImage && <div className="text-5xl">{post.emoji}</div>}
           <div className="mt-3 flex items-center gap-2">
             {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
             <span className="text-sm text-slate-400">{formatDate(post.createdAt)}</span>
@@ -41,10 +46,22 @@ export default async function BlogPostPage({
           <p className="mt-2 text-slate-500">{post.author?.name ?? "sideline365"}</p>
         </header>
 
+        {post.coverImage && (
+          <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl bg-slate-100">
+            <Image src={post.coverImage} alt={post.title} fill className="object-cover" priority />
+          </div>
+        )}
+
         <article className="mt-6 space-y-4 leading-relaxed text-slate-700">
-          {paragraphs.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
+          {paragraphs.map((p, i) =>
+            HEADING_RE.test(p) ? (
+              <h2 key={i} className="!mt-8 text-xl font-bold text-slate-900">
+                {p}
+              </h2>
+            ) : (
+              <p key={i}>{p}</p>
+            )
+          )}
         </article>
       </main>
     </>

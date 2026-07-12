@@ -9,6 +9,9 @@ const schema = z.object({
   body: z.string().min(10, "본문을 10자 이상 입력하세요").max(20000),
   emoji: z.string().max(8).optional(),
   tag: z.string().max(20).optional(),
+  // A hosted image URL — this app has no file-upload storage, so authors
+  // link an already-hosted image rather than uploading one directly.
+  coverImage: z.string().url("올바른 이미지 URL을 입력하세요").max(500).optional().or(z.literal("")),
 });
 
 function slugify(title: string): string {
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
 
-  const { title, excerpt, body, emoji, tag } = parsed.data;
+  const { title, excerpt, body, emoji, tag, coverImage } = parsed.data;
   const post = await prisma.blogPost.create({
     data: {
       slug: slugify(title),
@@ -51,6 +54,7 @@ export async function POST(req: Request) {
       body,
       emoji: emoji?.trim() || "📝",
       tag: tag?.trim() || null,
+      coverImage: coverImage?.trim() || null,
       authorId: session.userId,
     },
   });

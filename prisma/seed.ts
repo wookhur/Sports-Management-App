@@ -72,57 +72,57 @@ async function main() {
     });
   }
 
-  // Sample blog posts (idempotent by slug). Authored by the coach; more can
-  // be written in-app later.
-  const posts = [
-    {
-      slug: "welcome-to-sideline365",
-      title: "sideline365에 오신 것을 환영합니다",
-      excerpt: "기록을 측정하고 코치와 공유해 더 나은 운동 성과를 만드는 방법을 소개합니다.",
-      emoji: "🏅",
-      tag: "공지",
-      body:
-        "sideline365는 선수와 코치를 잇는 스포츠 통합 관리 앱입니다.\n\n" +
-        "선수는 종목별로 훈련하고 기록을 측정하며, 코치는 공유된 기록을 확인하고 피드백을 남깁니다. " +
-        "수영은 1,440개의 완성 워크아웃을, 축구는 학년별 세션 플랜과 드릴을, 라크로스는 단계별 훈련 가이드를 제공합니다.\n\n" +
-        "매일 접속해 연속 출석을 이어가고, 나만의 성장 기록을 만들어보세요!",
+  // Retire the original placeholder demo posts (superseded by real editorial
+  // content below). Targeted by slug rather than truncating the table, so
+  // any real posts written in-app since are never touched by a redeploy.
+  await prisma.blogPost.deleteMany({
+    where: {
+      slug: { in: ["welcome-to-sideline365", "how-to-measure-swim-records", "soccer-training-by-age"] },
     },
-    {
-      slug: "how-to-measure-swim-records",
-      title: "수영 기록, 이렇게 측정하세요",
-      excerpt: "타이머와 직접 입력, 두 가지 방식으로 정확한 랩 타임을 남기는 팁.",
-      emoji: "🏊",
-      tag: "가이드",
-      body:
-        "수영 종목에서는 스톱워치로 실시간 측정하거나, '직접 입력' 탭에서 시간을 바로 타이핑할 수 있습니다.\n\n" +
-        "정확한 기록을 위해서는 출발과 터치 타이밍을 일관되게 유지하는 것이 중요합니다. " +
-        "측정한 기록은 100m 페이스로 자동 환산되고, 영법별 최고 기록이 표시됩니다.\n\n" +
-        "기록마다 공유 스위치를 켜면 연결된 코치가 확인하고 피드백을 남길 수 있어요.",
+  });
+
+  const ericPark = await prisma.user.upsert({
+    where: { email: "eric.park@example.com" },
+    update: {},
+    create: {
+      email: "eric.park@example.com",
+      name: "Eric Park",
+      username: "ericpark",
+      password,
+      role: "COACH",
     },
-    {
-      slug: "soccer-training-by-age",
-      title: "연령대별 축구 훈련의 핵심",
-      excerpt: "유소년 선수의 발달 단계에 맞춘 드릴 구성 원칙을 정리했습니다.",
-      emoji: "⚽",
-      tag: "훈련",
-      body:
-        "어린 선수일수록 볼 터치 횟수를 극대화하는 것이 중요합니다.\n\n" +
-        "유치원~2학년은 재미와 기본 볼 컨트롤에 집중하고, 3~5학년부터는 론도와 포지셔닝 같은 전술 요소를 더합니다. " +
-        "축구 훈련 프로그램의 드릴 다이어그램을 참고해 콘 배치와 움직임을 그대로 따라 해보세요.",
+  });
+
+  await prisma.blogPost.upsert({
+    where: { slug: "france-2026-world-cup-favorite" },
+    update: {},
+    create: {
+      slug: "france-2026-world-cup-favorite",
+      title: "Why France Is the Favorite to Win the 2026 World Cup",
+      excerpt:
+        "As the tournament nears its finale, France stands out as the strongest candidate to lift the trophy. Having gone 6-0 so far, here's why they're the team to beat.",
+      emoji: "🇫🇷",
+      tag: "World Cup",
+      coverImage: "/blog/france-2026-mbappe.jpg",
+      authorId: ericPark.id,
+      body: [
+        "As the tournament nears its finale, France stands out as the strongest candidate to lift the trophy. Having gone 6-0 so far, here's why they're the team to beat.",
+        "1. The Mbappé Factor",
+        "Kylian Mbappé continues to peak on the world's biggest stage, notching 5 goals through 6 matches. After the heartbreak of 2022, he returns this year with better teammates around him and a noticeably matured mentality — on full display after a Paraguayan senator launched racist remarks at him following France's Round of 16 win. Rather than lashing out, Mbappé responded with a pointed but composed public statement calling out the comments, showing the same command off the pitch that he shows on it. And on the pitch, his game speaks for itself: blistering pace, elite dribbling, and a finishing instinct that's earned him multiple Ligue 1 Golden Boots with PSG and back-to-back scoring titles at Real Madrid. He's simply a natural-born goal scorer.",
+        "2. Mbappé Isn't Carrying This Team Alone",
+        "Part of why Mbappé thrives without buckling under pressure — unlike, say, South Korea's captain Son Heung-min, who often has to shoulder his team's hopes almost single-handedly — is the sheer depth around him. His supporting cast reads like a who's-who of world football: Michael Olise, Ousmane Dembélé, Désiré Doué, Bradley Barcola, Rayan Cherki, and more. Even fans who don't follow soccer closely would recognize most of these names. That's what makes France so dangerous — the talent doesn't stop at the starting XI; it runs deep on the bench too.",
+        "Dembélé, the reigning Ballon d'Or winner, is a genuine all-rounder: fast, clinical in front of goal, an excellent passer, a dangerous dribbler, and remarkably comfortable on his weak foot. Olise plays at a more measured tempo, but his vision, creativity, and shot accuracy have been evident since his Crystal Palace days. And it's not just the attack — the defense is just as stacked, with Mike Maignan marshaling the goal, William Saliba anchoring the back line, and Aurélien Tchouaméni providing cover in defensive midfield. There isn't a weak link in this lineup.",
+        "3. Deschamps' Tactics Are Nearly Unbeatable",
+        "Didier Deschamps builds his system around counter-attacking rather than possession — a style some might call unglamorous, but it's devastatingly effective with a roster full of explosive attackers and disciplined defenders who can still pass under pressure. He's also known for shifting formations based on the opponent, which makes France notoriously hard to prepare for.",
+        "What elevates him further is sheer experience. He recently became the first manager in history to reach 20 World Cup wins. As a player, he captained France to the 1998 World Cup and Euro 2000 titles; as a manager, he has led them to the 2014 World Cup quarterfinals, the Euro 2016 final, the 2018 World Cup title, and the 2022 World Cup final. Add it all up, and it's clear why France enters this final stretch as the strongest team left standing.",
+      ].join("\n\n"),
     },
-  ];
-  for (const p of posts) {
-    await prisma.blogPost.upsert({
-      where: { slug: p.slug },
-      update: {},
-      create: { ...p, authorId: coach.id },
-    });
-  }
+  });
 
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");
-  console.log(`  Blog posts: ${posts.length}`);
+  console.log("  Eric Park (blog author) -> eric.park@example.com / password123");
 }
 
 main()

@@ -59,6 +59,7 @@ model BlogPost {
   body      String // markdown-ish plain text
   emoji     String   @default("📝")
   tag       String?
+  coverImage String?
   author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   authorId  String?
   published Boolean  @default(true)

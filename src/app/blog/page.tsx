@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
@@ -44,7 +45,13 @@ export default async function BlogListPage() {
               href={`/blog/${post.slug}`}
               className="card group flex gap-4 p-5 transition hover:border-slate-300 hover:shadow-md"
             >
-              <span className="text-4xl">{post.emoji}</span>
+              {post.coverImage ? (
+                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                  <Image src={post.coverImage} alt="" fill className="object-cover" />
+                </div>
+              ) : (
+                <span className="text-4xl">{post.emoji}</span>
+              )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}

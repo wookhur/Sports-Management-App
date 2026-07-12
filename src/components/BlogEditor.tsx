@@ -7,6 +7,7 @@ export default function BlogEditor() {
   const [excerpt, setExcerpt] = useState("");
   const [emoji, setEmoji] = useState("📝");
   const [tag, setTag] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function BlogEditor() {
       const res = await fetch("/api/blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, excerpt, emoji, tag, body }),
+        body: JSON.stringify({ title, excerpt, emoji, tag, coverImage, body }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -53,6 +54,16 @@ export default function BlogEditor() {
       <div>
         <label className="label">요약</label>
         <input className="input" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="목록에 보일 한두 줄 요약" required />
+      </div>
+      <div>
+        <label className="label">커버 이미지 URL (선택)</label>
+        <input
+          className="input"
+          type="url"
+          value={coverImage}
+          onChange={(e) => setCoverImage(e.target.value)}
+          placeholder="https://... (없으면 아이콘이 대신 표시돼요)"
+        />
       </div>
       <div>
         <label className="label">본문</label>
