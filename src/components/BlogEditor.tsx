@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import RichTextEditor from "./RichTextEditor";
+import { toEditableHtml, isBodyEmpty } from "@/lib/blogBody";
 
 export interface BlogEditorInitial {
   slug: string;
@@ -19,7 +21,7 @@ export default function BlogEditor({ initial }: { initial?: BlogEditorInitial })
   const [emoji, setEmoji] = useState(initial?.emoji ?? "📝");
   const [tag, setTag] = useState(initial?.tag ?? "");
   const [coverImage, setCoverImage] = useState(initial?.coverImage ?? "");
-  const [body, setBody] = useState(initial?.body ?? "");
+  const [body, setBody] = useState(() => (initial ? toEditableHtml(initial.body) : ""));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -53,6 +55,10 @@ export default function BlogEditor({ initial }: { initial?: BlogEditorInitial })
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (isBodyEmpty(body)) {
+      setError("본문을 입력하세요");
+      return;
+    }
     setLoading(true);
     try {
       const endpoint = isEdit ? `/api/blog/${initial!.slug}` : "/api/blog";
@@ -137,13 +143,7 @@ export default function BlogEditor({ initial }: { initial?: BlogEditorInitial })
 
       <div>
         <label className="label">본문</label>
-        <textarea
-          className="input min-h-[240px] resize-y leading-relaxed"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="본문을 입력하세요. 빈 줄로 문단을 나눌 수 있어요. '## 소제목'으로 소제목을 넣을 수 있어요."
-          required
-        />
+        <RichTextEditor content={body} onChange={setBody} />
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}

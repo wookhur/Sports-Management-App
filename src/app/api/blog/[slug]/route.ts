@@ -3,13 +3,17 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { coverImageSchema } from "@/lib/blogSchemas";
+import { isBodyEmpty } from "@/lib/blogBody";
+import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 
 // Slug is intentionally immutable on edit — it's the post's URL, and any
-// existing links/search-index entries would break if it changed.
+// existing links/search-index entries would break if it changed. Body is
+// rich-text HTML from the editor, so length is checked after sanitizing/
+// stripping tags rather than with a raw min() on the markup.
 const patchSchema = z.object({
   title: z.string().min(2, "제목을 입력하세요").max(120),
   excerpt: z.string().min(2, "요약을 입력하세요").max(200),
-  body: z.string().min(10, "본문을 10자 이상 입력하세요").max(20000),
+  body: z.string().max(40000),
   emoji: z.string().max(8).optional(),
   tag: z.string().max(20).optional(),
   coverImage: coverImageSchema,
@@ -29,7 +33,10 @@ export async function PATCH(req: Request, { params }: Params) {
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
 
-  const { title, excerpt, body, emoji, tag, coverImage } = parsed.data;
+  const { title, excerpt, emoji, tag, coverImage } = parsed.data;
+  const body = sanitizeBlogHtml(parsed.data.body);
+  if (isBodyEmpty(body)) return fail("본문을 입력하세요");
+
   await prisma.blogPost.update({
     where: { slug },
     data: {

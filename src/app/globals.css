@@ -35,6 +35,52 @@ body {
   .badge {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
+
+  /* Rich text blog body — shared by the Tiptap editor (RichTextEditor) and
+     the published post's detail page, so editing WYSIWYG-matches the
+     rendered article. */
+  .blog-body {
+    @apply leading-relaxed text-slate-700;
+  }
+  .blog-body p {
+    @apply mb-4;
+  }
+  .blog-body p:last-child {
+    @apply mb-0;
+  }
+  .blog-body h2 {
+    @apply !mt-8 mb-3 text-xl font-bold text-slate-900;
+  }
+  .blog-body h2:first-child {
+    @apply !mt-0;
+  }
+  .blog-body ul {
+    @apply mb-4 ml-5 list-disc space-y-1;
+  }
+  .blog-body ol {
+    @apply mb-4 ml-5 list-decimal space-y-1;
+  }
+  .blog-body blockquote {
+    @apply mb-4 border-l-4 border-brand/30 pl-4 italic text-slate-500;
+  }
+  .blog-body a {
+    @apply text-brand underline underline-offset-2 hover:text-brand-dark;
+  }
+  .blog-body strong {
+    @apply font-bold;
+  }
+  .blog-body em {
+    @apply italic;
+  }
+  .blog-body u {
+    @apply underline;
+  }
+  .blog-body s {
+    @apply line-through;
+  }
+  .blog-body code {
+    @apply rounded bg-slate-100 px-1 py-0.5 text-[0.85em];
+  }
 }
 
 /* Roy onboarding wizard: step transition. Deceleration easing per
