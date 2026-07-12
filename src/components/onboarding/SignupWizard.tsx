@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState, type ReactElement } from "react";
 import { SPORT_LIST } from "@/lib/sports";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
+import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, type Lang, type SignupDict } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import RoyAvatar from "./RoyAvatar";
 import {
   ArrowRightIcon,
@@ -68,7 +70,8 @@ type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number]["value"];
 // Step 0 is the Roy intro; steps 1-7 are the questions below.
 const TOTAL_STEPS = 8;
 
-export default function SignupWizard() {
+export default function SignupWizard({ lang }: { lang: Lang }) {
+  const s = t(lang).signup;
   const [step, setStep] = useState(0);
   const [username, setUsername] = useState(suggestUsername);
   const [school, setSchool] = useState("");
@@ -118,13 +121,13 @@ export default function SignupWizard() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(data?.error ?? "가입에 실패했습니다. 다시 시도해주세요.");
+        setError(data?.error ?? s.account.errGeneric);
         setLoading(false);
         return;
       }
       window.location.assign("/");
     } catch {
-      setError("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      setError(s.account.errNetwork);
       setLoading(false);
     }
   }
@@ -133,26 +136,31 @@ export default function SignupWizard() {
     <div className="flex min-h-screen flex-col bg-[#0B1412] text-[#EAFBF6]" style={{ fontFamily: BODY_FONT }}>
       <RoyFontLink />
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 py-6">
-        {/* Top bar: back + skip */}
-        {step > 0 && (
-          <div className="mb-3 flex items-center justify-between">
-            <button
-              onClick={goBack}
-              aria-label="이전 단계"
-              className="rounded-full p-1.5 text-[#9CB3AE] transition hover:bg-white/5 hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-            >
-              <ChevronLeftIcon className="h-5 w-5" />
-            </button>
-            {step <= 5 && (
+        {/* Top bar: back + skip + language */}
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            {step > 0 && (
+              <button
+                onClick={goBack}
+                aria-label={s.common.back}
+                className="rounded-full p-1.5 text-[#9CB3AE] transition hover:bg-white/5 hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {step > 0 && step <= 5 && (
               <button
                 onClick={goNext}
                 className="rounded px-1 text-sm font-medium text-[#9CB3AE] transition hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
               >
-                건너뛰기
+                {s.common.skip}
               </button>
             )}
+            <LanguageSwitcher lang={lang} dark />
           </div>
-        )}
+        </div>
 
         {/* Progress bar */}
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
@@ -164,24 +172,27 @@ export default function SignupWizard() {
 
         {/* Step content */}
         <div key={step} className="roy-step-in mt-8 flex flex-1 flex-col">
-          {step === 0 && <IntroStep onOkay={goNext} />}
+          {step === 0 && <IntroStep s={s} onOkay={goNext} />}
           {step === 1 && (
             <UsernameStep
+              s={s}
               username={username}
               onChange={setUsername}
               onSuggest={() => setUsername(suggestUsername())}
               onNext={goNext}
             />
           )}
-          {step === 2 && <SchoolStep school={school} onChange={setSchool} onNext={goNext} />}
+          {step === 2 && <SchoolStep s={s} school={school} onChange={setSchool} onNext={goNext} />}
           {step === 3 && (
-            <SportInterestsStep selected={sportInterests} onToggle={toggleSport} onNext={goNext} />
+            <SportInterestsStep s={s} lang={lang} selected={sportInterests} onToggle={toggleSport} onNext={goNext} />
           )}
           {step === 4 && (
-            <ExperienceStep value={experienceLevel} onChange={setExperienceLevel} onNext={goNext} />
+            <ExperienceStep s={s} lang={lang} value={experienceLevel} onChange={setExperienceLevel} onNext={goNext} />
           )}
           {step === 5 && (
             <DobGradeStep
+              s={s}
+              lang={lang}
               dob={dob}
               onDobChange={setDob}
               grade={grade}
@@ -189,9 +200,10 @@ export default function SignupWizard() {
               onNext={goNext}
             />
           )}
-          {step === 6 && <RoleStep value={role} onChange={setRole} onNext={goNext} />}
+          {step === 6 && <RoleStep s={s} value={role} onChange={setRole} onNext={goNext} />}
           {step === 7 && (
             <AccountStep
+              s={s}
               email={email}
               password={password}
               onEmailChange={setEmail}
@@ -211,25 +223,31 @@ export default function SignupWizard() {
 // Steps
 // ---------------------------------------------------------------------------
 
-function IntroStep({ onOkay }: { onOkay: () => void }) {
+function IntroStep({ s, onOkay }: { s: SignupDict; onOkay: () => void }) {
   return (
     <div className="flex flex-1 flex-col">
       <h1 className="text-3xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
-        안녕하세요! 저는 여러분의 AI 코치 <span className="text-teal-400">Roy</span>예요.
+        {s.intro.greetingPrefix}
+        <span className="text-teal-400">Roy</span>
+        {s.intro.greetingSuffix}
       </h1>
-      <p className="mt-3 text-lg text-[#9CB3AE]">
-        딱 맞는 코칭을 추천해드리기 위해 몇 가지 질문을 드릴게요.
-      </p>
+      <p className="mt-3 text-lg text-[#9CB3AE]">{s.intro.sub}</p>
       <div className="flex flex-1 items-center justify-center">
         <RoyAvatar />
       </div>
       <div className="mt-auto space-y-4">
-        <button onClick={onOkay} className="w-full rounded-full bg-teal-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412]">
-          좋아요!
+        <button
+          onClick={onOkay}
+          className="w-full rounded-full bg-teal-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412]"
+        >
+          {s.intro.okay}
         </button>
         <p className="text-center text-sm text-[#9CB3AE]">
-          <Link href="/login" className="rounded font-semibold text-teal-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
-            이미 계정이 있어요
+          <Link
+            href="/login"
+            className="rounded font-semibold text-teal-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+          >
+            {s.intro.haveAccount}
           </Link>
         </p>
       </div>
@@ -251,12 +269,12 @@ function StepHeading({ title, subtitle }: { title: string; subtitle?: string }) 
 function NextButton({
   onClick,
   disabled,
-  label = "다음",
+  label,
   icon,
 }: {
   onClick: () => void;
   disabled?: boolean;
-  label?: string;
+  label: string;
   icon?: React.ReactNode;
 }) {
   return (
@@ -272,11 +290,13 @@ function NextButton({
 }
 
 function UsernameStep({
+  s,
   username,
   onChange,
   onSuggest,
   onNext,
 }: {
+  s: SignupDict;
   username: string;
   onChange: (v: string) => void;
   onSuggest: () => void;
@@ -284,9 +304,9 @@ function UsernameStep({
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="아이디를 만들어주세요" subtitle="추천 아이디를 쓰거나 직접 입력하세요. 나중에 바꿀 수 있어요." />
+      <StepHeading title={s.username.title} subtitle={s.username.subtitle} />
       <label htmlFor="username" className="sr-only">
-        아이디
+        {s.username.title}
       </label>
       <input
         id="username"
@@ -301,49 +321,64 @@ function UsernameStep({
         className="mt-3 flex items-center gap-1.5 self-start rounded text-sm font-medium text-teal-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
       >
         <ShuffleIcon className="h-4 w-4" />
-        다른 아이디 추천받기
+        {s.username.suggest}
       </button>
-      <NextButton onClick={onNext} disabled={username.trim().length < 3} />
+      <NextButton onClick={onNext} disabled={username.trim().length < 3} label={s.common.next} />
     </div>
   );
 }
 
-function SchoolStep({ school, onChange, onNext }: { school: string; onChange: (v: string) => void; onNext: () => void }) {
+function SchoolStep({
+  s,
+  school,
+  onChange,
+  onNext,
+}: {
+  s: SignupDict;
+  school: string;
+  onChange: (v: string) => void;
+  onNext: () => void;
+}) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="어느 학교에 다니세요?" subtitle="코칭 추천에만 활용돼요. (선택)" />
+      <StepHeading title={s.school.title} subtitle={s.school.subtitle} />
       <label htmlFor="school" className="sr-only">
-        학교
+        {s.school.title}
       </label>
       <input
         id="school"
         className={INPUT_CLASS}
         value={school}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="예: 한국고등학교"
+        placeholder={s.school.placeholder}
         maxLength={100}
       />
-      <NextButton onClick={onNext} />
+      <NextButton onClick={onNext} label={s.common.next} />
     </div>
   );
 }
 
 function SportInterestsStep({
+  s,
+  lang,
   selected,
   onToggle,
   onNext,
 }: {
+  s: SignupDict;
+  lang: Lang;
   selected: string[];
   onToggle: (id: string) => void;
   onNext: () => void;
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="관심 있는 종목을 모두 골라주세요" subtitle="여러 개를 선택할 수 있어요." />
+      <StepHeading title={s.sportInterests.title} subtitle={s.sportInterests.subtitle} />
       <div className="space-y-3">
         {SPORT_LIST.map((sport) => {
           const isSelected = selected.includes(sport.id);
           const Icon = SPORT_ICONS[sport.id];
+          const label = SPORT_I18N[sport.id]?.[lang] ?? { name: sport.name, tagline: sport.tagline };
           return (
             <button
               key={sport.id}
@@ -359,34 +394,39 @@ function SportInterestsStep({
                 {Icon && <Icon className="h-6 w-6" />}
               </span>
               <span className="flex-1">
-                <span className="block font-semibold">{sport.name}</span>
-                <span className="block text-sm text-[#9CB3AE]">{sport.tagline}</span>
+                <span className="block font-semibold">{label.name}</span>
+                <span className="block text-sm text-[#9CB3AE]">{label.tagline}</span>
               </span>
               {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
             </button>
           );
         })}
       </div>
-      <NextButton onClick={onNext} />
+      <NextButton onClick={onNext} label={s.common.next} />
     </div>
   );
 }
 
 function ExperienceStep({
+  s,
+  lang,
   value,
   onChange,
   onNext,
 }: {
+  s: SignupDict;
+  lang: Lang;
   value: ExperienceLevel | null;
   onChange: (v: ExperienceLevel) => void;
   onNext: () => void;
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="운동 경험이 얼마나 되세요?" />
+      <StepHeading title={s.experience.title} />
       <div className="space-y-3">
         {EXPERIENCE_LEVELS.map((lvl) => {
           const isSelected = value === lvl.value;
+          const label = EXPERIENCE_I18N[lvl.value]?.[lang] ?? lvl;
           return (
             <button
               key={lvl.value}
@@ -395,26 +435,30 @@ function ExperienceStep({
               className={`${SURFACE_BASE} flex items-center justify-between ${isSelected ? SURFACE_SELECTED : SURFACE_UNSELECTED}`}
             >
               <span>
-                <span className="block font-semibold">{lvl.label}</span>
-                <span className="block text-sm text-[#9CB3AE]">{lvl.detail}</span>
+                <span className="block font-semibold">{label.label}</span>
+                <span className="block text-sm text-[#9CB3AE]">{label.detail}</span>
               </span>
               {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
             </button>
           );
         })}
       </div>
-      <NextButton onClick={onNext} />
+      <NextButton onClick={onNext} label={s.common.next} />
     </div>
   );
 }
 
 function DobGradeStep({
+  s,
+  lang,
   dob,
   onDobChange,
   grade,
   onGradeChange,
   onNext,
 }: {
+  s: SignupDict;
+  lang: Lang;
   dob: string;
   onDobChange: (v: string) => void;
   grade: string | null;
@@ -423,9 +467,9 @@ function DobGradeStep({
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="생년월일과 학년을 알려주세요" subtitle="코칭 추천에만 활용돼요. (선택)" />
+      <StepHeading title={s.dobGrade.title} subtitle={s.dobGrade.subtitle} />
       <label htmlFor="dob" className={LABEL_CLASS}>
-        생년월일
+        {s.dobGrade.dobLabel}
       </label>
       <input
         id="dob"
@@ -434,8 +478,10 @@ function DobGradeStep({
         value={dob}
         onChange={(e) => onDobChange(e.target.value)}
       />
-      <span className={`${LABEL_CLASS} mt-5`}>학년</span>
-      <div className="grid grid-cols-2 gap-2" role="group" aria-label="학년 선택">
+      <span className={`${LABEL_CLASS} mt-5`}>{s.dobGrade.gradeLabel}</span>
+      <div className="grid grid-cols-2 gap-2" role="group" aria-label={s.dobGrade.gradeGroupAria}>
+        {/* Options are stored as the Korean canonical string regardless of
+            display language, matching the value persisted on User.grade. */}
         {GRADE_OPTIONS.map((g) => (
           <button
             key={g}
@@ -447,31 +493,43 @@ function DobGradeStep({
                 : "border-white/[0.08] bg-[#121D1A] text-[#9CB3AE] hover:border-white/20"
             }`}
           >
-            {g}
+            {lang === "en" ? GRADE_I18N_EN[g] ?? g : g}
           </button>
         ))}
       </div>
-      <NextButton onClick={onNext} />
+      <NextButton onClick={onNext} label={s.common.next} />
     </div>
   );
 }
 
-function RoleStep({ value, onChange, onNext }: { value: Role | null; onChange: (v: Role) => void; onNext: () => void }) {
+function RoleStep({
+  s,
+  value,
+  onChange,
+  onNext,
+}: {
+  s: SignupDict;
+  value: Role | null;
+  onChange: (v: Role) => void;
+  onNext: () => void;
+}) {
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="선수인가요, 코치인가요?" subtitle="역할에 따라 화면이 달라져요." />
+      <StepHeading title={s.role.title} subtitle={s.role.subtitle} />
       <div className="space-y-3">
         <button
           onClick={() => onChange("ATHLETE")}
           aria-pressed={value === "ATHLETE"}
           className={`${SURFACE_BASE} flex items-center gap-4 ${value === "ATHLETE" ? SURFACE_SELECTED : SURFACE_UNSELECTED}`}
         >
-          <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "ATHLETE" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}>
+          <span
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "ATHLETE" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}
+          >
             <RunnerIcon className="h-6 w-6" />
           </span>
           <span className="flex-1">
-            <span className="block font-semibold">선수</span>
-            <span className="block text-sm text-[#9CB3AE]">기록을 측정하고 코치에게 공유해요</span>
+            <span className="block font-semibold">{s.role.athleteName}</span>
+            <span className="block text-sm text-[#9CB3AE]">{s.role.athleteDesc}</span>
           </span>
           {value === "ATHLETE" && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
         </button>
@@ -480,22 +538,25 @@ function RoleStep({ value, onChange, onNext }: { value: Role | null; onChange: (
           aria-pressed={value === "COACH"}
           className={`${SURFACE_BASE} flex items-center gap-4 ${value === "COACH" ? SURFACE_SELECTED : SURFACE_UNSELECTED}`}
         >
-          <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "COACH" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}>
+          <span
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "COACH" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}
+          >
             <ClipboardIcon className="h-6 w-6" />
           </span>
           <span className="flex-1">
-            <span className="block font-semibold">코치</span>
-            <span className="block text-sm text-[#9CB3AE]">선수 기록을 확인하고 피드백을 남겨요</span>
+            <span className="block font-semibold">{s.role.coachName}</span>
+            <span className="block text-sm text-[#9CB3AE]">{s.role.coachDesc}</span>
           </span>
           {value === "COACH" && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
         </button>
       </div>
-      <NextButton onClick={onNext} disabled={!value} />
+      <NextButton onClick={onNext} disabled={!value} label={s.common.next} />
     </div>
   );
 }
 
 function AccountStep({
+  s,
   email,
   password,
   onEmailChange,
@@ -504,6 +565,7 @@ function AccountStep({
   loading,
   error,
 }: {
+  s: SignupDict;
   email: string;
   password: string;
   onEmailChange: (v: string) => void;
@@ -515,9 +577,9 @@ function AccountStep({
   const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="flex flex-1 flex-col">
-      <StepHeading title="계정을 만들어주세요" subtitle="거의 다 왔어요! 마지막 단계예요." />
+      <StepHeading title={s.account.title} subtitle={s.account.subtitle} />
       <label htmlFor="email" className={LABEL_CLASS}>
-        이메일
+        {s.account.emailLabel}
       </label>
       <input
         id="email"
@@ -525,11 +587,11 @@ function AccountStep({
         className={INPUT_CLASS}
         value={email}
         onChange={(e) => onEmailChange(e.target.value)}
-        placeholder="you@example.com"
+        placeholder={s.account.emailPlaceholder}
         autoComplete="email"
       />
       <label htmlFor="password" className={`${LABEL_CLASS} mt-4`}>
-        비밀번호
+        {s.account.passwordLabel}
       </label>
       <div className="relative">
         <input
@@ -538,13 +600,13 @@ function AccountStep({
           className={`${INPUT_CLASS} pr-14`}
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder="6자 이상"
+          placeholder={s.account.passwordPlaceholder}
           autoComplete="new-password"
         />
         <button
           type="button"
           onClick={() => setShowPassword((v) => !v)}
-          aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
+          aria-label={showPassword ? s.account.hidePassword : s.account.showPassword}
           className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-[#9CB3AE] hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
         >
           {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -558,7 +620,7 @@ function AccountStep({
       <NextButton
         onClick={onSubmit}
         disabled={loading || email.trim().length < 3 || password.length < 6}
-        label={loading ? "가입 중…" : "시작하기"}
+        label={loading ? s.account.starting : s.account.start}
         icon={!loading && <ArrowRightIcon className="h-5 w-5" />}
       />
     </div>

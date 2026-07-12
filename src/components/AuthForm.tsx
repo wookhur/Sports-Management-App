@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { t, type Lang } from "@/lib/i18n";
 
-export default function AuthForm() {
+export default function AuthForm({ lang }: { lang: Lang }) {
+  const s = t(lang).login;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +25,7 @@ export default function AuthForm() {
       // DB connection). Parse defensively so the UI never hangs.
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(
-          data?.error ??
-            (res.status >= 500
-              ? "서버 오류가 발생했습니다. 데이터베이스 설정을 확인해주세요."
-              : `요청을 처리하지 못했습니다 (${res.status})`)
-        );
+        setError(data?.error ?? (res.status >= 500 ? s.errServer : s.errGeneric(res.status)));
         setLoading(false);
         return;
       }
@@ -36,7 +33,7 @@ export default function AuthForm() {
       // sent on a full document request — reliable even inside an embedded frame.
       window.location.assign("/");
     } catch {
-      setError("서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      setError(s.errNetwork);
       setLoading(false);
     }
   }
@@ -44,24 +41,24 @@ export default function AuthForm() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <label className="label">이메일</label>
+        <label className="label">{s.emailLabel}</label>
         <input
           className="input"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={s.emailPlaceholder}
           required
         />
       </div>
       <div>
-        <label className="label">비밀번호</label>
+        <label className="label">{s.passwordLabel}</label>
         <input
           className="input"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="비밀번호"
+          placeholder={s.passwordPlaceholder}
           required
         />
       </div>
@@ -69,13 +66,13 @@ export default function AuthForm() {
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? "처리 중…" : "로그인"}
+        {loading ? s.submitLoading : s.submit}
       </button>
 
       <p className="text-center text-sm text-slate-500">
-        계정이 없으신가요?{" "}
+        {s.noAccount}{" "}
         <Link href="/signup" className="font-semibold text-brand">
-          회원가입
+          {s.signupLink}
         </Link>
       </p>
     </form>
