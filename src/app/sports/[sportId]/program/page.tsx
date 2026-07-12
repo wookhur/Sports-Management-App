@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
+import LacrosseProgramView from "@/components/LacrosseProgramView";
 import { soccerProgram, PHASE_KO } from "@/lib/soccerProgram";
 
 const phaseColors = [
@@ -12,13 +13,23 @@ const phaseColors = [
   "border-rose-200 bg-rose-50",
 ];
 
-export default async function SoccerProgramPage({
+export default async function ProgramPage({
   params,
 }: {
   params: Promise<{ sportId: string }>;
 }) {
   if (!(await getSession())) redirect("/login");
   const { sportId } = await params;
+
+  if (sportId === "lacrosse") {
+    return (
+      <>
+        <NavBar />
+        <LacrosseProgramView sportId={sportId} />
+      </>
+    );
+  }
+
   if (sportId !== "soccer") notFound();
 
   return (
@@ -31,9 +42,7 @@ export default async function SoccerProgramPage({
 
         <header className="mt-3">
           <h1 className="text-2xl font-bold">⚽ 축구 훈련 프로그램</h1>
-          <p className="mt-1 text-slate-500">
-            학년별 세션 커리큘럼과 웜업·쿨다운 스트레칭 루틴이에요.
-          </p>
+          <p className="mt-1 text-slate-500">학년별 세션 커리큘럼과 웜업·쿨다운 스트레칭 루틴이에요.</p>
         </header>
 
         {/* Grade-level session plans */}
@@ -44,7 +53,7 @@ export default async function SoccerProgramPage({
                 <h2 className="text-lg font-bold">{s.title}</h2>
                 <span className="badge bg-slate-100 text-slate-500">세션 플랜</span>
               </div>
-              <div className="grid gap-3 md:grid-cols-5 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
                 {s.phases.map((phase, i) => (
                   <div key={phase.name} className={`rounded-2xl border p-4 ${phaseColors[i % phaseColors.length]}`}>
                     <p className="text-sm font-bold text-slate-800">{PHASE_KO[phase.name] ?? phase.name}</p>
@@ -96,9 +105,7 @@ function StretchCard({
             <span className="w-5 shrink-0 text-right font-mono text-xs text-slate-300">{i + 1}</span>
             <span className="text-slate-700">
               {it.name}
-              {it.variations.length > 0 && (
-                <span className="text-slate-400"> · {it.variations.join(", ")}</span>
-              )}
+              {it.variations.length > 0 && <span className="text-slate-400"> · {it.variations.join(", ")}</span>}
             </span>
           </li>
         ))}

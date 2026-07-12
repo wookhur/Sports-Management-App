@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import SearchBox from "@/components/SearchBox";
 import { searchWorkouts, STROKE_KO, LEVEL_KO } from "@/lib/swimming";
 import { searchDrills } from "@/lib/soccerDrills";
+import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,11 @@ export default async function SearchPage({
 
   const workouts = query ? searchWorkouts(query) : [];
   const drills = query ? searchDrills(query) : [];
+  const laxVideos = query
+    ? lacrosseSearchItems()
+        .filter((v) => `${v.title} ${v.note} ${v.group}`.toLowerCase().includes(query.toLowerCase()))
+        .slice(0, 6)
+    : [];
   const posts = query
     ? await prisma.blogPost.findMany({
         where: {
@@ -36,7 +42,7 @@ export default async function SearchPage({
       })
     : [];
 
-  const total = workouts.length + drills.length + posts.length;
+  const total = workouts.length + drills.length + laxVideos.length + posts.length;
 
   return (
     <>
@@ -85,6 +91,29 @@ export default async function SearchPage({
               />
             ))}
           </Group>
+        )}
+
+        {/* Lacrosse videos */}
+        {laxVideos.length > 0 && (
+          <section className="mt-6">
+            <h2 className="mb-2 text-sm font-semibold text-slate-500">🥍 라크로스 훈련 영상</h2>
+            <div className="card divide-y divide-slate-100">
+              {laxVideos.map((v) => (
+                <a
+                  key={v.url}
+                  href={v.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block px-5 py-3.5 transition hover:bg-slate-50"
+                >
+                  <p className="font-medium text-slate-800">▶ {v.title}</p>
+                  <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">
+                    {v.group} · {v.note}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Blog */}

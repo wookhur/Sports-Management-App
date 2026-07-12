@@ -104,6 +104,23 @@ export default async function SportPage({
             </Link>
           </div>
         )}
+        {sportId === "lacrosse" && (
+          <Link
+            href="/sports/lacrosse/program"
+            className="mt-6 flex items-center justify-between rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 transition hover:shadow-md"
+          >
+            <div>
+              <p className="text-sm font-medium text-emerald-700">엘리트 훈련 프로그램</p>
+              <p className="mt-0.5 text-lg font-bold text-slate-800">
+                USA Lacrosse · NCAA D1 · PLL 기반
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                철학·웜업·컨디셔닝·포지션별 플랜과 40여 개 검증 영상까지 담았어요.
+              </p>
+            </div>
+            <span className="text-2xl text-emerald-600">→</span>
+          </Link>
+        )}
 
         {/* Guides (lacrosse / soccer) */}
         {sport.guides && sport.guides.length > 0 && (
