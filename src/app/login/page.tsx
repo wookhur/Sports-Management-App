@@ -1,16 +1,15 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import AuthForm from "@/components/AuthForm";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { resolveLang, t, LANG_COOKIE } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export default async function LoginPage() {
   if (await getSession()) redirect("/");
 
-  const cookieStore = await cookies();
-  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value);
+  const lang = await getLang();
   const s = t(lang).login;
 
   return (

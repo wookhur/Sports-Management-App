@@ -1,17 +1,19 @@
-// Minimal i18n for the login page and the Roy signup wizard. Language is
-// stored in a plain (non-httpOnly) "lang" cookie so both server components
-// (page.tsx, reading via next/headers cookies()) and client components
-// (via document.cookie through LanguageSwitcher) can agree on it without a
-// routing/middleware change. Scope is intentionally limited to these two
-// entry points for now — extend `dict` here as more pages need translation.
+// i18n for the login page, the Roy signup wizard, and the authenticated
+// app's NavBar. Language is stored in a plain (non-httpOnly) "lang" cookie
+// so both server components (reading via next/headers cookies()) and client
+// components (via document.cookie through LanguageSwitcher) can agree on it
+// without a routing/middleware change. Extend `dict` here as more pages
+// need translation.
 
-export type Lang = "ko" | "en";
+export type Lang = "ko" | "en" | "es";
 
 export const LANG_COOKIE = "lang";
 
 /** Normalize a raw cookie value (or undefined) to a supported Lang. */
 export function resolveLang(raw: string | undefined): Lang {
-  return raw === "en" ? "en" : "ko";
+  if (raw === "en") return "en";
+  if (raw === "es") return "es";
+  return "ko";
 }
 
 // ---------------------------------------------------------------------------
@@ -72,6 +74,24 @@ const login: Record<Lang, LoginDict> = {
     errServer: "A server error occurred. Please check the database configuration.",
     errGeneric: (status) => `Request failed (${status})`,
     errNetwork: "Couldn't reach the server. Please try again in a moment.",
+  },
+  es: {
+    tagline: "Registra tus marcas y compártelas con tu entrenador",
+    heading: "Iniciar sesión",
+    emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@ejemplo.com",
+    passwordLabel: "Contraseña",
+    passwordPlaceholder: "Contraseña",
+    submit: "Iniciar sesión",
+    submitLoading: "Procesando…",
+    noAccount: "¿No tienes una cuenta?",
+    signupLink: "Regístrate",
+    demoTitle: "Cuentas de prueba",
+    demoAthlete: "Atleta: athlete@example.com / password123",
+    demoCoach: "Entrenador: coach@example.com / password123",
+    errServer: "Se produjo un error en el servidor. Por favor revisa la configuración de la base de datos.",
+    errGeneric: (status) => `No se pudo procesar la solicitud (${status})`,
+    errNetwork: "No se pudo conectar con el servidor. Inténtalo de nuevo en un momento.",
   },
 };
 
@@ -213,6 +233,57 @@ const signup: Record<Lang, SignupDict> = {
       errNetwork: "Couldn't reach the server. Please try again in a moment.",
     },
   },
+  es: {
+    common: { skip: "Omitir", next: "Siguiente", back: "Atrás" },
+    intro: {
+      greetingPrefix: "¡Hola! Soy ",
+      greetingSuffix: ", tu entrenador con IA.",
+      sub: "Te haré algunas preguntas rápidas para recomendarte la mejor formación.",
+      okay: "¡Vamos!",
+      haveAccount: "Ya tengo una cuenta",
+    },
+    username: {
+      title: "Crea un nombre de usuario",
+      subtitle: "Usa la sugerencia o escribe el tuyo propio. Puedes cambiarlo más adelante.",
+      suggest: "Obtener otra sugerencia",
+    },
+    school: {
+      title: "¿A qué escuela asistes?",
+      subtitle: "Solo se usa para recomendaciones de entrenamiento. (opcional)",
+      placeholder: "ej. Colegio Lincoln",
+    },
+    sportInterests: { title: "Elige todos los deportes que te interesen", subtitle: "Puedes seleccionar varios." },
+    experience: { title: "¿Cuánta experiencia tienes?" },
+    dobGrade: {
+      title: "Cuéntanos tu fecha de nacimiento y tu grado",
+      subtitle: "Solo se usa para recomendaciones de entrenamiento. (opcional)",
+      dobLabel: "Fecha de nacimiento",
+      gradeLabel: "Grado",
+      gradeGroupAria: "Seleccionar grado",
+    },
+    role: {
+      title: "¿Eres atleta o entrenador?",
+      subtitle: "Tu pantalla cambiará según tu rol.",
+      athleteName: "Atleta",
+      athleteDesc: "Registra tus marcas y compártelas con tu entrenador",
+      coachName: "Entrenador",
+      coachDesc: "Revisa las marcas de tus atletas y deja comentarios",
+    },
+    account: {
+      title: "Crea tu cuenta",
+      subtitle: "¡Ya casi terminamos! Último paso.",
+      emailLabel: "Correo electrónico",
+      emailPlaceholder: "tu@ejemplo.com",
+      passwordLabel: "Contraseña",
+      passwordPlaceholder: "6+ caracteres",
+      showPassword: "Mostrar contraseña",
+      hidePassword: "Ocultar contraseña",
+      start: "Comenzar",
+      starting: "Registrando…",
+      errGeneric: "No se pudo completar el registro. Inténtalo de nuevo.",
+      errNetwork: "No se pudo conectar con el servidor. Inténtalo de nuevo en un momento.",
+    },
+  },
 };
 
 // Sport interest cards inside the wizard (kept separate from src/lib/sports.ts
@@ -221,14 +292,17 @@ export const SPORT_I18N: Record<string, Record<Lang, { name: string; tagline: st
   lacrosse: {
     ko: { name: "라크로스", tagline: "스틱 핸들링부터 1대1까지, 단계별 훈련 방식" },
     en: { name: "Lacrosse", tagline: "From stick handling to 1-on-1s, step-by-step training" },
+    es: { name: "Lacrosse", tagline: "Desde el manejo del stick hasta los duelos 1 contra 1, paso a paso" },
   },
   soccer: {
     ko: { name: "축구", tagline: "터치, 패스, 드리블, 마무리까지 포지션 불문 기본 연습" },
     en: { name: "Soccer", tagline: "Touch, passing, dribbling, finishing — fundamentals for every position" },
+    es: { name: "Fútbol", tagline: "Control, pase, regate y definición — fundamentos para cualquier posición" },
   },
   swimming: {
     ko: { name: "수영", tagline: "영법·거리별 랩 타임을 측정하고 기록으로 남기세요" },
     en: { name: "Swimming", tagline: "Track lap times by stroke and distance" },
+    es: { name: "Natación", tagline: "Registra tus tiempos por estilo y distancia" },
   },
 };
 
@@ -236,14 +310,17 @@ export const EXPERIENCE_I18N: Record<string, Record<Lang, { label: string; detai
   beginner: {
     ko: { label: "처음이에요", detail: "이제 막 시작하는 단계예요" },
     en: { label: "I'm new", detail: "Just getting started" },
+    es: { label: "Soy nuevo", detail: "Estoy empezando" },
   },
   intermediate: {
     ko: { label: "조금 해봤어요", detail: "기본기는 어느 정도 있어요" },
     en: { label: "Some experience", detail: "I have the basics down" },
+    es: { label: "Algo de experiencia", detail: "Ya domino lo básico" },
   },
   advanced: {
     ko: { label: "많이 해봤어요", detail: "대회·훈련 경험이 많아요" },
     en: { label: "Very experienced", detail: "Lots of competition/training experience" },
+    es: { label: "Mucha experiencia", detail: "Mucha experiencia en competencias y entrenamiento" },
   },
 };
 
@@ -256,6 +333,55 @@ export const GRADE_I18N_EN: Record<string, string> = {
   "대학생·성인": "College / Adult",
 };
 
+export const GRADE_I18N_ES: Record<string, string> = {
+  초등학생: "Primaria",
+  중학생: "Secundaria",
+  고등학생: "Preparatoria",
+  "대학생·성인": "Universidad / Adulto",
+};
+
+// NavBar labels for the authenticated app (shared across every page since
+// NavBar is imported directly rather than via a shared layout).
+export interface NavDict {
+  home: string;
+  coachDashboard: string;
+  myRecords: string;
+  blog: string;
+  help: string;
+  roleAthlete: string;
+  roleCoach: string;
+}
+
+const nav: Record<Lang, NavDict> = {
+  ko: {
+    home: "홈",
+    coachDashboard: "코치 대시보드",
+    myRecords: "내 기록",
+    blog: "블로그",
+    help: "도움말",
+    roleAthlete: "선수",
+    roleCoach: "코치",
+  },
+  en: {
+    home: "Home",
+    coachDashboard: "Coach dashboard",
+    myRecords: "My records",
+    blog: "Blog",
+    help: "Help",
+    roleAthlete: "Athlete",
+    roleCoach: "Coach",
+  },
+  es: {
+    home: "Inicio",
+    coachDashboard: "Panel del entrenador",
+    myRecords: "Mis marcas",
+    blog: "Blog",
+    help: "Ayuda",
+    roleAthlete: "Atleta",
+    roleCoach: "Entrenador",
+  },
+};
+
 export function t(lang: Lang) {
-  return { login: login[lang], signup: signup[lang] };
+  return { login: login[lang], signup: signup[lang], nav: nav[lang] };
 }

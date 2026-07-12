@@ -1,12 +1,10 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import SignupWizard from "@/components/onboarding/SignupWizard";
-import { resolveLang, LANG_COOKIE } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export default async function SignupPage() {
   if (await getSession()) redirect("/");
-  const cookieStore = await cookies();
-  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value);
+  const lang = await getLang();
   return <SignupWizard lang={lang} />;
 }

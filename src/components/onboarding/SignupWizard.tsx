@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, type ReactElement } from "react";
 import { SPORT_LIST } from "@/lib/sports";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
-import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, type Lang, type SignupDict } from "@/lib/i18n";
+import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, GRADE_I18N_ES, type Lang, type SignupDict } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import RoyAvatar from "./RoyAvatar";
 import {
@@ -493,7 +493,7 @@ function DobGradeStep({
                 : "border-white/[0.08] bg-[#121D1A] text-[#9CB3AE] hover:border-white/20"
             }`}
           >
-            {lang === "en" ? GRADE_I18N_EN[g] ?? g : g}
+            {lang === "en" ? GRADE_I18N_EN[g] ?? g : lang === "es" ? GRADE_I18N_ES[g] ?? g : g}
           </button>
         ))}
       </div>
