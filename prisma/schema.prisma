@@ -69,6 +69,16 @@ model BlogPost {
   @@index([published, createdAt])
 }
 
+// An uploaded image, stored directly in Postgres (no external object storage
+// configured). Served back via GET /api/blog/images/[id]; BlogPost.coverImage
+// just holds that URL string, so there's no direct FK relation.
+model BlogImage {
+  id        String   @id @default(cuid())
+  data      Bytes
+  mimeType  String
+  createdAt DateTime @default(now())
+}
+
 // Explicit many-to-many link between a coach and an athlete.
 model CoachAthlete {
   id        String   @id @default(cuid())

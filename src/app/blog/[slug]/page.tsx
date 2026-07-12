@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
+import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,9 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  if (!(await getSession())) redirect("/login");
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const isCoach = session.role === "COACH";
   const { slug } = await params;
 
   const post = await prisma.blogPost.findUnique({
@@ -34,9 +36,22 @@ export default async function BlogPostPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <Link href="/blog" className="text-sm text-slate-400 hover:text-slate-600">
-          ← 블로그
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/blog" className="text-sm text-slate-400 hover:text-slate-600">
+            ← 블로그
+          </Link>
+          {isCoach && (
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/blog/${post.slug}/edit`}
+                className="text-xs font-medium text-slate-400 hover:text-brand"
+              >
+                수정
+              </Link>
+              <DeletePostButton slug={post.slug} redirectTo="/blog" />
+            </div>
+          )}
+        </div>
 
         <header className="mt-4">
           {!post.coverImage && <div className="text-5xl">{post.emoji}</div>}
@@ -50,7 +65,8 @@ export default async function BlogPostPage({
 
         {post.coverImage && (
           <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl bg-slate-100">
-            <Image src={post.coverImage} alt={post.title} fill className="object-cover" priority />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.coverImage} alt={post.title} className="h-full w-full object-cover" />
           </div>
         )}
 

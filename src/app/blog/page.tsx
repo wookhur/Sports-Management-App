@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
+import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -40,30 +40,44 @@ export default async function BlogListPage() {
             <div className="card p-10 text-center text-slate-500">아직 글이 없어요.</div>
           )}
           {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/blog/${post.slug}`}
-              className="card group flex gap-4 p-5 transition hover:border-slate-300 hover:shadow-md"
-            >
-              {post.coverImage ? (
-                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                  <Image src={post.coverImage} alt="" fill className="object-cover" />
-                </div>
-              ) : (
-                <span className="text-4xl">{post.emoji}</span>
-              )}
+            <div key={post.id} className="card group flex gap-4 p-5 transition hover:border-slate-300 hover:shadow-md">
+              <Link href={`/blog/${post.slug}`} className="flex shrink-0">
+                {post.coverImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={post.coverImage}
+                    alt=""
+                    className="h-20 w-28 rounded-xl bg-slate-100 object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl">{post.emoji}</span>
+                )}
+              </Link>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
-                  <span className="text-xs text-slate-400">{formatDate(post.createdAt)}</span>
+                <Link href={`/blog/${post.slug}`}>
+                  <div className="flex items-center gap-2">
+                    {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
+                    <span className="text-xs text-slate-400">{formatDate(post.createdAt)}</span>
+                  </div>
+                  <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{post.title}</h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-500">{post.excerpt}</p>
+                </Link>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-xs text-slate-400">{post.author?.name ?? "sideline365"}</p>
+                  {isCoach && (
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/blog/${post.slug}/edit`}
+                        className="text-xs font-medium text-slate-400 hover:text-brand"
+                      >
+                        수정
+                      </Link>
+                      <DeletePostButton slug={post.slug} />
+                    </div>
+                  )}
                 </div>
-                <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{post.title}</h2>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-500">{post.excerpt}</p>
-                <p className="mt-2 text-xs text-slate-400">
-                  {post.author?.name ?? "sideline365"}
-                </p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </main>

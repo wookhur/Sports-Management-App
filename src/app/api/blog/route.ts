@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { coverImageSchema } from "@/lib/blogSchemas";
 
 const schema = z.object({
   title: z.string().min(2, "제목을 입력하세요").max(120),
@@ -9,9 +10,7 @@ const schema = z.object({
   body: z.string().min(10, "본문을 10자 이상 입력하세요").max(20000),
   emoji: z.string().max(8).optional(),
   tag: z.string().max(20).optional(),
-  // A hosted image URL — this app has no file-upload storage, so authors
-  // link an already-hosted image rather than uploading one directly.
-  coverImage: z.string().url("올바른 이미지 URL을 입력하세요").max(500).optional().or(z.literal("")),
+  coverImage: coverImageSchema,
 });
 
 function slugify(title: string): string {
