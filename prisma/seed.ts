@@ -119,10 +119,45 @@ async function main() {
     },
   });
 
+  const royHyun = await prisma.user.upsert({
+    where: { email: "roy.hyun@example.com" },
+    update: {},
+    create: {
+      email: "roy.hyun@example.com",
+      name: "Roy Hyun",
+      username: "royhyun",
+      password,
+      role: "COACH",
+    },
+  });
+
+  await prisma.blogPost.upsert({
+    where: { slug: "why-we-built-sideline365" },
+    update: {},
+    create: {
+      slug: "why-we-built-sideline365",
+      title: "Why We Built Sideline365",
+      excerpt:
+        "Lacrosse demands speed, agility, stick skills, and elite conditioning all at once. Here's why we built Sideline365 to bring real program structure to that development.",
+      emoji: "🥍",
+      tag: "Lacrosse",
+      authorId: royHyun.id,
+      body: [
+        "Lacrosse is considered the fastest sport on two feet. The demands it places on your body and mind are unlike almost any other sport — you need speed, agility, stick skills, game intelligence, and the conditioning to maintain all of it through four full quarters. Developing a program that addresses all of these areas simultaneously takes a level of structure and intentionality that goes well beyond showing up to practice and running drills.",
+        "We built Sideline365 because we wanted to bring the same level of preparation to our team that top programs use. Every drill, every practice plan, and every conditioning method in Sideline365 has been sourced directly from USA Lacrosse's national training program, NCAA Division 1 coaches, and Premier Lacrosse League players. This is not a generic fitness platform adapted for lacrosse — it was designed specifically for lacrosse, from the ground up, with your development as an athlete in mind.",
+        "## Introducing the Game of Lacrosse",
+        "Lacrosse is one of the oldest team sports in North America and one of the fastest-growing in the world today. Two teams of ten battle it out using long-handled sticks with mesh pockets to carry, pass, and shoot a rubber ball into the opponent's goal — combining the speed of hockey, the field vision of basketball, and the athleticism of soccer into one sport.",
+        "What makes it unique is the pace. Possessions shift in seconds, ground balls decide momentum, and every player on the field needs to be both physically explosive and technically sharp at the same time. The stick is the great equalizer — master it, and everything else opens up.",
+        "If you're new to the game, the learning curve is real but the payoff is enormous. Sideline365 exists to make sure every rep you put in is pointed in exactly the right direction.",
+      ].join("\n\n"),
+    },
+  });
+
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");
   console.log("  Eric Park (blog author) -> eric.park@example.com / password123");
+  console.log("  Roy Hyun (blog author)  -> roy.hyun@example.com / password123");
 }
 
 main()
