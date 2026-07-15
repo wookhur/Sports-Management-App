@@ -26,7 +26,10 @@ export function formatPace(distanceM: number, ms: number): string | null {
 
 export function formatDate(input: Date | string): string {
   const d = typeof input === "string" ? new Date(input) : input;
+  // Dates are stored in UTC; the serverless runtime's local timezone isn't
+  // guaranteed to be Korea, so pin display explicitly to KST.
   return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
     month: "long",
     day: "numeric",
     hour: "2-digit",
