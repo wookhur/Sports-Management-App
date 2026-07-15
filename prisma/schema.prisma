@@ -41,9 +41,10 @@ model User {
   currentStreak Int       @default(0)
   longestStreak Int       @default(0)
 
-  records  Record[]
-  comments Comment[]
-  posts    BlogPost[]
+  records       Record[]
+  comments      Comment[]
+  posts         BlogPost[]
+  athleteGuides AthleteGuide[]
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
@@ -67,6 +68,27 @@ model BlogPost {
   updatedAt DateTime @updatedAt
 
   @@index([published, createdAt])
+}
+
+// "유명 선수 훈련법" — a per-sport writeup of how a well-known athlete
+// trains, authored in-app by coaches. Same shape/pipeline as BlogPost
+// (rich-text HTML body, DB-stored cover image) but scoped to one sport.
+model AthleteGuide {
+  id          String   @id @default(cuid())
+  sport       String // sport id from the registry, e.g. "swimming"
+  slug        String   @unique
+  athleteName String
+  title       String
+  excerpt     String
+  body        String // sanitized rich-text HTML
+  coverImage  String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId    String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sport, published, createdAt])
 }
 
 // An uploaded image, stored directly in Postgres (no external object storage

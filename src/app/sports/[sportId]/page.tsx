@@ -122,6 +122,19 @@ export default async function SportPage({
           </Link>
         )}
 
+        {/* Famous athlete training methods (every sport) */}
+        <Link
+          href={`/sports/${sportId}/athletes`}
+          className="mt-6 flex items-center justify-between rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 transition hover:shadow-md"
+        >
+          <div>
+            <p className="text-sm font-medium text-amber-700">유명 선수 훈련법</p>
+            <p className="mt-0.5 text-lg font-bold text-slate-800">실제 선수들은 어떻게 훈련할까요?</p>
+            <p className="mt-1 text-sm text-slate-500">유명 선수들의 훈련 방식을 소개해요.</p>
+          </div>
+          <span className="text-2xl text-amber-600">→</span>
+        </Link>
+
         {/* Guides (lacrosse / soccer) */}
         {sport.guides && sport.guides.length > 0 && (
           <section className="mt-8">
