@@ -153,11 +153,24 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { email: "clare.nam@example.com" },
+    update: {},
+    create: {
+      email: "clare.nam@example.com",
+      name: "Clare Nam",
+      username: "clarenam",
+      password,
+      role: "COACH",
+    },
+  });
+
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");
   console.log("  Eric Park (blog author) -> eric.park@example.com / password123");
   console.log("  Roy Hyun (blog author)  -> roy.hyun@example.com / password123");
+  console.log("  Clare Nam (coach)       -> clare.nam@example.com / password123");
 }
 
 main()
