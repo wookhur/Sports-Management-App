@@ -13,7 +13,7 @@ const schema = z.object({
   excerpt: z.string().min(2, "요약을 입력하세요").max(200),
   body: z.string().max(40000),
   emoji: z.string().max(8).optional(),
-  tag: z.string().max(20).optional(),
+  tag: z.string().max(40).optional(),
   coverImage: coverImageSchema,
 });
 

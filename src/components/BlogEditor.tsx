@@ -90,7 +90,7 @@ export default function BlogEditor({ initial }: { initial?: BlogEditorInitial })
         </div>
         <div>
           <label className="label">태그 (선택)</label>
-          <input className="input" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="예: 훈련, 공지" maxLength={20} />
+          <input className="input" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="예: 훈련, 공지" maxLength={40} />
         </div>
       </div>
       <div>
