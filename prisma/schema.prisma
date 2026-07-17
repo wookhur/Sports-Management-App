@@ -41,14 +41,108 @@ model User {
   currentStreak Int       @default(0)
   longestStreak Int       @default(0)
 
+  // Comment-notification cursor: coach comments on my records created after
+  // this moment count as "new" until I open my records page again.
+  lastSeenCommentsAt DateTime?
+
   records       Record[]
   comments      Comment[]
   posts         BlogPost[]
   athleteGuides AthleteGuide[]
+  goals         Goal[]
+  blogComments  BlogComment[]
+  blogLikes     BlogLike[]
+
+  assignmentsGiven    Assignment[] @relation("AssignmentCoach")
+  assignmentsReceived Assignment[] @relation("AssignmentAthlete")
+  teamsOwned          Team[]       @relation("TeamCoach")
+  teamMemberships     TeamMember[]
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
   athleteLinks CoachAthlete[] @relation("AthleteSide")
+}
+
+// A personal record target, e.g. "자유형 50m under 32s". Progress is derived
+// from the athlete's best record for the metric; achievedAt is stamped the
+// first time a record meets the target.
+model Goal {
+  id         String    @id @default(cuid())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  sport      String
+  metricKey  String
+  metricName String
+  targetMs   Int
+  achievedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Training homework a coach assigns to a linked athlete. linkHref points at
+// an in-app resource (a workout, drill, program, or star routine page).
+model Assignment {
+  id          String    @id @default(cuid())
+  coach       User      @relation("AssignmentCoach", fields: [coachId], references: [id], onDelete: Cascade)
+  coachId     String
+  athlete     User      @relation("AssignmentAthlete", fields: [athleteId], references: [id], onDelete: Cascade)
+  athleteId   String
+  title       String
+  note        String?
+  linkHref    String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([athleteId])
+  @@index([coachId])
+}
+
+// A coach-owned squad. Athletes join with the invite code.
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  code      String       @unique
+  coach     User         @relation("TeamCoach", fields: [coachId], references: [id], onDelete: Cascade)
+  coachId   String
+  members   TeamMember[]
+  createdAt DateTime     @default(now())
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+// Reader comments under a blog post (any logged-in user).
+model BlogComment {
+  id        String   @id @default(cuid())
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+model BlogLike {
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@id([postId, userId])
 }
 
 // Blog posts, authored in-app (currently by coaches) or seeded.
@@ -66,6 +160,9 @@ model BlogPost {
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  readerComments BlogComment[]
+  likes          BlogLike[]
 
   @@index([published, createdAt])
 }

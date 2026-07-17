@@ -6,8 +6,12 @@ import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import OnboardingTour from "@/components/OnboardingTour";
 import StreakCard from "@/components/StreakCard";
+import AssignmentCard, { type MyAssignment } from "@/components/AssignmentCard";
+import JoinTeamCard, { type MyTeam } from "@/components/JoinTeamCard";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration } from "@/lib/format";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage({
   searchParams,
@@ -37,6 +41,81 @@ export default async function HomePage({
         take: 5,
       });
 
+  // Weekly report (athletes): last 7 days of timed records vs all-time bests.
+  let weekly: { count: number; pbCount: number; metricCount: number; bestLine: string | null } | null = null;
+  if (!isCoach) {
+    const weekAgo = new Date(Date.now() - 7 * 86_400_000);
+    const all = await prisma.record.findMany({
+      where: { userId: session.userId, durationMs: { not: null } },
+      orderBy: { createdAt: "asc" },
+      select: { metricKey: true, metricName: true, durationMs: true, createdAt: true },
+    });
+    const bests = new Map<string, number>();
+    for (const r of all) {
+      const cur = bests.get(r.metricKey);
+      if (cur == null || r.durationMs! < cur) bests.set(r.metricKey, r.durationMs!);
+    }
+    const week = all.filter((r) => r.createdAt >= weekAgo);
+    const pbs = week.filter((r) => bests.get(r.metricKey) === r.durationMs);
+    const bestPb = pbs.length
+      ? pbs.reduce((a, b) => (a.durationMs! <= b.durationMs! ? a : b))
+      : null;
+    weekly = {
+      count: week.length,
+      pbCount: pbs.length,
+      metricCount: new Set(week.map((r) => r.metricKey)).size,
+      bestLine: bestPb ? `${bestPb.metricName} ${formatDuration(bestPb.durationMs!)}` : null,
+    };
+  }
+
+  // New coach feedback since I last opened my records page.
+  let newFeedback = 0;
+  let myAssignments: MyAssignment[] = [];
+  let myTeams: MyTeam[] = [];
+  if (!isCoach) {
+    const me = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { lastSeenCommentsAt: true },
+    });
+    newFeedback = await prisma.comment.count({
+      where: {
+        record: { userId: session.userId },
+        authorId: { not: session.userId },
+        ...(me?.lastSeenCommentsAt ? { createdAt: { gt: me.lastSeenCommentsAt } } : {}),
+      },
+    });
+
+    const assignments = await prisma.assignment.findMany({
+      where: { athleteId: session.userId },
+      orderBy: [{ completedAt: "asc" }, { createdAt: "desc" }],
+      take: 8,
+      include: { coach: { select: { name: true } } },
+    });
+    myAssignments = assignments.map((a) => ({
+      id: a.id,
+      title: a.title,
+      note: a.note,
+      linkHref: a.linkHref,
+      coachName: a.coach.name,
+      completedAt: a.completedAt?.toISOString() ?? null,
+    }));
+
+    const memberships = await prisma.teamMember.findMany({
+      where: { userId: session.userId },
+      include: {
+        team: {
+          include: { coach: { select: { name: true } }, _count: { select: { members: true } } },
+        },
+      },
+    });
+    myTeams = memberships.map((m) => ({
+      id: m.team.id,
+      name: m.team.name,
+      coachName: m.team.coach.name,
+      memberCount: m.team._count.members,
+    }));
+  }
+
   const athleteCount = isCoach
     ? await prisma.coachAthlete.count({ where: { coachId: session.userId } })
     : 0;
@@ -57,9 +136,57 @@ export default async function HomePage({
           </p>
         </section>
 
+        {newFeedback > 0 && (
+          <Link
+            href="/records"
+            className="mb-6 flex items-center justify-between rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 transition hover:bg-brand/10"
+          >
+            <p className="text-sm font-semibold text-brand">
+              💬 코치가 새 피드백 {newFeedback}개를 남겼어요
+            </p>
+            <span className="text-brand">→</span>
+          </Link>
+        )}
+
         <section className="mb-8">
           <StreakCard streak={streak} leaders={leaders} myName={session.name} />
         </section>
+
+        {weekly && (
+          <section className="mb-8">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+              주간 리포트 <span className="font-normal normal-case text-slate-300">· 최근 7일</span>
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="card p-4">
+                <p className="text-xs text-slate-400">측정 횟수</p>
+                <p className="mt-1 text-xl font-bold tabular-nums">{weekly.count}회</p>
+              </div>
+              <div className="card p-4">
+                <p className="text-xs text-slate-400">최고 기록 갱신</p>
+                <p className="mt-1 text-xl font-bold tabular-nums">
+                  {weekly.pbCount > 0 ? `🏆 ${weekly.pbCount}개` : "0개"}
+                </p>
+              </div>
+              <div className="card p-4">
+                <p className="text-xs text-slate-400">훈련한 항목</p>
+                <p className="mt-1 text-xl font-bold tabular-nums">{weekly.metricCount}개</p>
+              </div>
+            </div>
+            {weekly.bestLine && (
+              <p className="mt-2 text-sm text-slate-500">
+                이번 주 하이라이트: <span className="font-semibold text-slate-700">{weekly.bestLine}</span> 🎉
+              </p>
+            )}
+          </section>
+        )}
+
+        {!isCoach && (
+          <section className="mb-8 grid gap-4 md:grid-cols-2">
+            <AssignmentCard assignments={myAssignments} />
+            <JoinTeamCard teams={myTeams} />
+          </section>
+        )}
 
         {isCoach && (
           <Link

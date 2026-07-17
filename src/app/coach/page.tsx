@@ -4,7 +4,11 @@ import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import RecordList from "@/components/RecordList";
 import ConnectionManager, { type Connection } from "@/components/ConnectionManager";
+import AssignmentPanel, { type AssignmentRow } from "@/components/AssignmentPanel";
+import TeamPanel, { type TeamRow } from "@/components/TeamPanel";
 import type { RecordView } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export default async function CoachPage() {
   const session = await getSession();
@@ -33,6 +37,33 @@ export default async function CoachPage() {
         },
       })
     : [];
+
+  const assignments = await prisma.assignment.findMany({
+    where: { coachId: session.userId },
+    orderBy: [{ completedAt: "asc" }, { createdAt: "desc" }],
+    take: 20,
+    include: { athlete: { select: { name: true } } },
+  });
+  const assignmentRows: AssignmentRow[] = assignments.map((a) => ({
+    id: a.id,
+    athleteName: a.athlete.name,
+    title: a.title,
+    linkHref: a.linkHref,
+    dueDate: a.dueDate?.toISOString() ?? null,
+    completedAt: a.completedAt?.toISOString() ?? null,
+  }));
+
+  const teams = await prisma.team.findMany({
+    where: { coachId: session.userId },
+    orderBy: { createdAt: "asc" },
+    include: { _count: { select: { members: true } } },
+  });
+  const teamRows: TeamRow[] = teams.map((t) => ({
+    id: t.id,
+    name: t.name,
+    code: t.code,
+    memberCount: t._count.members,
+  }));
 
   const view: RecordView[] = records.map((r) => ({
     id: r.id,
@@ -70,6 +101,14 @@ export default async function CoachPage() {
             label="남긴 피드백"
             value={`${records.reduce((n, r) => n + r.comments.filter((c) => c.author.role === "COACH").length, 0)}건`}
           />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <AssignmentPanel
+            athletes={athletes.map((a) => ({ id: a.id, name: a.name }))}
+            assignments={assignmentRows}
+          />
+          <TeamPanel teams={teamRows} />
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
