@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { getLang } from "@/lib/getLang";
+import { getSession } from "@/lib/auth";
+import Sidebar from "@/components/Sidebar";
+import { SidebarProvider } from "@/components/SidebarContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,9 +12,22 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = await getLang();
+  const session = await getSession();
+
   return (
     <html lang={lang}>
-      <body>{children}</body>
+      <body>
+        {session ? (
+          <SidebarProvider>
+            <div className="lg:flex">
+              <Sidebar />
+              <div className="min-w-0 flex-1">{children}</div>
+            </div>
+          </SidebarProvider>
+        ) : (
+          children
+        )}
+      </body>
     </html>
   );
 }

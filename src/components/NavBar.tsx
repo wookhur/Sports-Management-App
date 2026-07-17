@@ -5,6 +5,7 @@ import { getLang } from "@/lib/getLang";
 import LogoutButton from "./LogoutButton";
 import SearchBox from "./SearchBox";
 import LanguageSwitcher from "./LanguageSwitcher";
+import SidebarToggleButton from "./SidebarToggleButton";
 
 export default async function NavBar() {
   const session = await getSession();
@@ -17,10 +18,13 @@ export default async function NavBar() {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="text-xl">🏅</span>
-          <span>sideline365</span>
-        </Link>
+        <div className="flex items-center">
+          <SidebarToggleButton />
+          <Link href="/" className="flex items-center gap-2 font-bold">
+            <span className="text-xl">🏅</span>
+            <span>sideline365</span>
+          </Link>
+        </div>
         <div className="flex items-center gap-1 text-sm">
           <div className="mr-1 hidden sm:block">
             <SearchBox compact />
