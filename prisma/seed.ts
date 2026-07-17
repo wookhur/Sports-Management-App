@@ -271,6 +271,82 @@ async function main() {
     });
   }
 
+  // Lacrosse superstars + Ronaldo (soccer) — training methods with the
+  // science/reasoning behind each, from user-provided research.
+  const moreAthletes: {
+    sport: string;
+    slug: string;
+    athleteName: string;
+    title: string;
+    excerpt: string;
+    body: string;
+  }[] = [
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-brennan-oneill",
+      athleteName: "Brennan O'Neill",
+      title: "Brennan O'Neill: Training Method & the Science Behind It",
+      excerpt: "The PLL's #1-ranked player builds shooting power from the legs up, and beats goalies with head fakes instead of stick tricks.",
+      body: `<p><strong>Position:</strong> Midfield, Denver Outlaws (PLL's #1-ranked player, 2025)</p><h2>Training Method</h2><p>Off-season strength work 4–5 days a week (legs, arms, core), paired with a shooting approach built on deception — head and shoulder fakes borrowed from box lacrosse — rather than elaborate stick moves.</p><h2>Why It Works</h2><p>O'Neill's own explanation is simple biomechanics: "Shooting is full body. You want a good plant, so you need strong legs." A stable, powerful base lets the upper body deliver force into the shot without losing accuracy. The head-fake emphasis works because in tight spaces a goalie reacts to eye and body cues faster than to stick movement — so deceiving the eyes beats trying to out-stick-fake the goalie.</p>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-tom-schreiber",
+      athleteName: "Tom Schreiber",
+      title: "Tom Schreiber: Training Method & the Science Behind It",
+      excerpt: "The consensus best all-around midfielder drills shooting, dodging, and wall ball every single day — always at full game speed.",
+      body: `<p><strong>Position:</strong> Midfield, Utah Archers (longtime consensus "best all-around midfielder")</p><h2>Training Method</h2><p>Daily lacrosse-specific reps — shooting, dodging, and wall ball, every single day — layered with medicine ball work, rowing/cycling/jump-rope cardio, and sprints. His week alternates lifting and stick-work days, with dedicated footwork sessions and lighter upper-body days before games.</p><h2>Why It Works</h2><p>Schreiber's three stated principles are dodging from multiple angles, shooting accurately with both hands while moving, and drilling at full game speed. This reflects a core training principle called specificity — skills only transfer to games if they're practiced at game speed and under game-like variability (both hands, multiple angles), not in slow, repetitive isolation.</p>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-trevor-baptiste",
+      athleteName: "Trevor Baptiste",
+      title: "Trevor Baptiste: Training Method & the Science Behind It",
+      excerpt: "The best faceoff man ever doesn't train to win every clamp — he trains to win the scramble that follows.",
+      body: `<p><strong>Position:</strong> Faceoff/FOGO, New York Atlas (widely considered the best ever at the position)</p><h2>Training Method</h2><p>Rather than obsessing over winning every clamp cleanly, Baptiste trains for the scramble — anticipating what happens when the draw is lost and winning the 50/50 ground-ball battle that follows, in coordination with his wing players.</p><h2>Why It Works</h2><p>A faceoff is decided in a fraction of a second off the whistle, so no technique wins every rep. Training the "second phase" (the scramble) is a bet on probability: it's more reliably repeatable than trying to perfect a single explosive first-move technique, and it turns a coin-flip battle into a team-coordinated advantage.</p>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-blaze-riorden",
+      athleteName: "Blaze Riorden",
+      title: "Blaze Riorden: Training Method & the Science Behind It",
+      excerpt: "A hockey-style butterfly stance and reaction-ball drills — how the Chaos goalie handles 90+ mph shots.",
+      body: `<p><strong>Position:</strong> Goalie, Carolina Chaos</p><h2>Training Method</h2><p>Plays a hockey-style "butterfly" stance, unusual for field lacrosse goalies, and leans on stick-handling skills carried over from his early years as an attackman to start transition offense right off a save. General elite goalie training (the drills top goalies use broadly) centers on reaction balls and "colored ball" call-outs — irregular-bounce balls or balls a coach names by color mid-flight, forcing the goalie to process visual information and react physically in the same instant.</p><h2>Why It Works</h2><p>The butterfly stance maximizes low-body coverage against a shot that can travel over 90 mph, leaving a goalie under half a second to read release point and react — so covering more net passively reduces how much has to be covered reactively. The reaction-ball drills work because they remove predictable bounce patterns, forcing the brain to build genuine reflexive (not memorized) responses — closer to what an actual game shot demands.</p>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-lyle-thompson",
+      athleteName: "Lyle Thompson",
+      title: "Lyle Thompson: Training Method & the Science Behind It",
+      excerpt: "One of the most decorated attackmen ever balances strength, mobility, and stability — because lacrosse punishes any weak link.",
+      body: `<p><strong>Position:</strong> Attack (Iroquois Nationals; one of the most decorated attackmen ever)</p><h2>Training Method</h2><p>Roughly two hours in the gym built around balance rather than maxing any one quality — about 30 minutes of strength work, 10 minutes of cardio, 10 minutes of core, then another 60 minutes of strength, rotating the training block every two months. Signature lifts: front squats, goblet squats, hang cleans, and pull-ups ("the great equalizer," in his words).</p><h2>Why It Works</h2><p>Thompson's rationale is that lacrosse punishes any single weak link — a lack of leg strength, core stability, or hip mobility all show up in one-on-one battles — so he deliberately balances mobility, stability, and strength instead of overtraining one at the expense of the others. He specifically targets hip strength because weak hips are a common limiting factor for lacrosse players' dodging and defensive positioning.</p>`,
+    },
+    {
+      sport: "soccer",
+      slug: "soccer-cristiano-ronaldo",
+      athleteName: "Cristiano Ronaldo",
+      title: "Cristiano Ronaldo: Training Method & the Science Behind It",
+      excerpt: "Sprint intervals, 65–75% 1RM hypertrophy work, and multi-directional core training — the science behind CR7's longevity.",
+      body: `<h2>Training Method</h2><p>High-intensity sprint intervals, strength work in the 65–75% one-rep-max range for 8–12 reps, and core training built on twisting/balancing/agile movements (planks, lateral sprints, complex compound lifts) instead of traditional crunches.</p><h2>Why It Works</h2><p>Research from Laval University links high-intensity sprint intervals to greater fat loss and elevated resting metabolism, which explains his low body-fat percentage into his 40s. The 65–75%-of-max, 8–12 rep range is what a Gothenburg University study associated with optimal muscle growth. And Penn State research found that football's twisting, balancing, agile movements recruit more core musculature than a standard sit-up — which is why his program favors compound, multi-directional movements over crunches.</p>`,
+    },
+  ];
+
+  for (const a of moreAthletes) {
+    await prisma.athleteGuide.upsert({
+      where: { slug: a.slug },
+      update: {},
+      create: {
+        sport: a.sport,
+        slug: a.slug,
+        athleteName: a.athleteName,
+        title: a.title,
+        excerpt: a.excerpt,
+        body: a.body,
+        authorId: coach.id,
+      },
+    });
+  }
+
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");
