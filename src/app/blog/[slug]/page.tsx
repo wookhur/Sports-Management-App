@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import DeletePostButton from "@/components/DeletePostButton";
+import BlogEngagement, { type BlogCommentView } from "@/components/BlogEngagement";
 import { formatDate } from "@/lib/format";
 import { toEditableHtml } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
@@ -27,6 +28,26 @@ export default async function BlogPostPage({
   if (!post || !post.published) notFound();
 
   const bodyHtml = sanitizeBlogHtml(toEditableHtml(post.body));
+
+  const [likeCount, myLike, blogComments] = await Promise.all([
+    prisma.blogLike.count({ where: { postId: post.id } }),
+    prisma.blogLike.findUnique({
+      where: { postId_userId: { postId: post.id, userId: session.userId } },
+    }),
+    prisma.blogComment.findMany({
+      where: { postId: post.id },
+      orderBy: { createdAt: "asc" },
+      include: { author: { select: { id: true, name: true, role: true } } },
+    }),
+  ]);
+  const commentView: BlogCommentView[] = blogComments.map((c) => ({
+    id: c.id,
+    body: c.body,
+    authorName: c.author.name,
+    authorRole: c.author.role,
+    mine: c.author.id === session.userId,
+    createdAt: c.createdAt.toISOString(),
+  }));
 
   return (
     <>
@@ -67,6 +88,14 @@ export default async function BlogPostPage({
         )}
 
         <article className="blog-body mt-6" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+
+        <BlogEngagement
+          slug={post.slug}
+          initialLiked={Boolean(myLike)}
+          initialLikeCount={likeCount}
+          comments={commentView}
+          canModerate={isCoach}
+        />
       </main>
     </>
   );

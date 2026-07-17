@@ -14,6 +14,8 @@ import {
   SearchIcon,
   StarIcon,
   TimerIcon,
+  TrophyIcon,
+  ChartIcon,
 } from "./navIcons";
 
 export interface SidebarUser {
@@ -91,6 +93,13 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
             label={s.stars}
             onNavigate={onNavigate}
           />
+          <NavItem
+            href="/leaderboard"
+            active={pathname.startsWith("/leaderboard")}
+            icon={<TrophyIcon className="h-5 w-5" />}
+            label={s.leaderboard}
+            onNavigate={onNavigate}
+          />
           <NavItem href="/blog" active={pathname.startsWith("/blog")} icon={<PenIcon className="h-5 w-5" />} label={s.blog} onNavigate={onNavigate} />
           <NavItem href="/search" active={pathname.startsWith("/search")} icon={<SearchIcon className="h-5 w-5" />} label={s.search} onNavigate={onNavigate} />
         </div>
@@ -135,13 +144,22 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
         <SectionLabel>{s.myActivity}</SectionLabel>
         <div className="space-y-0.5">
           {isCoach ? (
-            <NavItem
-              href="/coach"
-              active={pathname.startsWith("/coach")}
-              icon={<DashboardIcon className="h-5 w-5" />}
-              label={s.coachDashboard}
-              onNavigate={onNavigate}
-            />
+            <>
+              <NavItem
+                href="/coach"
+                active={pathname.startsWith("/coach")}
+                icon={<DashboardIcon className="h-5 w-5" />}
+                label={s.coachDashboard}
+                onNavigate={onNavigate}
+              />
+              <NavItem
+                href="/admin"
+                active={pathname.startsWith("/admin")}
+                icon={<ChartIcon className="h-5 w-5" />}
+                label={s.admin}
+                onNavigate={onNavigate}
+              />
+            </>
           ) : (
             <NavItem
               href="/records"
@@ -154,9 +172,13 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
         </div>
       </nav>
 
-      {/* User card pinned to the bottom */}
+      {/* User card pinned to the bottom — links to the profile page */}
       <div className="border-t border-slate-200 p-3">
-        <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+        <Link
+          href="/profile"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-slate-100"
+        >
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">
             {user.name.slice(0, 1)}
           </span>
@@ -164,7 +186,7 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
             <p className="truncate text-sm font-semibold text-slate-800">{user.name}</p>
             <p className="text-xs text-slate-400">{isCoach ? t(lang).nav.roleCoach : t(lang).nav.roleAthlete}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

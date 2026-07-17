@@ -8,6 +8,8 @@ import OnboardingTour from "@/components/OnboardingTour";
 import StreakCard from "@/components/StreakCard";
 import AssignmentCard, { type MyAssignment } from "@/components/AssignmentCard";
 import JoinTeamCard, { type MyTeam } from "@/components/JoinTeamCard";
+import BadgeRow from "@/components/BadgeRow";
+import { computeBadges, type Badge } from "@/lib/badges";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration } from "@/lib/format";
 
@@ -72,7 +74,9 @@ export default async function HomePage({
   let newFeedback = 0;
   let myAssignments: MyAssignment[] = [];
   let myTeams: MyTeam[] = [];
+  let badges: Badge[] = [];
   if (!isCoach) {
+    badges = await computeBadges(session.userId);
     const me = await prisma.user.findUnique({
       where: { id: session.userId },
       select: { lastSeenCommentsAt: true },
@@ -185,6 +189,15 @@ export default async function HomePage({
           <section className="mb-8 grid gap-4 md:grid-cols-2">
             <AssignmentCard assignments={myAssignments} />
             <JoinTeamCard teams={myTeams} />
+          </section>
+        )}
+
+        {!isCoach && badges.length > 0 && (
+          <section className="mb-8">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+              배지 <span className="font-normal normal-case text-slate-300">· {badges.filter((b) => b.earned).length}/{badges.length} 획득</span>
+            </h2>
+            <BadgeRow badges={badges} />
           </section>
         )}
 

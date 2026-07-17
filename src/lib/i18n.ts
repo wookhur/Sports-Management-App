@@ -388,12 +388,14 @@ export interface SidebarDict {
   home: string;
   library: string;
   stars: string;
+  leaderboard: string;
   blog: string;
   search: string;
   sports: string;
   myActivity: string;
   myRecords: string;
   coachDashboard: string;
+  admin: string;
   openMenu: string;
   closeMenu: string;
 }
@@ -404,12 +406,14 @@ const sidebar: Record<Lang, SidebarDict> = {
     home: "홈",
     library: "트레이닝 라이브러리",
     stars: "스타 루틴",
+    leaderboard: "리더보드",
     blog: "블로그",
     search: "통합 검색",
     sports: "스포츠",
     myActivity: "내 활동",
     myRecords: "내 기록",
     coachDashboard: "코치 대시보드",
+    admin: "운영 현황",
     openMenu: "메뉴 열기",
     closeMenu: "메뉴 닫기",
   },
@@ -418,12 +422,14 @@ const sidebar: Record<Lang, SidebarDict> = {
     home: "Home",
     library: "Training Library",
     stars: "Star Routines",
+    leaderboard: "Leaderboard",
     blog: "Blog",
     search: "Search",
     sports: "Sports",
     myActivity: "My Activity",
     myRecords: "My Records",
     coachDashboard: "Coach Dashboard",
+    admin: "Operations",
     openMenu: "Open menu",
     closeMenu: "Close menu",
   },
@@ -432,12 +438,14 @@ const sidebar: Record<Lang, SidebarDict> = {
     home: "Inicio",
     library: "Biblioteca de entrenamiento",
     stars: "Rutinas de estrellas",
+    leaderboard: "Clasificación",
     blog: "Blog",
     search: "Buscar",
     sports: "Deportes",
     myActivity: "Mi actividad",
     myRecords: "Mis marcas",
     coachDashboard: "Panel del entrenador",
+    admin: "Operaciones",
     openMenu: "Abrir menú",
     closeMenu: "Cerrar menú",
   },

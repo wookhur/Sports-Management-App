@@ -77,6 +77,29 @@ export function DashboardIcon({ className }: IconProps) {
   );
 }
 
+export function ChartIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <path d="M4 20V10" />
+      <path d="M10 20V4" />
+      <path d="M16 20v-8" />
+      <path d="M22 20H2" />
+    </svg>
+  );
+}
+
+export function TrophyIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+      <path d="M7 4h10v6a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 6H4.5a1.5 1.5 0 0 0 0 3H7" />
+      <path d="M17 6h2.5a1.5 1.5 0 0 1 0 3H17" />
+    </svg>
+  );
+}
+
 export function MenuIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
