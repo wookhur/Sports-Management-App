@@ -5,32 +5,94 @@ import { useState } from "react";
 import { SPORTS } from "@/lib/sports";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
 import type { RecordView } from "@/lib/types";
+import type { Lang } from "@/lib/i18n";
+
+const L: Record<
+  Lang,
+  {
+    emptyCoach: string;
+    emptyOwner: string;
+    deleteConfirm: string;
+    sharedWithCoach: string;
+    privateLabel: string;
+    deleteBtn: string;
+    coachPlaceholder: string;
+    ownerPlaceholder: string;
+    submit: string;
+  }
+> = {
+  ko: {
+    emptyCoach: "공유된 기록이 아직 없습니다.",
+    emptyOwner: "기록이 없습니다.",
+    deleteConfirm: "이 기록을 삭제할까요?",
+    sharedWithCoach: "코치에게 공유됨",
+    privateLabel: "비공개",
+    deleteBtn: "삭제",
+    coachPlaceholder: "피드백 남기기…",
+    ownerPlaceholder: "답글 남기기…",
+    submit: "등록",
+  },
+  en: {
+    emptyCoach: "No shared records yet.",
+    emptyOwner: "No records yet.",
+    deleteConfirm: "Delete this record?",
+    sharedWithCoach: "Shared with coach",
+    privateLabel: "Private",
+    deleteBtn: "Delete",
+    coachPlaceholder: "Leave feedback…",
+    ownerPlaceholder: "Write a reply…",
+    submit: "Post",
+  },
+  es: {
+    emptyCoach: "Aún no hay marcas compartidas.",
+    emptyOwner: "Aún no hay marcas.",
+    deleteConfirm: "¿Eliminar esta marca?",
+    sharedWithCoach: "Compartida con el entrenador",
+    privateLabel: "Privada",
+    deleteBtn: "Eliminar",
+    coachPlaceholder: "Deja tu feedback…",
+    ownerPlaceholder: "Escribe una respuesta…",
+    submit: "Publicar",
+  },
+};
 
 export default function RecordList({
   records,
   mode,
+  lang = "ko",
 }: {
   records: RecordView[];
   /** "owner": athlete managing own records. "coach": read + comment. */
   mode: "owner" | "coach";
+  lang?: Lang;
 }) {
+  const s = L[lang];
   if (records.length === 0) {
     return (
       <div className="card p-10 text-center text-slate-500">
-        {mode === "coach" ? "공유된 기록이 아직 없습니다." : "기록이 없습니다."}
+        {mode === "coach" ? s.emptyCoach : s.emptyOwner}
       </div>
     );
   }
   return (
     <div className="space-y-3">
       {records.map((r) => (
-        <RecordItem key={r.id} record={r} mode={mode} />
+        <RecordItem key={r.id} record={r} mode={mode} lang={lang} />
       ))}
     </div>
   );
 }
 
-function RecordItem({ record, mode }: { record: RecordView; mode: "owner" | "coach" }) {
+function RecordItem({
+  record,
+  mode,
+  lang = "ko",
+}: {
+  record: RecordView;
+  mode: "owner" | "coach";
+  lang?: Lang;
+}) {
+  const s = L[lang];
   const router = useRouter();
   const sport = SPORTS[record.sport];
   const [shared, setShared] = useState(record.shared);
@@ -52,7 +114,7 @@ function RecordItem({ record, mode }: { record: RecordView; mode: "owner" | "coa
   }
 
   async function remove() {
-    if (!confirm("이 기록을 삭제할까요?")) return;
+    if (!confirm(s.deleteConfirm)) return;
     setBusy(true);
     const res = await fetch(`/api/records/${record.id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
@@ -130,10 +192,10 @@ function RecordItem({ record, mode }: { record: RecordView; mode: "owner" | "coa
                 className={`h-4 w-4 rounded-full bg-white transition ${shared ? "translate-x-4" : ""}`}
               />
             </span>
-            {shared ? "코치에게 공유됨" : "비공개"}
+            {shared ? s.sharedWithCoach : s.privateLabel}
           </button>
           <button onClick={remove} disabled={busy} className="text-xs text-slate-400 hover:text-red-500">
-            삭제
+            {s.deleteBtn}
           </button>
         </div>
       )}
@@ -159,10 +221,10 @@ function RecordItem({ record, mode }: { record: RecordView; mode: "owner" | "coa
                 className="input py-2 text-sm"
                 value={commentBody}
                 onChange={(e) => setCommentBody(e.target.value)}
-                placeholder={mode === "coach" ? "피드백 남기기…" : "답글 남기기…"}
+                placeholder={mode === "coach" ? s.coachPlaceholder : s.ownerPlaceholder}
               />
               <button className="btn-primary shrink-0 px-3 py-2 text-sm" disabled={posting}>
-                등록
+                {s.submit}
               </button>
             </form>
           )}

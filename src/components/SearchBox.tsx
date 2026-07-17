@@ -2,8 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Lang } from "@/lib/i18n";
 
-export default function SearchBox({ compact = false, initial = "" }: { compact?: boolean; initial?: string }) {
+const L: Record<Lang, { placeholder: string; ariaLabel: string }> = {
+  ko: { placeholder: "검색", ariaLabel: "통합 검색" },
+  en: { placeholder: "Search", ariaLabel: "Search" },
+  es: { placeholder: "Buscar", ariaLabel: "Búsqueda" },
+};
+
+export default function SearchBox({
+  compact = false,
+  initial = "",
+  lang = "ko",
+}: {
+  compact?: boolean;
+  initial?: string;
+  lang?: Lang;
+}) {
+  const s = L[lang];
   const router = useRouter();
   const [q, setQ] = useState(initial);
 
@@ -24,8 +40,8 @@ export default function SearchBox({ compact = false, initial = "" }: { compact?:
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="검색"
-        aria-label="통합 검색"
+        placeholder={s.placeholder}
+        aria-label={s.ariaLabel}
         className={`rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/20 ${
           compact ? "w-32 py-1.5 focus:w-44" : "w-full py-2.5"
         }`}

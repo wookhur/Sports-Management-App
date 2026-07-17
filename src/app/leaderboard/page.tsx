@@ -5,11 +5,46 @@ import { prisma } from "@/lib/db";
 import { SPORTS } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import { formatDate, formatDuration } from "@/lib/format";
+import { type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
 
 // Best shared time per athlete for one swimming metric, fastest first.
 // Only records the athlete chose to share are ranked.
+
+const L: Record<
+  Lang,
+  {
+    title: string;
+    sub: string;
+    empty: (metricName: string) => string;
+    me: string;
+    unknown: string;
+  }
+> = {
+  ko: {
+    title: "🏆 리더보드",
+    sub: "공유된 기록 기준, 항목별 최고 기록 순위예요.",
+    empty: (metricName) => `아직 ${metricName} 공유 기록이 없어요. 기록을 측정하고 공유해보세요!`,
+    me: "나",
+    unknown: "알 수 없음",
+  },
+  en: {
+    title: "🏆 Leaderboard",
+    sub: "Best-time rankings per event, based on shared records.",
+    empty: (metricName) => `No shared ${metricName} records yet. Track a time and share it!`,
+    me: "Me",
+    unknown: "Unknown",
+  },
+  es: {
+    title: "🏆 Clasificación",
+    sub: "Ranking de mejores tiempos por prueba, según las marcas compartidas.",
+    empty: (metricName) => `Todavía no hay marcas compartidas de ${metricName}. ¡Registra un tiempo y compártelo!`,
+    me: "Yo",
+    unknown: "Desconocido",
+  },
+};
 
 export default async function LeaderboardPage({
   searchParams,
@@ -18,6 +53,9 @@ export default async function LeaderboardPage({
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const lang = await getLang();
+  const t = L[lang];
 
   const metrics = (SPORTS.swimming.metrics ?? []).filter((m) => m.key !== "custom");
   const { metric } = await searchParams;
@@ -64,8 +102,8 @@ export default async function LeaderboardPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold">🏆 리더보드</h1>
-        <p className="mt-1 text-slate-500">공유된 기록 기준, 항목별 최고 기록 순위예요.</p>
+        <h1 className="text-2xl font-bold">{t.title}</h1>
+        <p className="mt-1 text-slate-500">{t.sub}</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
           {metrics.map((m) => {
@@ -87,7 +125,7 @@ export default async function LeaderboardPage({
 
         {ranked.length === 0 ? (
           <div className="card mt-6 p-12 text-center text-slate-500">
-            아직 {active.name} 공유 기록이 없어요. 기록을 측정하고 공유해보세요!
+            {t.empty(active.name)}
           </div>
         ) : (
           <div className="card mt-6 divide-y divide-slate-100">
@@ -103,8 +141,8 @@ export default async function LeaderboardPage({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">
-                      {nameOf.get(row.userId) ?? "알 수 없음"}
-                      {isMe && <span className="badge ml-2 bg-brand/10 text-brand">나</span>}
+                      {nameOf.get(row.userId) ?? t.unknown}
+                      {isMe && <span className="badge ml-2 bg-brand/10 text-brand">{t.me}</span>}
                     </p>
                     {dateOf.get(row.userId) && (
                       <p className="text-xs text-slate-400">{formatDate(dateOf.get(row.userId)!)}</p>

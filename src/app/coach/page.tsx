@@ -7,13 +7,63 @@ import ConnectionManager, { type Connection } from "@/components/ConnectionManag
 import AssignmentPanel, { type AssignmentRow } from "@/components/AssignmentPanel";
 import TeamPanel, { type TeamRow } from "@/components/TeamPanel";
 import type { RecordView } from "@/lib/types";
+import type { Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<
+  Lang,
+  {
+    title: string;
+    sub: string;
+    statAthletes: string;
+    statSharedRecords: string;
+    statFeedback: string;
+    athleteCount: (n: number) => string;
+    recordCount: (n: number) => string;
+    sharedRecordsHeading: string;
+  }
+> = {
+  ko: {
+    title: "코치 대시보드",
+    sub: "선수들이 공유한 기록을 확인하고 피드백을 남기세요.",
+    statAthletes: "담당 선수",
+    statSharedRecords: "공유된 기록",
+    statFeedback: "남긴 피드백",
+    athleteCount: (n) => `${n}명`,
+    recordCount: (n) => `${n}건`,
+    sharedRecordsHeading: "공유된 기록",
+  },
+  en: {
+    title: "Coach dashboard",
+    sub: "Review the records your athletes share and leave feedback.",
+    statAthletes: "My athletes",
+    statSharedRecords: "Shared records",
+    statFeedback: "Feedback given",
+    athleteCount: (n) => `${n}`,
+    recordCount: (n) => `${n}`,
+    sharedRecordsHeading: "Shared records",
+  },
+  es: {
+    title: "Panel del entrenador",
+    sub: "Revisa las marcas que comparten tus atletas y deja comentarios.",
+    statAthletes: "Mis atletas",
+    statSharedRecords: "Marcas compartidas",
+    statFeedback: "Comentarios dejados",
+    athleteCount: (n) => `${n}`,
+    recordCount: (n) => `${n}`,
+    sharedRecordsHeading: "Marcas compartidas",
+  },
+};
 
 export default async function CoachPage() {
   const session = await getSession();
   if (!session) redirect("/login");
   if (session.role !== "COACH") redirect("/");
+
+  const lang = await getLang();
+  const s = L[lang];
 
   const links = await prisma.coachAthlete.findMany({
     where: { coachId: session.userId },
@@ -90,16 +140,16 @@ export default async function CoachPage() {
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold">코치 대시보드</h1>
-        <p className="mt-1 text-slate-500">선수들이 공유한 기록을 확인하고 피드백을 남기세요.</p>
+        <h1 className="text-2xl font-bold">{s.title}</h1>
+        <p className="mt-1 text-slate-500">{s.sub}</p>
 
         {/* Summary */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard label="담당 선수" value={`${athletes.length}명`} />
-          <StatCard label="공유된 기록" value={`${records.length}건`} />
+          <StatCard label={s.statAthletes} value={s.athleteCount(athletes.length)} />
+          <StatCard label={s.statSharedRecords} value={s.recordCount(records.length)} />
           <StatCard
-            label="남긴 피드백"
-            value={`${records.reduce((n, r) => n + r.comments.filter((c) => c.author.role === "COACH").length, 0)}건`}
+            label={s.statFeedback}
+            value={s.recordCount(records.reduce((n, r) => n + r.comments.filter((c) => c.author.role === "COACH").length, 0))}
           />
         </div>
 
@@ -107,17 +157,18 @@ export default async function CoachPage() {
           <AssignmentPanel
             athletes={athletes.map((a) => ({ id: a.id, name: a.name }))}
             assignments={assignmentRows}
+            lang={lang}
           />
-          <TeamPanel teams={teamRows} />
+          <TeamPanel teams={teamRows} lang={lang} />
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div>
-            <h2 className="mb-3 text-lg font-bold">공유된 기록</h2>
-            <RecordList records={view} mode="coach" />
+            <h2 className="mb-3 text-lg font-bold">{s.sharedRecordsHeading}</h2>
+            <RecordList records={view} mode="coach" lang={lang} />
           </div>
           <aside className="lg:order-last">
-            <ConnectionManager role="COACH" connections={connections} />
+            <ConnectionManager role="COACH" connections={connections} lang={lang} />
           </aside>
         </div>
       </main>

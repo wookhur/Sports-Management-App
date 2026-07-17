@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { SPORTS, SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import { formatDate } from "@/lib/format";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,39 @@ export const dynamic = "force-dynamic";
 // one place, with sport filter chips. Detail/edit pages stay under
 // /sports/[sportId]/athletes/*; this is the cross-sport entrance the
 // sidebar links to.
+
+const L: Record<
+  Lang,
+  {
+    title: string;
+    sub: string;
+    all: string;
+    writeTitle: (sportName: string) => string;
+    empty: string;
+  }
+> = {
+  ko: {
+    title: "⭐ 스타 루틴",
+    sub: "세계적인 선수들이 실제로 사용하는 훈련 방법을 만나보세요.",
+    all: "전체",
+    writeTitle: (sportName) => `${sportName} 스타 루틴 작성`,
+    empty: "아직 등록된 스타 루틴이 없어요.",
+  },
+  en: {
+    title: "⭐ Star Routines",
+    sub: "Discover the training methods world-class athletes actually use.",
+    all: "All",
+    writeTitle: (sportName) => `Write a ${sportName} star routine`,
+    empty: "No star routines have been posted yet.",
+  },
+  es: {
+    title: "⭐ Rutinas de estrellas",
+    sub: "Descubre los métodos de entrenamiento que realmente usan los atletas de clase mundial.",
+    all: "Todos",
+    writeTitle: (sportName) => `Escribir una rutina de estrella de ${sportName}`,
+    empty: "Todavía no hay rutinas de estrellas publicadas.",
+  },
+};
 
 export default async function StarRoutinesPage({
   searchParams,
@@ -21,6 +56,9 @@ export default async function StarRoutinesPage({
   const session = await getSession();
   if (!session) redirect("/login");
   const isCoach = session.role === "COACH";
+
+  const lang = await getLang();
+  const t = L[lang];
 
   const { sport } = await searchParams;
   const activeSport = sport && SPORTS[sport] ? sport : undefined;
@@ -32,8 +70,11 @@ export default async function StarRoutinesPage({
   });
 
   const chips = [
-    { key: undefined as string | undefined, label: "전체" },
-    ...SPORT_LIST.map((s) => ({ key: s.id as string | undefined, label: s.name })),
+    { key: undefined as string | undefined, label: t.all },
+    ...SPORT_LIST.map((s) => ({
+      key: s.id as string | undefined,
+      label: SPORT_I18N[s.id]?.[lang]?.name ?? s.name,
+    })),
   ];
 
   return (
@@ -42,21 +83,24 @@ export default async function StarRoutinesPage({
       <main className="mx-auto max-w-5xl px-4 py-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold">⭐ 스타 루틴</h1>
-            <p className="mt-1 text-slate-500">세계적인 선수들이 실제로 사용하는 훈련 방법을 만나보세요.</p>
+            <h1 className="text-2xl font-bold">{t.title}</h1>
+            <p className="mt-1 text-slate-500">{t.sub}</p>
           </div>
           {isCoach && (
             <div className="flex items-center gap-2">
-              {SPORT_LIST.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/sports/${s.id}/athletes/new`}
-                  className="btn-ghost px-3 py-1.5 text-xs"
-                  title={`${s.name} 스타 루틴 작성`}
-                >
-                  + {s.name}
-                </Link>
-              ))}
+              {SPORT_LIST.map((s) => {
+                const name = SPORT_I18N[s.id]?.[lang]?.name ?? s.name;
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/sports/${s.id}/athletes/new`}
+                    className="btn-ghost px-3 py-1.5 text-xs"
+                    title={t.writeTitle(name)}
+                  >
+                    + {name}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -84,7 +128,7 @@ export default async function StarRoutinesPage({
 
         {guides.length === 0 ? (
           <div className="card mt-6 p-12 text-center text-slate-500">
-            아직 등록된 스타 루틴이 없어요.
+            {t.empty}
           </div>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -114,7 +158,7 @@ export default async function StarRoutinesPage({
                         className="badge"
                         style={{ backgroundColor: `${s?.accent ?? "#64748b"}1a`, color: s?.accent ?? "#334155" }}
                       >
-                        {s?.name ?? guide.sport}
+                        {SPORT_I18N[guide.sport]?.[lang]?.name ?? s?.name ?? guide.sport}
                       </span>
                       <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
                     </div>

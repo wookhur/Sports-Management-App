@@ -4,16 +4,129 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Metric } from "@/lib/sports";
 import { formatDuration, formatPace } from "@/lib/format";
+import type { Lang } from "@/lib/i18n";
 
 type Mode = "timer" | "manual";
+
+const L: Record<
+  Lang,
+  {
+    heading: string;
+    timerTab: string;
+    manualTab: string;
+    metricLabel: string;
+    distanceLabel: string;
+    pickDistance: string;
+    resume: string;
+    start: string;
+    pause: string;
+    reset: string;
+    saving: string;
+    save: string;
+    manualTitle: string;
+    minutes: string;
+    seconds: string;
+    millis: string;
+    notesLabel: string;
+    notesPlaceholder: string;
+    shareNow: string;
+    errManualRange: string;
+    errMeasureFirst: string;
+    errEnterTime: string;
+    errSaveFailed: string;
+    savedFlash: string;
+  }
+> = {
+  ko: {
+    heading: "⏱️ 기록 측정",
+    timerTab: "타이머",
+    manualTab: "직접 입력",
+    metricLabel: "측정 항목",
+    distanceLabel: "거리 (m)",
+    pickDistance: "거리 선택",
+    resume: "계속",
+    start: "시작",
+    pause: "정지",
+    reset: "초기화",
+    saving: "저장 중…",
+    save: "💾 저장",
+    manualTitle: "기록 시간 직접 입력",
+    minutes: "분",
+    seconds: "초",
+    millis: "1/1000초",
+    notesLabel: "메모 (선택)",
+    notesPlaceholder: "예: 출발 반응 좋았음, 턴 개선 필요",
+    shareNow: "코치에게 바로 공유하기",
+    errManualRange: "초는 0~59, 1000분의1초는 0~999 범위로 입력하세요",
+    errMeasureFirst: "먼저 기록을 측정하세요",
+    errEnterTime: "기록 시간을 입력하세요",
+    errSaveFailed: "저장에 실패했습니다",
+    savedFlash: "✓ 기록이 저장되었습니다",
+  },
+  en: {
+    heading: "⏱️ Time a Record",
+    timerTab: "Timer",
+    manualTab: "Manual entry",
+    metricLabel: "Metric",
+    distanceLabel: "Distance (m)",
+    pickDistance: "Pick a distance",
+    resume: "Resume",
+    start: "Start",
+    pause: "Pause",
+    reset: "Reset",
+    saving: "Saving…",
+    save: "💾 Save",
+    manualTitle: "Enter your time manually",
+    minutes: "min",
+    seconds: "sec",
+    millis: "millis",
+    notesLabel: "Notes (optional)",
+    notesPlaceholder: "e.g. Good start reaction, turns need work",
+    shareNow: "Share with coach right away",
+    errManualRange: "Seconds must be 0–59 and milliseconds 0–999",
+    errMeasureFirst: "Time a record first",
+    errEnterTime: "Enter a time",
+    errSaveFailed: "Couldn't save the record",
+    savedFlash: "✓ Record saved",
+  },
+  es: {
+    heading: "⏱️ Cronometrar una marca",
+    timerTab: "Cronómetro",
+    manualTab: "Entrada manual",
+    metricLabel: "Prueba",
+    distanceLabel: "Distancia (m)",
+    pickDistance: "Elige una distancia",
+    resume: "Continuar",
+    start: "Iniciar",
+    pause: "Pausar",
+    reset: "Reiniciar",
+    saving: "Guardando…",
+    save: "💾 Guardar",
+    manualTitle: "Ingresa tu tiempo manualmente",
+    minutes: "min",
+    seconds: "seg",
+    millis: "milésimas",
+    notesLabel: "Notas (opcional)",
+    notesPlaceholder: "ej. Buena reacción en la salida, mejorar los virajes",
+    shareNow: "Compartir con el entrenador de inmediato",
+    errManualRange: "Los segundos deben estar entre 0 y 59, y las milésimas entre 0 y 999",
+    errMeasureFirst: "Primero cronometra una marca",
+    errEnterTime: "Ingresa un tiempo",
+    errSaveFailed: "No se pudo guardar la marca",
+    savedFlash: "✓ Marca guardada",
+  },
+};
 
 export default function Stopwatch({
   sportId,
   metrics,
+  lang = "ko",
 }: {
   sportId: string;
   metrics: Metric[];
+  lang?: Lang;
 }) {
+  const s = L[lang];
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("timer");
   const [metricKey, setMetricKey] = useState(metrics[0]?.key ?? "");
@@ -82,11 +195,11 @@ export default function Stopwatch({
 
   async function save() {
     if (mode === "manual" && (Number(manualSec) >= 60 || Number(manualMs) >= 1000)) {
-      setError("초는 0~59, 1000분의1초는 0~999 범위로 입력하세요");
+      setError(s.errManualRange);
       return;
     }
     if (activeDurationMs <= 0) {
-      setError(mode === "timer" ? "먼저 기록을 측정하세요" : "기록 시간을 입력하세요");
+      setError(mode === "timer" ? s.errMeasureFirst : s.errEnterTime);
       return;
     }
     stop();
@@ -107,7 +220,7 @@ export default function Stopwatch({
     const data = await res.json().catch(() => null);
     setSaving(false);
     if (!res.ok) {
-      setError(data?.error ?? "저장에 실패했습니다");
+      setError(data?.error ?? s.errSaveFailed);
       return;
     }
     setElapsed(0);
@@ -123,7 +236,7 @@ export default function Stopwatch({
   return (
     <div className="card p-5 sm:p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold">⏱️ 기록 측정</h3>
+        <h3 className="text-lg font-bold">{s.heading}</h3>
         <div className="flex rounded-lg bg-slate-100 p-1 text-sm">
           <button
             type="button"
@@ -132,7 +245,7 @@ export default function Stopwatch({
               mode === "timer" ? "bg-white shadow-sm text-slate-900" : "text-slate-500"
             }`}
           >
-            타이머
+            {s.timerTab}
           </button>
           <button
             type="button"
@@ -141,7 +254,7 @@ export default function Stopwatch({
               mode === "manual" ? "bg-white shadow-sm text-slate-900" : "text-slate-500"
             }`}
           >
-            직접 입력
+            {s.manualTab}
           </button>
         </div>
       </div>
@@ -149,7 +262,7 @@ export default function Stopwatch({
       {/* Metric selector */}
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="label">측정 항목</label>
+          <label className="label">{s.metricLabel}</label>
           <select
             className="input"
             value={metricKey}
@@ -164,7 +277,7 @@ export default function Stopwatch({
         </div>
         {isCustom && (
           <div>
-            <label className="label">거리 (m)</label>
+            <label className="label">{s.distanceLabel}</label>
             <input
               className="input"
               type="number"
@@ -184,7 +297,7 @@ export default function Stopwatch({
               {formatDuration(elapsed)}
             </div>
             <div className="mt-2 text-sm text-slate-400">
-              {distanceM ? `${distanceM}m` : "거리 선택"}
+              {distanceM ? `${distanceM}m` : s.pickDistance}
               {pace && elapsed > 0 ? ` · ${pace}` : ""}
             </div>
           </div>
@@ -193,18 +306,18 @@ export default function Stopwatch({
           <div className="mt-4 grid grid-cols-3 gap-2">
             {!running ? (
               <button onClick={start} className="btn bg-emerald-500 text-white hover:bg-emerald-600">
-                ▶ {elapsed > 0 ? "계속" : "시작"}
+                ▶ {elapsed > 0 ? s.resume : s.start}
               </button>
             ) : (
               <button onClick={stop} className="btn bg-amber-500 text-white hover:bg-amber-600">
-                ⏸ 정지
+                ⏸ {s.pause}
               </button>
             )}
             <button onClick={reset} className="btn-ghost" disabled={elapsed === 0 && !running}>
-              ↺ 초기화
+              ↺ {s.reset}
             </button>
             <button onClick={save} disabled={saving || elapsed === 0} className="btn-primary">
-              {saving ? "저장 중…" : "💾 저장"}
+              {saving ? s.saving : s.save}
             </button>
           </div>
         </>
@@ -212,13 +325,13 @@ export default function Stopwatch({
         <>
           {/* Manual entry */}
           <div className="mt-5 rounded-2xl bg-slate-900 p-6">
-            <p className="mb-3 text-center text-xs text-slate-400">기록 시간 직접 입력</p>
+            <p className="mb-3 text-center text-xs text-slate-400">{s.manualTitle}</p>
             <div className="flex items-end justify-center gap-2">
-              <ManualField label="분" value={manualMin} onChange={setManualMin} max={999} />
+              <ManualField label={s.minutes} value={manualMin} onChange={setManualMin} max={999} />
               <span className="pb-2.5 text-2xl font-bold text-slate-500">:</span>
-              <ManualField label="초" value={manualSec} onChange={setManualSec} max={59} />
+              <ManualField label={s.seconds} value={manualSec} onChange={setManualSec} max={59} />
               <span className="pb-2.5 text-2xl font-bold text-slate-500">.</span>
-              <ManualField label="1/1000초" value={manualMs} onChange={setManualMs} max={999} wide />
+              <ManualField label={s.millis} value={manualMs} onChange={setManualMs} max={999} wide />
             </div>
             <div className="mt-3 text-center text-sm text-slate-400">
               {formatDuration(manualDurationMs)}
@@ -229,7 +342,7 @@ export default function Stopwatch({
 
           <div className="mt-4">
             <button onClick={save} disabled={saving || activeDurationMs <= 0} className="btn-primary w-full">
-              {saving ? "저장 중…" : "💾 저장"}
+              {saving ? s.saving : s.save}
             </button>
           </div>
         </>
@@ -237,12 +350,12 @@ export default function Stopwatch({
 
       {/* Notes + share */}
       <div className="mt-4">
-        <label className="label">메모 (선택)</label>
+        <label className="label">{s.notesLabel}</label>
         <input
           className="input"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="예: 출발 반응 좋았음, 턴 개선 필요"
+          placeholder={s.notesPlaceholder}
         />
       </div>
       <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-slate-600">
@@ -252,13 +365,13 @@ export default function Stopwatch({
           onChange={(e) => setShared(e.target.checked)}
           className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
         />
-        코치에게 바로 공유하기
+        {s.shareNow}
       </label>
 
       {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
       {savedFlash && (
         <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
-          ✓ 기록이 저장되었습니다
+          {s.savedFlash}
         </p>
       )}
     </div>

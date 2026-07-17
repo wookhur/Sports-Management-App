@@ -7,12 +7,66 @@ import { computeBadges } from "@/lib/badges";
 import NavBar from "@/components/NavBar";
 import BadgeRow from "@/components/BadgeRow";
 import ProfileEditor, { type ProfileData } from "@/components/ProfileEditor";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<
+  Lang,
+  {
+    roleCoach: string;
+    roleAthlete: string;
+    statRecords: string;
+    nRecords: (n: number) => string;
+    statStreak: string;
+    statLongest: string;
+    nDays: (n: number) => string;
+    badges: string;
+    earned: (earned: number, total: number) => string;
+  }
+> = {
+  ko: {
+    roleCoach: "코치",
+    roleAthlete: "선수",
+    statRecords: "측정한 기록",
+    nRecords: (n) => `${n}건`,
+    statStreak: "연속 출석",
+    statLongest: "최장 출석",
+    nDays: (n) => `${n}일`,
+    badges: "배지",
+    earned: (earned, total) => `· ${earned}/${total} 획득`,
+  },
+  en: {
+    roleCoach: "Coach",
+    roleAthlete: "Athlete",
+    statRecords: "Records logged",
+    nRecords: (n) => `${n}`,
+    statStreak: "Current streak",
+    statLongest: "Longest streak",
+    nDays: (n) => `${n} days`,
+    badges: "Badges",
+    earned: (earned, total) => `· ${earned}/${total} earned`,
+  },
+  es: {
+    roleCoach: "Entrenador",
+    roleAthlete: "Atleta",
+    statRecords: "Marcas registradas",
+    nRecords: (n) => `${n}`,
+    statStreak: "Racha actual",
+    statLongest: "Racha más larga",
+    nDays: (n) => `${n} días`,
+    badges: "Insignias",
+    earned: (earned, total) => `· ${earned}/${total} conseguidas`,
+  },
+};
 
 export default async function ProfilePage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const lang = await getLang();
+  const t = L[lang];
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
@@ -34,7 +88,7 @@ export default async function ProfilePage() {
   });
   if (!user) redirect("/login");
 
-  const badges = await computeBadges(session.userId);
+  const badges = await computeBadges(session.userId, lang);
   const isCoach = user.role === "COACH";
 
   const initial: ProfileData = {
@@ -60,7 +114,7 @@ export default async function ProfilePage() {
             <p className="text-sm text-slate-500">
               {user.email} ·{" "}
               <span className={`badge ${isCoach ? "bg-brand/10 text-brand" : "bg-emerald-50 text-emerald-600"}`}>
-                {isCoach ? "코치" : "선수"}
+                {isCoach ? t.roleCoach : t.roleAthlete}
               </span>
             </p>
           </div>
@@ -68,32 +122,37 @@ export default async function ProfilePage() {
 
         <div className="mt-6 grid grid-cols-3 gap-3">
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">측정한 기록</p>
-            <p className="mt-1 text-xl font-bold tabular-nums">{user._count.records}건</p>
+            <p className="text-xs text-slate-400">{t.statRecords}</p>
+            <p className="mt-1 text-xl font-bold tabular-nums">{t.nRecords(user._count.records)}</p>
           </div>
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">연속 출석</p>
-            <p className="mt-1 text-xl font-bold tabular-nums">🔥 {user.currentStreak}일</p>
+            <p className="text-xs text-slate-400">{t.statStreak}</p>
+            <p className="mt-1 text-xl font-bold tabular-nums">🔥 {t.nDays(user.currentStreak)}</p>
           </div>
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">최장 출석</p>
-            <p className="mt-1 text-xl font-bold tabular-nums">{user.longestStreak}일</p>
+            <p className="text-xs text-slate-400">{t.statLongest}</p>
+            <p className="mt-1 text-xl font-bold tabular-nums">{t.nDays(user.longestStreak)}</p>
           </div>
         </div>
 
         <section className="mt-8">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-            배지 <span className="font-normal normal-case text-slate-300">· {badges.filter((b) => b.earned).length}/{badges.length} 획득</span>
+            {t.badges} <span className="font-normal normal-case text-slate-300">{t.earned(badges.filter((b) => b.earned).length, badges.length)}</span>
           </h2>
           <BadgeRow badges={badges} />
         </section>
 
         <section className="mt-8">
           <ProfileEditor
+            lang={lang}
             initial={initial}
             gradeOptions={[...GRADE_OPTIONS]}
             experienceOptions={EXPERIENCE_LEVELS.map((l) => ({ value: l.value, label: l.label }))}
-            sportOptions={SPORT_LIST.map((s) => ({ id: s.id, name: s.name, emoji: s.emoji }))}
+            sportOptions={SPORT_LIST.map((s) => ({
+              id: s.id,
+              name: SPORT_I18N[s.id]?.[lang]?.name ?? s.name,
+              emoji: s.emoji,
+            }))}
           />
         </section>
       </main>

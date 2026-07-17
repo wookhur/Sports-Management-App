@@ -6,11 +6,122 @@ import { getSport } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import Stopwatch from "@/components/Stopwatch";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 const levelColors: Record<string, string> = {
   입문: "bg-emerald-50 text-emerald-600",
   중급: "bg-amber-50 text-amber-600",
   고급: "bg-rose-50 text-rose-600",
+};
+
+const L: Record<
+  Lang,
+  {
+    home: string;
+    swProgramCat: string;
+    swProgramTitle: string;
+    swProgramDesc: string;
+    scDrillsCat: string;
+    scDrillsTitle: string;
+    scDrillsDesc: string;
+    scProgramCat: string;
+    scProgramTitle: string;
+    scProgramDesc: string;
+    laxProgramCat: string;
+    laxProgramTitle: string;
+    laxProgramDesc: string;
+    athletesCat: string;
+    athletesTitle: string;
+    athletesDesc: string;
+    trainingHeading: string;
+    practiceHeading: string;
+    guidesSub: string;
+    minutes: (n: number) => string;
+    recentRecords: string;
+    emptyRecords: string;
+    manageAll: string;
+    best: string;
+  }
+> = {
+  ko: {
+    home: "홈",
+    swProgramCat: "추천 훈련 프로그램",
+    swProgramTitle: "1,440개 완성 워크아웃 · 영법·거리·레벨별",
+    swProgramDesc: "웜업부터 쿨다운까지 5단계 세트와 검증된 드릴 영상을 제공해요.",
+    scDrillsCat: "드릴 (그림 설명)",
+    scDrillsTitle: "연령대별 드릴 다이어그램",
+    scDrillsDesc: "콘 배치와 움직임을 그림으로 확인하세요.",
+    scProgramCat: "훈련 프로그램",
+    scProgramTitle: "학년별 세션 플랜 · 스트레칭",
+    scProgramDesc: "실제 훈련 커리큘럼과 루틴이에요.",
+    laxProgramCat: "엘리트 훈련 프로그램",
+    laxProgramTitle: "USA Lacrosse · NCAA D1 · PLL 기반",
+    laxProgramDesc: "철학·웜업·컨디셔닝·포지션별 플랜과 40여 개 검증 영상까지 담았어요.",
+    athletesCat: "유명 선수 훈련법",
+    athletesTitle: "실제 선수들은 어떻게 훈련할까요?",
+    athletesDesc: "유명 선수들의 훈련 방식을 소개해요.",
+    trainingHeading: "훈련 방식",
+    practiceHeading: "연습 방식",
+    guidesSub: "단계별 가이드를 따라 훈련해보세요.",
+    minutes: (n) => `${n}분`,
+    recentRecords: "최근 기록",
+    emptyRecords: "아직 기록이 없어요. 왼쪽에서 첫 기록을 측정해보세요!",
+    manageAll: "모든 기록 관리 →",
+    best: "🏆 최고",
+  },
+  en: {
+    home: "Home",
+    swProgramCat: "Recommended training programs",
+    swProgramTitle: "1,440 complete workouts · by stroke, distance, and level",
+    swProgramDesc: "5-part sets from warm-up to cool-down, plus verified drill videos.",
+    scDrillsCat: "Drills (illustrated)",
+    scDrillsTitle: "Drill diagrams by age group",
+    scDrillsDesc: "See cone setups and movement in diagrams.",
+    scProgramCat: "Training program",
+    scProgramTitle: "Session plans by grade · stretching",
+    scProgramDesc: "Real training curriculum and routines.",
+    laxProgramCat: "Elite training program",
+    laxProgramTitle: "Based on USA Lacrosse · NCAA D1 · PLL",
+    laxProgramDesc: "Philosophy, warm-up, conditioning, position plans, and 40+ verified videos.",
+    athletesCat: "Famous athlete training methods",
+    athletesTitle: "How do real athletes train?",
+    athletesDesc: "Discover how famous athletes train.",
+    trainingHeading: "Training methods",
+    practiceHeading: "Practice methods",
+    guidesSub: "Train along with step-by-step guides.",
+    minutes: (n) => `${n} min`,
+    recentRecords: "Recent records",
+    emptyRecords: "No records yet. Track your first time on the left!",
+    manageAll: "Manage all records →",
+    best: "🏆 Best",
+  },
+  es: {
+    home: "Inicio",
+    swProgramCat: "Programas de entrenamiento recomendados",
+    swProgramTitle: "1,440 workouts completos · por estilo, distancia y nivel",
+    swProgramDesc: "Series en 5 fases, del calentamiento a la vuelta a la calma, con videos de ejercicios verificados.",
+    scDrillsCat: "Ejercicios (ilustrados)",
+    scDrillsTitle: "Diagramas de ejercicios por edad",
+    scDrillsDesc: "Mira la colocación de conos y los movimientos en diagramas.",
+    scProgramCat: "Programa de entrenamiento",
+    scProgramTitle: "Planes de sesión por grado · estiramientos",
+    scProgramDesc: "Currículo y rutinas de entrenamiento reales.",
+    laxProgramCat: "Programa de entrenamiento de élite",
+    laxProgramTitle: "Basado en USA Lacrosse · NCAA D1 · PLL",
+    laxProgramDesc: "Filosofía, calentamiento, acondicionamiento, planes por posición y más de 40 videos verificados.",
+    athletesCat: "Métodos de entrenamiento de atletas famosos",
+    athletesTitle: "¿Cómo entrenan los atletas de verdad?",
+    athletesDesc: "Te presentamos cómo entrenan los atletas famosos.",
+    trainingHeading: "Métodos de entrenamiento",
+    practiceHeading: "Métodos de práctica",
+    guidesSub: "Entrena siguiendo las guías paso a paso.",
+    minutes: (n) => `${n} min`,
+    recentRecords: "Marcas recientes",
+    emptyRecords: "Todavía no hay marcas. ¡Registra tu primer tiempo a la izquierda!",
+    manageAll: "Gestionar todas las marcas →",
+    best: "🏆 Mejor",
+  },
 };
 
 export default async function SportPage({
@@ -21,9 +132,15 @@ export default async function SportPage({
   const session = await getSession();
   if (!session) redirect("/login");
 
+  const lang = await getLang();
+  const t = L[lang];
+
   const { sportId } = await params;
   const sport = getSport(sportId);
   if (!sport) notFound();
+
+  const sportName = SPORT_I18N[sportId]?.[lang]?.name ?? sport.name;
+  const sportTagline = SPORT_I18N[sportId]?.[lang]?.tagline ?? sport.tagline;
 
   const canMeasure = sport.features.includes("measure");
   const records = canMeasure
@@ -47,7 +164,7 @@ export default async function SportPage({
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <Link href="/" className="text-sm text-slate-400 hover:text-slate-600">
-          ← 홈
+          ← {t.home}
         </Link>
 
         <header
@@ -55,8 +172,8 @@ export default async function SportPage({
         >
           <span className="text-5xl">{sport.emoji}</span>
           <div>
-            <h1 className="text-2xl font-bold">{sport.name}</h1>
-            <p className="text-white/85">{sport.tagline}</p>
+            <h1 className="text-2xl font-bold">{sportName}</h1>
+            <p className="text-white/85">{sportTagline}</p>
           </div>
         </header>
 
@@ -67,12 +184,12 @@ export default async function SportPage({
             className="mt-6 flex items-center justify-between rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 p-5 transition hover:shadow-md"
           >
             <div>
-              <p className="text-sm font-medium text-cyan-700">추천 훈련 프로그램</p>
+              <p className="text-sm font-medium text-cyan-700">{t.swProgramCat}</p>
               <p className="mt-0.5 text-lg font-bold text-slate-800">
-                1,440개 완성 워크아웃 · 영법·거리·레벨별
+                {t.swProgramTitle}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                웜업부터 쿨다운까지 5단계 세트와 검증된 드릴 영상을 제공해요.
+                {t.swProgramDesc}
               </p>
             </div>
             <span className="text-2xl text-cyan-600">→</span>
@@ -85,9 +202,9 @@ export default async function SportPage({
               className="flex items-center justify-between rounded-2xl border border-indigo-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 transition hover:shadow-md"
             >
               <div>
-                <p className="text-sm font-medium text-indigo-700">드릴 (그림 설명)</p>
-                <p className="mt-0.5 text-lg font-bold text-slate-800">연령대별 드릴 다이어그램</p>
-                <p className="mt-1 text-sm text-slate-500">콘 배치와 움직임을 그림으로 확인하세요.</p>
+                <p className="text-sm font-medium text-indigo-700">{t.scDrillsCat}</p>
+                <p className="mt-0.5 text-lg font-bold text-slate-800">{t.scDrillsTitle}</p>
+                <p className="mt-1 text-sm text-slate-500">{t.scDrillsDesc}</p>
               </div>
               <span className="text-2xl text-indigo-600">→</span>
             </Link>
@@ -96,9 +213,9 @@ export default async function SportPage({
               className="flex items-center justify-between rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-5 transition hover:shadow-md"
             >
               <div>
-                <p className="text-sm font-medium text-slate-600">훈련 프로그램</p>
-                <p className="mt-0.5 text-lg font-bold text-slate-800">학년별 세션 플랜 · 스트레칭</p>
-                <p className="mt-1 text-sm text-slate-500">실제 훈련 커리큘럼과 루틴이에요.</p>
+                <p className="text-sm font-medium text-slate-600">{t.scProgramCat}</p>
+                <p className="mt-0.5 text-lg font-bold text-slate-800">{t.scProgramTitle}</p>
+                <p className="mt-1 text-sm text-slate-500">{t.scProgramDesc}</p>
               </div>
               <span className="text-2xl text-slate-500">→</span>
             </Link>
@@ -110,12 +227,12 @@ export default async function SportPage({
             className="mt-6 flex items-center justify-between rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 transition hover:shadow-md"
           >
             <div>
-              <p className="text-sm font-medium text-emerald-700">엘리트 훈련 프로그램</p>
+              <p className="text-sm font-medium text-emerald-700">{t.laxProgramCat}</p>
               <p className="mt-0.5 text-lg font-bold text-slate-800">
-                USA Lacrosse · NCAA D1 · PLL 기반
+                {t.laxProgramTitle}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                철학·웜업·컨디셔닝·포지션별 플랜과 40여 개 검증 영상까지 담았어요.
+                {t.laxProgramDesc}
               </p>
             </div>
             <span className="text-2xl text-emerald-600">→</span>
@@ -128,9 +245,9 @@ export default async function SportPage({
           className="mt-6 flex items-center justify-between rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 transition hover:shadow-md"
         >
           <div>
-            <p className="text-sm font-medium text-amber-700">유명 선수 훈련법</p>
-            <p className="mt-0.5 text-lg font-bold text-slate-800">실제 선수들은 어떻게 훈련할까요?</p>
-            <p className="mt-1 text-sm text-slate-500">유명 선수들의 훈련 방식을 소개해요.</p>
+            <p className="text-sm font-medium text-amber-700">{t.athletesCat}</p>
+            <p className="mt-0.5 text-lg font-bold text-slate-800">{t.athletesTitle}</p>
+            <p className="mt-1 text-sm text-slate-500">{t.athletesDesc}</p>
           </div>
           <span className="text-2xl text-amber-600">→</span>
         </Link>
@@ -139,10 +256,10 @@ export default async function SportPage({
         {sport.guides && sport.guides.length > 0 && (
           <section className="mt-8">
             <h2 className="mb-1 text-lg font-bold">
-              {sportId === "soccer" ? "연습 방식" : "훈련 방식"}
+              {sportId === "soccer" ? t.practiceHeading : t.trainingHeading}
             </h2>
             <p className="mb-4 text-sm text-slate-500">
-              단계별 가이드를 따라 훈련해보세요.
+              {t.guidesSub}
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {sport.guides.map((guide) => (
@@ -153,7 +270,7 @@ export default async function SportPage({
                 >
                   <div className="flex items-center justify-between">
                     <span className={`badge ${levelColors[guide.level]}`}>{guide.level}</span>
-                    <span className="text-xs text-slate-400">⏱ {guide.durationMin}분</span>
+                    <span className="text-xs text-slate-400">⏱ {t.minutes(guide.durationMin)}</span>
                   </div>
                   <h3 className="mt-3 text-lg font-bold group-hover:text-brand">{guide.title}</h3>
                   <p className="mt-1 text-sm text-slate-500">{guide.summary}</p>
@@ -167,13 +284,13 @@ export default async function SportPage({
         {/* Measurement (swimming) */}
         {canMeasure && sport.metrics && (
           <section className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Stopwatch sportId={sportId} metrics={sport.metrics} />
+            <Stopwatch sportId={sportId} metrics={sport.metrics} lang={lang} />
 
             <div>
-              <h2 className="mb-3 text-lg font-bold">최근 기록</h2>
+              <h2 className="mb-3 text-lg font-bold">{t.recentRecords}</h2>
               {records.length === 0 ? (
                 <div className="card p-8 text-center text-slate-500">
-                  아직 기록이 없어요. 왼쪽에서 첫 기록을 측정해보세요!
+                  {t.emptyRecords}
                 </div>
               ) : (
                 <div className="card divide-y divide-slate-100">
@@ -186,7 +303,7 @@ export default async function SportPage({
                             <p className="flex items-center gap-1.5 font-medium">
                               {r.metricName}
                               {isBest && (
-                                <span className="badge bg-yellow-50 text-yellow-600">🏆 최고</span>
+                                <span className="badge bg-yellow-50 text-yellow-600">{t.best}</span>
                               )}
                             </p>
                             <p className="text-xs text-slate-400">{formatDate(r.createdAt)}</p>
@@ -209,7 +326,7 @@ export default async function SportPage({
                 </div>
               )}
               <Link href="/records" className="mt-3 inline-block text-sm font-medium text-brand">
-                모든 기록 관리 →
+                {t.manageAll}
               </Link>
             </div>
           </section>

@@ -7,8 +7,59 @@ import SearchBox from "@/components/SearchBox";
 import { searchWorkouts, STROKE_KO, LEVEL_KO } from "@/lib/swimming";
 import { searchDrills } from "@/lib/soccerDrills";
 import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
+import { getLang } from "@/lib/getLang";
+import type { Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<
+  Lang,
+  {
+    title: string;
+    resultCount: (n: number) => string;
+    empty: string;
+    swimHeading: string;
+    workoutTitle: (stroke: string, base: number) => string;
+    workoutMeta: (id: string, level: string, total: string) => string;
+    soccerHeading: string;
+    lacrosseHeading: string;
+    blogHeading: string;
+  }
+> = {
+  ko: {
+    title: "통합 검색",
+    resultCount: (n) => `${n}개 결과`,
+    empty: "검색 결과가 없어요. 다른 키워드로 시도해보세요.",
+    swimHeading: "🏊 수영 워크아웃",
+    workoutTitle: (stroke, base) => `${stroke} · ${base}m 기준`,
+    workoutMeta: (id, level, total) => `${id} · ${level} · 총 ${total}m`,
+    soccerHeading: "⚽ 축구 드릴",
+    lacrosseHeading: "🥍 라크로스 훈련 영상",
+    blogHeading: "📝 블로그",
+  },
+  en: {
+    title: "Search",
+    resultCount: (n) => `${n} result${n === 1 ? "" : "s"}`,
+    empty: "No results found. Try a different keyword.",
+    swimHeading: "🏊 Swim workouts",
+    workoutTitle: (stroke, base) => `${stroke} · ${base}m base`,
+    workoutMeta: (id, level, total) => `${id} · ${level} · ${total}m total`,
+    soccerHeading: "⚽ Soccer drills",
+    lacrosseHeading: "🥍 Lacrosse training videos",
+    blogHeading: "📝 Blog",
+  },
+  es: {
+    title: "Búsqueda",
+    resultCount: (n) => `${n} resultado${n === 1 ? "" : "s"}`,
+    empty: "No hay resultados. Prueba con otra palabra clave.",
+    swimHeading: "🏊 Entrenamientos de natación",
+    workoutTitle: (stroke, base) => `${stroke} · base de ${base}m`,
+    workoutMeta: (id, level, total) => `${id} · ${level} · ${total}m en total`,
+    soccerHeading: "⚽ Ejercicios de fútbol",
+    lacrosseHeading: "🥍 Videos de entrenamiento de lacrosse",
+    blogHeading: "📝 Blog",
+  },
+};
 
 export default async function SearchPage({
   searchParams,
@@ -16,6 +67,8 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   if (!(await getSession())) redirect("/login");
+  const lang = await getLang();
+  const s = L[lang];
   const { q } = await searchParams;
   const query = (q ?? "").trim();
 
@@ -48,32 +101,32 @@ export default async function SearchPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold">통합 검색</h1>
+        <h1 className="text-2xl font-bold">{s.title}</h1>
         <div className="mt-4">
-          <SearchBox initial={query} />
+          <SearchBox initial={query} lang={lang} />
         </div>
 
         {query && (
           <p className="mt-4 text-sm text-slate-500">
-            <span className="font-semibold text-slate-800">“{query}”</span> · {total}개 결과
+            <span className="font-semibold text-slate-800">“{query}”</span> · {s.resultCount(total)}
           </p>
         )}
 
         {query && total === 0 && (
           <div className="card mt-4 p-10 text-center text-slate-500">
-            검색 결과가 없어요. 다른 키워드로 시도해보세요.
+            {s.empty}
           </div>
         )}
 
         {/* Swim workouts */}
         {workouts.length > 0 && (
-          <Group title="🏊 수영 워크아웃">
+          <Group title={s.swimHeading}>
             {workouts.map((w) => (
               <ResultRow
                 key={w.id}
                 href={`/sports/swimming/workouts/${w.id}`}
-                title={`${STROKE_KO[w.stroke]} · ${w.base}m 기준`}
-                meta={`${w.id} · ${LEVEL_KO[w.level]} · 총 ${w.totalDistanceM.toLocaleString()}m`}
+                title={s.workoutTitle(STROKE_KO[w.stroke], w.base)}
+                meta={s.workoutMeta(w.id, LEVEL_KO[w.level], w.totalDistanceM.toLocaleString())}
               />
             ))}
           </Group>
@@ -81,7 +134,7 @@ export default async function SearchPage({
 
         {/* Soccer drills */}
         {drills.length > 0 && (
-          <Group title="⚽ 축구 드릴">
+          <Group title={s.soccerHeading}>
             {drills.map((d) => (
               <ResultRow
                 key={d.id}
@@ -96,7 +149,7 @@ export default async function SearchPage({
         {/* Lacrosse videos */}
         {laxVideos.length > 0 && (
           <section className="mt-6">
-            <h2 className="mb-2 text-sm font-semibold text-slate-500">🥍 라크로스 훈련 영상</h2>
+            <h2 className="mb-2 text-sm font-semibold text-slate-500">{s.lacrosseHeading}</h2>
             <div className="card divide-y divide-slate-100">
               {laxVideos.map((v) => (
                 <a
@@ -118,7 +171,7 @@ export default async function SearchPage({
 
         {/* Blog */}
         {posts.length > 0 && (
-          <Group title="📝 블로그">
+          <Group title={s.blogHeading}>
             {posts.map((p) => (
               <ResultRow
                 key={p.id}

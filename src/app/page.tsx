@@ -12,8 +12,123 @@ import BadgeRow from "@/components/BadgeRow";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration } from "@/lib/format";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<
+  Lang,
+  {
+    greeting: (name: string) => string;
+    subCoach: string;
+    subAthlete: string;
+    newFeedback: (n: number) => string;
+    weeklyTitle: string;
+    weeklySub: string;
+    measureCountLabel: string;
+    measureCount: (n: number) => string;
+    pbLabel: string;
+    pbCount: (n: number) => string;
+    metricLabel: string;
+    metricCount: (n: number) => string;
+    weeklyHighlight: string;
+    badgesTitle: string;
+    badgesSub: (earned: number, total: number) => string;
+    coachDashboard: string;
+    coachDashboardLine: (n: number) => string;
+    sportsTitle: string;
+    featGuide: string;
+    featMeasure: string;
+    recentTitle: string;
+    viewAll: string;
+    emptyRecent: string;
+    shared: string;
+  }
+> = {
+  ko: {
+    greeting: (name) => `안녕하세요, ${name}님 👋`,
+    subCoach: "선수들의 기록을 확인하고 피드백을 남겨보세요.",
+    subAthlete: "종목을 선택해 훈련하고 기록을 측정하세요.",
+    newFeedback: (n) => `💬 코치가 새 피드백 ${n}개를 남겼어요`,
+    weeklyTitle: "주간 리포트",
+    weeklySub: "· 최근 7일",
+    measureCountLabel: "측정 횟수",
+    measureCount: (n) => `${n}회`,
+    pbLabel: "최고 기록 갱신",
+    pbCount: (n) => (n > 0 ? `🏆 ${n}개` : "0개"),
+    metricLabel: "훈련한 항목",
+    metricCount: (n) => `${n}개`,
+    weeklyHighlight: "이번 주 하이라이트:",
+    badgesTitle: "배지",
+    badgesSub: (earned, total) => `· ${earned}/${total} 획득`,
+    coachDashboard: "코치 대시보드",
+    coachDashboardLine: (n) => `${n}명의 선수 · 공유된 기록 보기`,
+    sportsTitle: "종목",
+    featGuide: "가이드",
+    featMeasure: "기록 측정",
+    recentTitle: "최근 기록",
+    viewAll: "전체 보기 →",
+    emptyRecent: "아직 기록이 없어요. 수영 종목에서 첫 기록을 측정해보세요! 🏊",
+    shared: "공유됨",
+  },
+  en: {
+    greeting: (name) => `Hi, ${name} 👋`,
+    subCoach: "Review your athletes' records and leave feedback.",
+    subAthlete: "Pick a sport to train and track your records.",
+    newFeedback: (n) =>
+      `💬 Your coach left ${n} new feedback comment${n === 1 ? "" : "s"}`,
+    weeklyTitle: "Weekly report",
+    weeklySub: "· last 7 days",
+    measureCountLabel: "Times recorded",
+    measureCount: (n) => `${n}`,
+    pbLabel: "Personal bests",
+    pbCount: (n) => (n > 0 ? `🏆 ${n}` : "0"),
+    metricLabel: "Events trained",
+    metricCount: (n) => `${n}`,
+    weeklyHighlight: "This week's highlight:",
+    badgesTitle: "Badges",
+    badgesSub: (earned, total) => `· ${earned}/${total} earned`,
+    coachDashboard: "Coach dashboard",
+    coachDashboardLine: (n) =>
+      `${n} athlete${n === 1 ? "" : "s"} · view shared records`,
+    sportsTitle: "Sports",
+    featGuide: "Guide",
+    featMeasure: "Time tracking",
+    recentTitle: "Recent records",
+    viewAll: "View all →",
+    emptyRecent: "No records yet. Head to Swimming and log your first time! 🏊",
+    shared: "Shared",
+  },
+  es: {
+    greeting: (name) => `Hola, ${name} 👋`,
+    subCoach: "Revisa las marcas de tus atletas y deja comentarios.",
+    subAthlete: "Elige un deporte para entrenar y registrar tus marcas.",
+    newFeedback: (n) =>
+      `💬 Tu entrenador dejó ${n} comentario${n === 1 ? " nuevo" : "s nuevos"}`,
+    weeklyTitle: "Reporte semanal",
+    weeklySub: "· últimos 7 días",
+    measureCountLabel: "Mediciones",
+    measureCount: (n) => `${n}`,
+    pbLabel: "Mejores marcas",
+    pbCount: (n) => (n > 0 ? `🏆 ${n}` : "0"),
+    metricLabel: "Pruebas entrenadas",
+    metricCount: (n) => `${n}`,
+    weeklyHighlight: "Lo mejor de la semana:",
+    badgesTitle: "Insignias",
+    badgesSub: (earned, total) => `· ${earned}/${total} obtenidas`,
+    coachDashboard: "Panel del entrenador",
+    coachDashboardLine: (n) =>
+      `${n} atleta${n === 1 ? "" : "s"} · ver marcas compartidas`,
+    sportsTitle: "Deportes",
+    featGuide: "Guía",
+    featMeasure: "Medición de tiempos",
+    recentTitle: "Marcas recientes",
+    viewAll: "Ver todo →",
+    emptyRecent: "Aún no tienes marcas. ¡Ve a Natación y registra tu primer tiempo! 🏊",
+    shared: "Compartido",
+  },
+};
 
 export default async function HomePage({
   searchParams,
@@ -23,6 +138,8 @@ export default async function HomePage({
   const session = await getSession();
   if (!session) redirect("/login");
 
+  const lang = await getLang();
+  const s = L[lang];
   const isCoach = session.role === "COACH";
   const { tutorial } = await searchParams;
   const user = await prisma.user.findUnique({
@@ -76,7 +193,7 @@ export default async function HomePage({
   let myTeams: MyTeam[] = [];
   let badges: Badge[] = [];
   if (!isCoach) {
-    badges = await computeBadges(session.userId);
+    badges = await computeBadges(session.userId, lang);
     const me = await prisma.user.findUnique({
       where: { id: session.userId },
       select: { lastSeenCommentsAt: true },
@@ -127,16 +244,14 @@ export default async function HomePage({
   return (
     <>
       <NavBar />
-      <OnboardingTour role={session.role} initialOpen={showTour} />
+      <OnboardingTour role={session.role} initialOpen={showTour} lang={lang} />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <section className="mb-8">
           <h1 className="text-2xl font-bold sm:text-3xl">
-            안녕하세요, {session.name}님 👋
+            {s.greeting(session.name)}
           </h1>
           <p className="mt-1 text-slate-500">
-            {isCoach
-              ? "선수들의 기록을 확인하고 피드백을 남겨보세요."
-              : "종목을 선택해 훈련하고 기록을 측정하세요."}
+            {isCoach ? s.subCoach : s.subAthlete}
           </p>
         </section>
 
@@ -146,40 +261,40 @@ export default async function HomePage({
             className="mb-6 flex items-center justify-between rounded-2xl border border-brand/20 bg-brand/5 px-5 py-4 transition hover:bg-brand/10"
           >
             <p className="text-sm font-semibold text-brand">
-              💬 코치가 새 피드백 {newFeedback}개를 남겼어요
+              {s.newFeedback(newFeedback)}
             </p>
             <span className="text-brand">→</span>
           </Link>
         )}
 
         <section className="mb-8">
-          <StreakCard streak={streak} leaders={leaders} myName={session.name} />
+          <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />
         </section>
 
         {weekly && (
           <section className="mb-8">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-              주간 리포트 <span className="font-normal normal-case text-slate-300">· 최근 7일</span>
+              {s.weeklyTitle} <span className="font-normal normal-case text-slate-300">{s.weeklySub}</span>
             </h2>
             <div className="grid grid-cols-3 gap-3">
               <div className="card p-4">
-                <p className="text-xs text-slate-400">측정 횟수</p>
-                <p className="mt-1 text-xl font-bold tabular-nums">{weekly.count}회</p>
+                <p className="text-xs text-slate-400">{s.measureCountLabel}</p>
+                <p className="mt-1 text-xl font-bold tabular-nums">{s.measureCount(weekly.count)}</p>
               </div>
               <div className="card p-4">
-                <p className="text-xs text-slate-400">최고 기록 갱신</p>
+                <p className="text-xs text-slate-400">{s.pbLabel}</p>
                 <p className="mt-1 text-xl font-bold tabular-nums">
-                  {weekly.pbCount > 0 ? `🏆 ${weekly.pbCount}개` : "0개"}
+                  {s.pbCount(weekly.pbCount)}
                 </p>
               </div>
               <div className="card p-4">
-                <p className="text-xs text-slate-400">훈련한 항목</p>
-                <p className="mt-1 text-xl font-bold tabular-nums">{weekly.metricCount}개</p>
+                <p className="text-xs text-slate-400">{s.metricLabel}</p>
+                <p className="mt-1 text-xl font-bold tabular-nums">{s.metricCount(weekly.metricCount)}</p>
               </div>
             </div>
             {weekly.bestLine && (
               <p className="mt-2 text-sm text-slate-500">
-                이번 주 하이라이트: <span className="font-semibold text-slate-700">{weekly.bestLine}</span> 🎉
+                {s.weeklyHighlight} <span className="font-semibold text-slate-700">{weekly.bestLine}</span> 🎉
               </p>
             )}
           </section>
@@ -187,15 +302,15 @@ export default async function HomePage({
 
         {!isCoach && (
           <section className="mb-8 grid gap-4 md:grid-cols-2">
-            <AssignmentCard assignments={myAssignments} />
-            <JoinTeamCard teams={myTeams} />
+            <AssignmentCard assignments={myAssignments} lang={lang} />
+            <JoinTeamCard teams={myTeams} lang={lang} />
           </section>
         )}
 
         {!isCoach && badges.length > 0 && (
           <section className="mb-8">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-              배지 <span className="font-normal normal-case text-slate-300">· {badges.filter((b) => b.earned).length}/{badges.length} 획득</span>
+              {s.badgesTitle} <span className="font-normal normal-case text-slate-300">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
             </h2>
             <BadgeRow badges={badges} />
           </section>
@@ -207,9 +322,9 @@ export default async function HomePage({
             className="mb-8 flex items-center justify-between rounded-2xl bg-slate-900 p-5 text-white transition hover:bg-slate-800"
           >
             <div>
-              <p className="text-sm text-slate-300">코치 대시보드</p>
+              <p className="text-sm text-slate-300">{s.coachDashboard}</p>
               <p className="text-lg font-semibold">
-                {athleteCount}명의 선수 · 공유된 기록 보기
+                {s.coachDashboardLine(athleteCount)}
               </p>
             </div>
             <span className="text-2xl">→</span>
@@ -218,7 +333,7 @@ export default async function HomePage({
 
         <section>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-            종목
+            {s.sportsTitle}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SPORT_LIST.map((sport) => (
@@ -228,14 +343,18 @@ export default async function HomePage({
                 className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${sport.gradient} p-5 text-white shadow-sm transition hover:shadow-md`}
               >
                 <div className="text-4xl">{sport.emoji}</div>
-                <h3 className="mt-3 text-xl font-bold">{sport.name}</h3>
-                <p className="mt-1 text-sm text-white/85">{sport.tagline}</p>
+                <h3 className="mt-3 text-xl font-bold">
+                  {SPORT_I18N[sport.id]?.[lang]?.name ?? sport.name}
+                </h3>
+                <p className="mt-1 text-sm text-white/85">
+                  {SPORT_I18N[sport.id]?.[lang]?.tagline ?? sport.tagline}
+                </p>
                 <div className="mt-4 flex gap-1.5">
                   {sport.features.includes("guide") && (
-                    <span className="badge bg-white/20 text-white">가이드</span>
+                    <span className="badge bg-white/20 text-white">{s.featGuide}</span>
                   )}
                   {sport.features.includes("measure") && (
-                    <span className="badge bg-white/20 text-white">기록 측정</span>
+                    <span className="badge bg-white/20 text-white">{s.featMeasure}</span>
                   )}
                 </div>
               </Link>
@@ -247,15 +366,15 @@ export default async function HomePage({
           <section className="mt-10">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-                최근 기록
+                {s.recentTitle}
               </h2>
               <Link href="/records" className="text-sm font-medium text-brand">
-                전체 보기 →
+                {s.viewAll}
               </Link>
             </div>
             {recentRecords.length === 0 ? (
               <div className="card p-8 text-center text-slate-500">
-                아직 기록이 없어요. 수영 종목에서 첫 기록을 측정해보세요! 🏊
+                {s.emptyRecent}
               </div>
             ) : (
               <div className="card divide-y divide-slate-100">
@@ -272,7 +391,7 @@ export default async function HomePage({
                         </span>
                       )}
                       {r.shared && (
-                        <span className="badge bg-emerald-50 text-emerald-600">공유됨</span>
+                        <span className="badge bg-emerald-50 text-emerald-600">{s.shared}</span>
                       )}
                     </div>
                   </div>

@@ -8,10 +8,32 @@ import ConnectionManager, { type Connection } from "@/components/ConnectionManag
 import RecordTrendChart, { type TrendPoint } from "@/components/RecordTrendChart";
 import GoalManager, { type GoalView } from "@/components/GoalManager";
 import type { RecordView } from "@/lib/types";
+import type { Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
 
+const L: Record<Lang, { title: string; subtitle: string; trendHeading: string }> = {
+  ko: {
+    title: "내 기록",
+    subtitle: "기록을 관리하고 코치에게 공유하세요.",
+    trendHeading: "성장 그래프",
+  },
+  en: {
+    title: "My Records",
+    subtitle: "Manage your records and share them with your coach.",
+    trendHeading: "Progress charts",
+  },
+  es: {
+    title: "Mis marcas",
+    subtitle: "Gestiona tus marcas y compártelas con tu entrenador.",
+    trendHeading: "Gráficas de progreso",
+  },
+};
+
 export default async function RecordsPage() {
+  const lang = await getLang();
+  const s = L[lang];
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -102,17 +124,17 @@ export default async function RecordsPage() {
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold">내 기록</h1>
-        <p className="mt-1 text-slate-500">기록을 관리하고 코치에게 공유하세요.</p>
+        <h1 className="text-2xl font-bold">{s.title}</h1>
+        <p className="mt-1 text-slate-500">{s.subtitle}</p>
 
         {chartMetrics.length > 0 && (
           <section className="mt-6">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-              성장 그래프
+              {s.trendHeading}
             </h2>
             <div className="grid gap-4 lg:grid-cols-2">
               {chartMetrics.map(([key, t]) => (
-                <RecordTrendChart key={key} metricName={t.metricName} points={t.points} />
+                <RecordTrendChart key={key} metricName={t.metricName} points={t.points} lang={lang} />
               ))}
             </div>
           </section>
@@ -120,11 +142,11 @@ export default async function RecordsPage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div>
-            <RecordList records={view} mode="owner" />
+            <RecordList records={view} mode="owner" lang={lang} />
           </div>
           <aside className="space-y-6 lg:order-last">
-            <GoalManager goals={goalView} metrics={goalMetrics} />
-            <ConnectionManager role="ATHLETE" connections={connections} />
+            <GoalManager goals={goalView} metrics={goalMetrics} lang={lang} />
+            <ConnectionManager role="ATHLETE" connections={connections} lang={lang} />
           </aside>
         </div>
       </main>

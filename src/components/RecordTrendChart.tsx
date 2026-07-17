@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatDuration } from "@/lib/format";
+import type { Lang } from "@/lib/i18n";
 
 export interface TrendPoint {
   /** ISO date string */
@@ -9,15 +10,50 @@ export interface TrendPoint {
   ms: number;
 }
 
+const L: Record<
+  Lang,
+  {
+    caption: string;
+    improved: (delta: string) => string;
+    trend: string;
+    chartAria: (metricName: string, best: string) => string;
+  }
+> = {
+  ko: {
+    caption: "낮을수록 좋아요 · 🏆 최고 기록",
+    improved: (delta) => `▼ ${delta} 단축`,
+    trend: "기록 추이",
+    chartAria: (metricName, best) => `${metricName} 기록 추이, 최고 기록 ${best}`,
+  },
+  en: {
+    caption: "Lower is better · 🏆 best time",
+    improved: (delta) => `▼ ${delta} faster`,
+    trend: "Trend",
+    chartAria: (metricName, best) => `${metricName} time trend, best time ${best}`,
+  },
+  es: {
+    caption: "Cuanto más bajo, mejor · 🏆 mejor marca",
+    improved: (delta) => `▼ ${delta} menos`,
+    trend: "Tendencia",
+    chartAria: (metricName, best) => `Tendencia de ${metricName}, mejor marca ${best}`,
+  },
+};
+
+const DATE_LOCALE: Record<Lang, string> = { ko: "ko-KR", en: "en-US", es: "es-ES" };
+
 // Single-series line chart of one metric's times (lower = better), brand
 // blue on the light surface, recessive grid, hover tooltip, PB highlighted.
 export default function RecordTrendChart({
   metricName,
   points,
+  lang = "ko",
 }: {
   metricName: string;
   points: TrendPoint[];
+  lang?: Lang;
 }) {
+  const s = L[lang];
+  const dateLocale = DATE_LOCALE[lang];
   const [hover, setHover] = useState<number | null>(null);
 
   const W = 560;
@@ -78,16 +114,16 @@ export default function RecordTrendChart({
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="font-bold text-slate-800">{metricName}</h3>
         <span className={`text-xs font-medium ${improvedMs > 0 ? "text-emerald-600" : "text-slate-400"}`}>
-          {improvedMs > 0 ? `▼ ${formatDuration(improvedMs)} 단축` : "기록 추이"}
+          {improvedMs > 0 ? s.improved(formatDuration(improvedMs)) : s.trend}
         </span>
       </div>
-      <p className="mt-0.5 text-xs text-slate-400">낮을수록 좋아요 · 🏆 최고 기록</p>
+      <p className="mt-0.5 text-xs text-slate-400">{s.caption}</p>
 
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="mt-3 w-full"
         role="img"
-        aria-label={`${metricName} 기록 추이, 최고 기록 ${formatDuration(points[bestIdx].ms)}`}
+        aria-label={s.chartAria(metricName, formatDuration(points[bestIdx].ms))}
         onMouseMove={onMove}
         onMouseLeave={() => setHover(null)}
       >
@@ -110,7 +146,7 @@ export default function RecordTrendChart({
 
           {/* X labels: first / last date */}
           <text x={0} y={innerH + 18} className="fill-slate-400" style={{ font: "10px sans-serif" }}>
-            {new Date(first.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
+            {new Date(first.date).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
           </text>
           <text
             x={innerW}
@@ -119,7 +155,7 @@ export default function RecordTrendChart({
             className="fill-slate-400"
             style={{ font: "10px sans-serif" }}
           >
-            {new Date(last.date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
+            {new Date(last.date).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
           </text>
 
           {/* Series line */}
@@ -164,7 +200,7 @@ export default function RecordTrendChart({
               <g transform={`translate(${Math.min(Math.max(xs[hover] - 55, 0), innerW - 110)},${Math.max(ys[hover] - 44, 0)})`}>
                 <rect width={110} height={32} rx={6} fill="#0f172a" opacity={0.92} />
                 <text x={55} y={13} textAnchor="middle" fill="#cbd5e1" style={{ font: "9px sans-serif" }}>
-                  {new Date(points[hover].date).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
+                  {new Date(points[hover].date).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                 </text>
                 <text x={55} y={26} textAnchor="middle" fill="#fff" style={{ font: "bold 11px ui-monospace, monospace" }}>
                   {formatDuration(points[hover].ms)}

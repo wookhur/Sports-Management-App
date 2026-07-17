@@ -8,8 +8,16 @@ import BlogEngagement, { type BlogCommentView } from "@/components/BlogEngagemen
 import { formatDate } from "@/lib/format";
 import { toEditableHtml } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
+import { getLang } from "@/lib/getLang";
+import type { Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<Lang, { back: string; edit: string }> = {
+  ko: { back: "← 블로그", edit: "수정" },
+  en: { back: "← Blog", edit: "Edit" },
+  es: { back: "← Blog", edit: "Editar" },
+};
 
 export default async function BlogPostPage({
   params,
@@ -19,6 +27,8 @@ export default async function BlogPostPage({
   const session = await getSession();
   if (!session) redirect("/login");
   const isCoach = session.role === "COACH";
+  const lang = await getLang();
+  const s = L[lang];
   const { slug } = await params;
 
   const post = await prisma.blogPost.findUnique({
@@ -55,7 +65,7 @@ export default async function BlogPostPage({
       <main className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between">
           <Link href="/blog" className="text-sm text-slate-400 hover:text-slate-600">
-            ← 블로그
+            {s.back}
           </Link>
           {isCoach && (
             <div className="flex items-center gap-3">
@@ -63,9 +73,9 @@ export default async function BlogPostPage({
                 href={`/blog/${post.slug}/edit`}
                 className="text-xs font-medium text-slate-400 hover:text-brand"
               >
-                수정
+                {s.edit}
               </Link>
-              <DeletePostButton slug={post.slug} redirectTo="/blog" />
+              <DeletePostButton slug={post.slug} redirectTo="/blog" lang={lang} />
             </div>
           )}
         </div>
@@ -95,6 +105,7 @@ export default async function BlogPostPage({
           initialLikeCount={likeCount}
           comments={commentView}
           canModerate={isCoach}
+          lang={lang}
         />
       </main>
     </>

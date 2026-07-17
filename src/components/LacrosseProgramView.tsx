@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Lang } from "@/lib/i18n";
 import {
   LAX_META,
   LAX_PRINCIPLES,
@@ -20,26 +21,169 @@ import {
   type NamedItem,
 } from "@/lib/lacrosseProgram";
 
-const NAV = [
-  ["philosophy", "철학"],
-  ["warmup", "웜업"],
-  ["stick", "스틱스킬"],
-  ["conditioning", "컨디셔닝"],
-  ["team", "팀 드릴"],
-  ["structure", "연습 구조"],
-  ["pregame", "경기 전"],
-  ["position", "포지션별"],
-  ["weekly", "주간"],
-  ["strength", "근력"],
-  ["videos", "영상"],
-  ["habits", "습관"],
-];
+const NAV_IDS = [
+  "philosophy",
+  "warmup",
+  "stick",
+  "conditioning",
+  "team",
+  "structure",
+  "pregame",
+  "position",
+  "weekly",
+  "strength",
+  "videos",
+  "habits",
+] as const;
 
-export default function LacrosseProgramView({ sportId }: { sportId: string }) {
+type NavId = (typeof NAV_IDS)[number];
+
+const L: Record<
+  Lang,
+  {
+    back: string;
+    nav: Record<NavId, string>;
+    secPhilosophy: string;
+    secWarmup: string;
+    secStick: string;
+    secConditioning: string;
+    secTeam: string;
+    secStructure: string;
+    secPregame: string;
+    secPosition: string;
+    secWeekly: string;
+    secStrength: string;
+    secVideos: string;
+    secHabits: string;
+    rampNote: string;
+    stickNote: string;
+    videosNote: string;
+    practice90: string;
+    practice120: string;
+    headDefault: [string, string, string];
+    headPregame: [string, string, string];
+    source: string;
+  }
+> = {
+  ko: {
+    back: "← 라크로스",
+    nav: {
+      philosophy: "철학",
+      warmup: "웜업",
+      stick: "스틱스킬",
+      conditioning: "컨디셔닝",
+      team: "팀 드릴",
+      structure: "연습 구조",
+      pregame: "경기 전",
+      position: "포지션별",
+      weekly: "주간",
+      strength: "근력",
+      videos: "영상",
+      habits: "습관",
+    },
+    secPhilosophy: "1. 프로그램 철학",
+    secWarmup: "2. 연습 웜업 (RAMP)",
+    secStick: "3. 개인 스틱 스킬",
+    secConditioning: "4. 컨디셔닝",
+    secTeam: "5. 팀 드릴",
+    secStructure: "6. 연습 시간 구조",
+    secPregame: "7. 경기 전 웜업 (20분)",
+    secPosition: "8. 포지션별 훈련 플랜",
+    secWeekly: "9. 주간 로테이션",
+    secStrength: "10. 근력 & 플라이오메트릭",
+    secVideos: "11. 영상 자료실",
+    secHabits: "12. 데일리 습관",
+    rampNote: "Raise · Activate · Mobilize · Potentiate — 총 15~18분",
+    stickNote: "엘리트는 세션당 500회 이상 월볼. 매일 20분이 개인 발전의 가장 강력한 도구입니다.",
+    videosNote: "모든 링크는 남자 선수·D1 코치·PLL 프로 영상입니다. (YouTube에서 열립니다)",
+    practice90: "90분 연습",
+    practice120: "2시간 연습",
+    headDefault: ["시각", "블록", "내용"],
+    headPregame: ["시각", "단계", "내용"],
+    source: "출처:",
+  },
+  en: {
+    back: "← Lacrosse",
+    nav: {
+      philosophy: "Philosophy",
+      warmup: "Warm-up",
+      stick: "Stick skills",
+      conditioning: "Conditioning",
+      team: "Team drills",
+      structure: "Practice structure",
+      pregame: "Pregame",
+      position: "By position",
+      weekly: "Weekly",
+      strength: "Strength",
+      videos: "Videos",
+      habits: "Habits",
+    },
+    secPhilosophy: "1. Program Philosophy",
+    secWarmup: "2. Practice Warm-up (RAMP)",
+    secStick: "3. Individual Stick Skills",
+    secConditioning: "4. Conditioning",
+    secTeam: "5. Team Drills",
+    secStructure: "6. Practice Time Structure",
+    secPregame: "7. Pregame Warm-up (20 min)",
+    secPosition: "8. Position-Specific Training Plans",
+    secWeekly: "9. Weekly Rotation",
+    secStrength: "10. Strength & Plyometrics",
+    secVideos: "11. Video Library",
+    secHabits: "12. Daily Habits",
+    rampNote: "Raise · Activate · Mobilize · Potentiate — 15-18 min total",
+    stickNote: "Elite players hit 500+ wall-ball reps per session. Twenty minutes a day is the most powerful tool for individual growth.",
+    videosNote: "All links are men's players, D1 coaches, and PLL pros. (Opens on YouTube)",
+    practice90: "90-minute practice",
+    practice120: "2-hour practice",
+    headDefault: ["Time", "Block", "Details"],
+    headPregame: ["Time", "Phase", "Details"],
+    source: "Source:",
+  },
+  es: {
+    back: "← Lacrosse",
+    nav: {
+      philosophy: "Filosofía",
+      warmup: "Calentamiento",
+      stick: "Manejo del stick",
+      conditioning: "Acondicionamiento",
+      team: "Ejercicios de equipo",
+      structure: "Estructura",
+      pregame: "Prepartido",
+      position: "Por posición",
+      weekly: "Semanal",
+      strength: "Fuerza",
+      videos: "Videos",
+      habits: "Hábitos",
+    },
+    secPhilosophy: "1. Filosofía del programa",
+    secWarmup: "2. Calentamiento de práctica (RAMP)",
+    secStick: "3. Manejo individual del stick",
+    secConditioning: "4. Acondicionamiento",
+    secTeam: "5. Ejercicios de equipo",
+    secStructure: "6. Estructura de la práctica",
+    secPregame: "7. Calentamiento prepartido (20 min)",
+    secPosition: "8. Planes de entrenamiento por posición",
+    secWeekly: "9. Rotación semanal",
+    secStrength: "10. Fuerza y pliometría",
+    secVideos: "11. Videoteca",
+    secHabits: "12. Hábitos diarios",
+    rampNote: "Raise · Activate · Mobilize · Potentiate — 15-18 min en total",
+    stickNote: "Los jugadores de élite hacen más de 500 repeticiones de wall ball por sesión. Veinte minutos al día es la herramienta más poderosa para tu progreso individual.",
+    videosNote: "Todos los enlaces son de jugadores masculinos, entrenadores de D1 y profesionales de la PLL. (Se abren en YouTube)",
+    practice90: "Práctica de 90 minutos",
+    practice120: "Práctica de 2 horas",
+    headDefault: ["Hora", "Bloque", "Contenido"],
+    headPregame: ["Hora", "Fase", "Contenido"],
+    source: "Fuente:",
+  },
+};
+
+export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId: string; lang?: Lang }) {
+  const s = L[lang];
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
       <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
-        ← 라크로스
+        {s.back}
       </Link>
 
       <header className="mt-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-white">
@@ -51,20 +195,20 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       {/* Jump nav */}
       <nav className="sticky top-14 z-10 -mx-4 mt-4 overflow-x-auto border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur">
         <div className="flex gap-1.5">
-          {NAV.map(([id, label]) => (
+          {NAV_IDS.map((id) => (
             <a
               key={id}
               href={`#${id}`}
               className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
             >
-              {label}
+              {s.nav[id]}
             </a>
           ))}
         </div>
       </nav>
 
       {/* 1. Philosophy */}
-      <Section id="philosophy" title="1. 프로그램 철학">
+      <Section id="philosophy" title={s.secPhilosophy}>
         <blockquote className="rounded-xl border-l-4 border-emerald-400 bg-emerald-50 px-4 py-3 text-sm italic text-emerald-900">
           “{LAX_QUOTE.text}” <span className="not-italic text-emerald-700">— {LAX_QUOTE.by}</span>
         </blockquote>
@@ -72,8 +216,8 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 2. Warm-up */}
-      <Section id="warmup" title="2. 연습 웜업 (RAMP)">
-        <p className="mb-4 text-sm text-slate-500">Raise · Activate · Mobilize · Potentiate — 총 15~18분</p>
+      <Section id="warmup" title={s.secWarmup}>
+        <p className="mb-4 text-sm text-slate-500">{s.rampNote}</p>
         <div className="space-y-4">
           {LAX_WARMUP.map((ph) => (
             <div key={ph.title} className="card p-5">
@@ -82,30 +226,28 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
                 <span className="badge bg-emerald-50 text-emerald-600">{ph.time}</span>
               </div>
               <ItemList items={ph.items} className="mt-3" />
-              {ph.source && <p className="mt-3 text-xs text-slate-400">출처: {ph.source}</p>}
+              {ph.source && <p className="mt-3 text-xs text-slate-400">{s.source} {ph.source}</p>}
             </div>
           ))}
         </div>
       </Section>
 
       {/* 3. Stick skills */}
-      <Section id="stick" title="3. 개인 스틱 스킬">
-        <p className="mb-4 text-sm text-slate-500">
-          엘리트는 세션당 500회 이상 월볼. 매일 20분이 개인 발전의 가장 강력한 도구입니다.
-        </p>
+      <Section id="stick" title={s.secStick}>
+        <p className="mb-4 text-sm text-slate-500">{s.stickNote}</p>
         <div className="space-y-4">
           {LAX_STICK.map((g) => (
             <div key={g.group} className="card p-5">
               <h3 className="font-bold">{g.group}</h3>
               <ItemList items={g.items} className="mt-3" />
-              {g.source && <p className="mt-3 text-xs text-slate-400">출처: {g.source}</p>}
+              {g.source && <p className="mt-3 text-xs text-slate-400">{s.source} {g.source}</p>}
             </div>
           ))}
         </div>
       </Section>
 
       {/* 4. Conditioning */}
-      <Section id="conditioning" title="4. 컨디셔닝">
+      <Section id="conditioning" title={s.secConditioning}>
         <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{LAX_CONDITIONING_NOTE}</p>
         <div className="card p-5">
           <ItemList items={LAX_CONDITIONING} />
@@ -113,7 +255,7 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 5. Team drills */}
-      <Section id="team" title="5. 팀 드릴">
+      <Section id="team" title={s.secTeam}>
         <div className="grid gap-4 md:grid-cols-3">
           {LAX_TEAM.map((g) => (
             <div key={g.group} className="card p-5">
@@ -125,21 +267,21 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 6. Practice structures */}
-      <Section id="structure" title="6. 연습 시간 구조">
+      <Section id="structure" title={s.secStructure}>
         <div className="space-y-6">
-          <PracticeTable title="90분 연습" rows={LAX_PRACTICE_90} />
-          <PracticeTable title="2시간 연습" rows={LAX_PRACTICE_120} />
+          <PracticeTable title={s.practice90} rows={LAX_PRACTICE_90} head={s.headDefault} />
+          <PracticeTable title={s.practice120} rows={LAX_PRACTICE_120} head={s.headDefault} />
         </div>
       </Section>
 
       {/* 7. Pregame */}
-      <Section id="pregame" title="7. 경기 전 웜업 (20분)">
+      <Section id="pregame" title={s.secPregame}>
         <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{LAX_PREGAME_NOTE}</p>
-        <PracticeTable rows={LAX_PREGAME} head={["시각", "단계", "내용"]} />
+        <PracticeTable rows={LAX_PREGAME} head={s.headPregame} />
       </Section>
 
       {/* 8. Positions */}
-      <Section id="position" title="8. 포지션별 훈련 플랜">
+      <Section id="position" title={s.secPosition}>
         <div className="grid gap-4 sm:grid-cols-2">
           {LAX_POSITIONS.map((p) => (
             <div key={p.name} className="card p-5">
@@ -147,14 +289,14 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
                 {p.emoji} {p.name}
               </h3>
               <ItemList items={p.blocks} className="mt-3" />
-              {p.source && <p className="mt-3 text-xs text-slate-400">출처: {p.source}</p>}
+              {p.source && <p className="mt-3 text-xs text-slate-400">{s.source} {p.source}</p>}
             </div>
           ))}
         </div>
       </Section>
 
       {/* 9. Weekly */}
-      <Section id="weekly" title="9. 주간 로테이션">
+      <Section id="weekly" title={s.secWeekly}>
         <div className="card divide-y divide-slate-100">
           {LAX_WEEKLY.map(([day, focus]) => (
             <div key={day} className="flex gap-4 px-5 py-3">
@@ -168,7 +310,7 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 10. Strength */}
-      <Section id="strength" title="10. 근력 & 플라이오메트릭">
+      <Section id="strength" title={s.secStrength}>
         <div className="space-y-4">
           {LAX_STRENGTH.map((g) => (
             <div key={g.group} className="card p-5">
@@ -180,8 +322,8 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 11. Videos */}
-      <Section id="videos" title="11. 영상 자료실">
-        <p className="mb-4 text-sm text-slate-500">모든 링크는 남자 선수·D1 코치·PLL 프로 영상입니다. (YouTube에서 열립니다)</p>
+      <Section id="videos" title={s.secVideos}>
+        <p className="mb-4 text-sm text-slate-500">{s.videosNote}</p>
         <div className="space-y-5">
           {LAX_VIDEOS.map((g) => (
             <div key={g.group}>
@@ -209,7 +351,7 @@ export default function LacrosseProgramView({ sportId }: { sportId: string }) {
       </Section>
 
       {/* 12. Habits */}
-      <Section id="habits" title="12. 데일리 습관">
+      <Section id="habits" title={s.secHabits}>
         <div className="card p-5">
           <ItemList items={LAX_HABITS} />
         </div>

@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
+import { getLang } from "@/lib/getLang";
+import type { Lang } from "@/lib/i18n";
 import {
   filterWorkouts,
   getWorkoutCount,
@@ -14,6 +16,74 @@ import {
 } from "@/lib/swimming";
 
 const PAGE_SIZE = 24;
+
+const L: Record<
+  Lang,
+  {
+    back: string;
+    title: string;
+    subtitle: (workouts: number, videos: number) => string;
+    filterStroke: string;
+    filterDistance: string;
+    filterLevel: string;
+    all: string;
+    resultsSuffix: string;
+    pageOf: (current: number, total: number) => string;
+    baseLabel: (base: number) => string;
+    totalDistance: (m: number) => string;
+    prev: string;
+    next: string;
+  }
+> = {
+  ko: {
+    back: "← 수영",
+    title: "🏊 수영 훈련 프로그램",
+    subtitle: (workouts, videos) =>
+      `총 ${workouts.toLocaleString()}개 워크아웃 · ${videos}개 검증 드릴 영상. 영법·거리·레벨로 골라보세요.`,
+    filterStroke: "영법",
+    filterDistance: "거리",
+    filterLevel: "레벨",
+    all: "전체",
+    resultsSuffix: "개 결과",
+    pageOf: (current, total) => ` · ${current}/${total} 페이지`,
+    baseLabel: (base) => `${base}m 기준`,
+    totalDistance: (m) => `총 ${m.toLocaleString()}m`,
+    prev: "← 이전",
+    next: "다음 →",
+  },
+  en: {
+    back: "← Swimming",
+    title: "🏊 Swim Training Programs",
+    subtitle: (workouts, videos) =>
+      `${workouts.toLocaleString()} workouts · ${videos} verified drill videos. Filter by stroke, distance, and level.`,
+    filterStroke: "Stroke",
+    filterDistance: "Distance",
+    filterLevel: "Level",
+    all: "All",
+    resultsSuffix: " results",
+    pageOf: (current, total) => ` · page ${current}/${total}`,
+    baseLabel: (base) => `${base}m base`,
+    totalDistance: (m) => `${m.toLocaleString()}m total`,
+    prev: "← Prev",
+    next: "Next →",
+  },
+  es: {
+    back: "← Natación",
+    title: "🏊 Programas de entrenamiento de natación",
+    subtitle: (workouts, videos) =>
+      `${workouts.toLocaleString()} entrenamientos · ${videos} videos de ejercicios verificados. Filtra por estilo, distancia y nivel.`,
+    filterStroke: "Estilo",
+    filterDistance: "Distancia",
+    filterLevel: "Nivel",
+    all: "Todos",
+    resultsSuffix: " resultados",
+    pageOf: (current, total) => ` · página ${current}/${total}`,
+    baseLabel: (base) => `base de ${base}m`,
+    totalDistance: (m) => `${m.toLocaleString()}m en total`,
+    prev: "← Anterior",
+    next: "Siguiente →",
+  },
+};
 
 const levelBadge: Record<string, string> = {
   Beginner: "bg-emerald-50 text-emerald-600",
@@ -44,6 +114,8 @@ export default async function SwimWorkoutsPage({
   const { sportId } = await params;
   // The workout database is swimming-only.
   if (sportId !== "swimming") notFound();
+  const lang = await getLang();
+  const s = L[lang];
   const sp = await searchParams;
   const basePath = `/sports/${sportId}/workouts`;
 
@@ -63,28 +135,28 @@ export default async function SwimWorkoutsPage({
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
-          ← 수영
+          {s.back}
         </Link>
 
         <header className="mt-3">
-          <h1 className="text-2xl font-bold">🏊 수영 훈련 프로그램</h1>
-          <p className="mt-1 text-slate-500">
-            총 {getWorkoutCount().toLocaleString()}개 워크아웃 · {getVideoCount()}개 검증 드릴 영상. 영법·거리·레벨로 골라보세요.
-          </p>
+          <h1 className="text-2xl font-bold">{s.title}</h1>
+          <p className="mt-1 text-slate-500">{s.subtitle(getWorkoutCount(), getVideoCount())}</p>
         </header>
 
         {/* Filters */}
         <div className="mt-6 space-y-3">
           <FilterRow
-            label="영법"
+            label={s.filterStroke}
+            allLabel={s.all}
             basePath={basePath}
-            options={STROKES.map((s) => ({ value: s, label: STROKE_KO[s] }))}
+            options={STROKES.map((st) => ({ value: st, label: STROKE_KO[st] }))}
             active={stroke}
             activeSP={activeSP}
             param="stroke"
           />
           <FilterRow
-            label="거리"
+            label={s.filterDistance}
+            allLabel={s.all}
             basePath={basePath}
             options={BASES.map((b) => ({ value: String(b), label: `${b}m` }))}
             active={base ? String(base) : undefined}
@@ -92,7 +164,8 @@ export default async function SwimWorkoutsPage({
             param="base"
           />
           <FilterRow
-            label="레벨"
+            label={s.filterLevel}
+            allLabel={s.all}
             basePath={basePath}
             options={LEVELS.map((l) => ({ value: l, label: LEVEL_KO[l] }))}
             active={level}
@@ -102,8 +175,9 @@ export default async function SwimWorkoutsPage({
         </div>
 
         <p className="mt-6 text-sm text-slate-500">
-          <span className="font-semibold text-slate-800">{results.length.toLocaleString()}</span>개 결과
-          {totalPages > 1 && ` · ${current}/${totalPages} 페이지`}
+          <span className="font-semibold text-slate-800">{results.length.toLocaleString()}</span>
+          {s.resultsSuffix}
+          {totalPages > 1 && s.pageOf(current, totalPages)}
         </p>
 
         {/* Results */}
@@ -119,10 +193,10 @@ export default async function SwimWorkoutsPage({
                 <span className={`badge ${levelBadge[w.level]}`}>{LEVEL_KO[w.level]}</span>
               </div>
               <p className="mt-2 font-bold group-hover:text-brand">
-                {STROKE_KO[w.stroke]} · {w.base}m 기준
+                {STROKE_KO[w.stroke]} · {s.baseLabel(w.base)}
               </p>
               <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
-                <span>총 {w.totalDistanceM.toLocaleString()}m</span>
+                <span>{s.totalDistance(w.totalDistanceM)}</span>
                 <span>·</span>
                 <span>{w.targetTime}</span>
               </div>
@@ -135,7 +209,7 @@ export default async function SwimWorkoutsPage({
           <div className="mt-8 flex items-center justify-center gap-2">
             {current > 1 && (
               <Link href={`${basePath}${buildQuery(activeSP, { page: String(current - 1) })}`} className="btn-ghost">
-                ← 이전
+                {s.prev}
               </Link>
             )}
             <span className="px-3 text-sm text-slate-500">
@@ -143,7 +217,7 @@ export default async function SwimWorkoutsPage({
             </span>
             {current < totalPages && (
               <Link href={`${basePath}${buildQuery(activeSP, { page: String(current + 1) })}`} className="btn-ghost">
-                다음 →
+                {s.next}
               </Link>
             )}
           </div>
@@ -155,6 +229,7 @@ export default async function SwimWorkoutsPage({
 
 function FilterRow({
   label,
+  allLabel,
   basePath,
   options,
   active,
@@ -162,6 +237,7 @@ function FilterRow({
   param,
 }: {
   label: string;
+  allLabel: string;
   basePath: string;
   options: { value: string; label: string }[];
   active?: string;
@@ -170,9 +246,9 @@ function FilterRow({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="w-10 shrink-0 text-sm font-medium text-slate-400">{label}</span>
+      <span className="min-w-10 shrink-0 text-sm font-medium text-slate-400">{label}</span>
       <Chip href={`${basePath}${buildQuery(activeSP, { [param]: undefined, page: undefined })}`} on={!active}>
-        전체
+        {allLabel}
       </Chip>
       {options.map((o) => (
         <Chip

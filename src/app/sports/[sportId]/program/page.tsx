@@ -3,7 +3,46 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
 import LacrosseProgramView from "@/components/LacrosseProgramView";
+import { getLang } from "@/lib/getLang";
+import type { Lang } from "@/lib/i18n";
 import { soccerProgram, PHASE_KO } from "@/lib/soccerProgram";
+
+const L: Record<
+  Lang,
+  {
+    back: string;
+    title: string;
+    subtitle: string;
+    sessionPlan: string;
+    warmupTitle: string;
+    cooldownTitle: string;
+  }
+> = {
+  ko: {
+    back: "← 축구",
+    title: "⚽ 축구 훈련 프로그램",
+    subtitle: "학년별 세션 커리큘럼과 웜업·쿨다운 스트레칭 루틴이에요.",
+    sessionPlan: "세션 플랜",
+    warmupTitle: "웜업 루틴",
+    cooldownTitle: "쿨다운 스트레칭",
+  },
+  en: {
+    back: "← Soccer",
+    title: "⚽ Soccer Training Program",
+    subtitle: "Session curricula by grade level plus warm-up and cool-down stretching routines.",
+    sessionPlan: "Session plan",
+    warmupTitle: "Warm-up routine",
+    cooldownTitle: "Cool-down stretches",
+  },
+  es: {
+    back: "← Fútbol",
+    title: "⚽ Programa de entrenamiento de fútbol",
+    subtitle: "Currículos de sesión por nivel escolar más rutinas de calentamiento y estiramientos de vuelta a la calma.",
+    sessionPlan: "Plan de sesión",
+    warmupTitle: "Rutina de calentamiento",
+    cooldownTitle: "Estiramientos de vuelta a la calma",
+  },
+};
 
 const phaseColors = [
   "border-amber-200 bg-amber-50",
@@ -20,12 +59,14 @@ export default async function ProgramPage({
 }) {
   if (!(await getSession())) redirect("/login");
   const { sportId } = await params;
+  const lang = await getLang();
+  const s = L[lang];
 
   if (sportId === "lacrosse") {
     return (
       <>
         <NavBar />
-        <LacrosseProgramView sportId={sportId} />
+        <LacrosseProgramView sportId={sportId} lang={lang} />
       </>
     );
   }
@@ -37,24 +78,24 @@ export default async function ProgramPage({
       <NavBar />
       <main className="mx-auto max-w-4xl px-4 py-8">
         <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
-          ← 축구
+          {s.back}
         </Link>
 
         <header className="mt-3">
-          <h1 className="text-2xl font-bold">⚽ 축구 훈련 프로그램</h1>
-          <p className="mt-1 text-slate-500">학년별 세션 커리큘럼과 웜업·쿨다운 스트레칭 루틴이에요.</p>
+          <h1 className="text-2xl font-bold">{s.title}</h1>
+          <p className="mt-1 text-slate-500">{s.subtitle}</p>
         </header>
 
         {/* Grade-level session plans */}
         <div className="mt-6 space-y-8">
-          {soccerProgram.sessions.map((s) => (
-            <section key={s.title}>
+          {soccerProgram.sessions.map((session) => (
+            <section key={session.title}>
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-lg font-bold">{s.title}</h2>
-                <span className="badge bg-slate-100 text-slate-500">세션 플랜</span>
+                <h2 className="text-lg font-bold">{session.title}</h2>
+                <span className="badge bg-slate-100 text-slate-500">{s.sessionPlan}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
-                {s.phases.map((phase, i) => (
+                {session.phases.map((phase, i) => (
                   <div key={phase.name} className={`rounded-2xl border p-4 ${phaseColors[i % phaseColors.length]}`}>
                     <p className="text-sm font-bold text-slate-800">{PHASE_KO[phase.name] ?? phase.name}</p>
                     {phase.time && <p className="text-xs font-medium text-slate-500">{phase.time}</p>}
@@ -74,8 +115,8 @@ export default async function ProgramPage({
 
         {/* Warm-up + cool-down routines */}
         <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <StretchCard title="웜업 루틴" subtitle="Warm-up / Dynamic" items={soccerProgram.warmup} accent="text-amber-600" />
-          <StretchCard title="쿨다운 스트레칭" subtitle="Cool-down" items={soccerProgram.cooldown} accent="text-emerald-600" />
+          <StretchCard title={s.warmupTitle} subtitle="Warm-up / Dynamic" items={soccerProgram.warmup} accent="text-amber-600" />
+          <StretchCard title={s.cooldownTitle} subtitle="Cool-down" items={soccerProgram.cooldown} accent="text-emerald-600" />
         </div>
       </main>
     </>

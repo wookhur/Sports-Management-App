@@ -3,9 +3,44 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
 import DrillDiagram from "@/components/DrillDiagram";
+import { getLang } from "@/lib/getLang";
+import type { Lang } from "@/lib/i18n";
 import { AGE_LEVELS, drillsForAge } from "@/lib/soccerDrills";
 
 type SP = { age?: string };
+
+const L: Record<
+  Lang,
+  {
+    back: string;
+    title: string;
+    subtitle: string;
+    all: string;
+    minutes: (n: number) => string;
+  }
+> = {
+  ko: {
+    back: "← 축구",
+    title: "⚽ 축구 드릴",
+    subtitle: "연령대를 선택하면 그에 맞는 드릴을 그림과 함께 볼 수 있어요.",
+    all: "전체",
+    minutes: (n) => `${n}분`,
+  },
+  en: {
+    back: "← Soccer",
+    title: "⚽ Soccer Drills",
+    subtitle: "Pick an age group to see matching drills with diagrams.",
+    all: "All",
+    minutes: (n) => `${n} min`,
+  },
+  es: {
+    back: "← Fútbol",
+    title: "⚽ Ejercicios de fútbol",
+    subtitle: "Elige un grupo de edad para ver los ejercicios adecuados con diagramas.",
+    all: "Todos",
+    minutes: (n) => `${n} min`,
+  },
+};
 
 export default async function DrillsPage({
   params,
@@ -17,6 +52,8 @@ export default async function DrillsPage({
   if (!(await getSession())) redirect("/login");
   const { sportId } = await params;
   if (sportId !== "soccer") notFound();
+  const lang = await getLang();
+  const s = L[lang];
   const { age } = await searchParams;
   const activeAge = AGE_LEVELS.some((a) => a.key === age) ? age : undefined;
   const drills = drillsForAge(activeAge);
@@ -27,18 +64,18 @@ export default async function DrillsPage({
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
-          ← 축구
+          {s.back}
         </Link>
 
         <header className="mt-3">
-          <h1 className="text-2xl font-bold">⚽ 축구 드릴</h1>
-          <p className="mt-1 text-slate-500">연령대를 선택하면 그에 맞는 드릴을 그림과 함께 볼 수 있어요.</p>
+          <h1 className="text-2xl font-bold">{s.title}</h1>
+          <p className="mt-1 text-slate-500">{s.subtitle}</p>
         </header>
 
         {/* Age filter */}
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Chip href={basePath} on={!activeAge}>
-            전체
+            {s.all}
           </Chip>
           {AGE_LEVELS.map((a) => (
             <Chip key={a.key} href={`${basePath}?age=${a.key}`} on={activeAge === a.key}>
@@ -57,12 +94,12 @@ export default async function DrillsPage({
               className="card group overflow-hidden transition hover:border-slate-300 hover:shadow-md"
             >
               <div className="bg-slate-900 p-2">
-                <DrillDiagram spec={d.diagram} />
+                <DrillDiagram spec={d.diagram} lang={lang} />
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="badge bg-indigo-50 text-indigo-600">{d.category}</span>
-                  <span className="text-xs text-slate-400">⏱ {d.durationMin}분</span>
+                  <span className="text-xs text-slate-400">⏱ {s.minutes(d.durationMin)}</span>
                 </div>
                 <h3 className="mt-2 font-bold group-hover:text-brand">{d.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">{d.summary}</p>

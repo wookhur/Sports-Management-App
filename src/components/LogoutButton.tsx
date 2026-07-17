@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import type { Lang } from "@/lib/i18n";
 
-export default function LogoutButton() {
+const L: Record<Lang, { label: string }> = {
+  ko: { label: "로그아웃" },
+  en: { label: "Log out" },
+  es: { label: "Cerrar sesión" },
+};
+
+export default function LogoutButton({ lang = "ko" }: { lang?: Lang }) {
   const [loading, setLoading] = useState(false);
 
   async function logout() {
@@ -13,7 +20,7 @@ export default function LogoutButton() {
 
   return (
     <button onClick={logout} disabled={loading} className="btn-ghost text-xs">
-      로그아웃
+      {L[lang].label}
     </button>
   );
 }

@@ -8,8 +8,31 @@ import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
 import { toEditableHtml } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
+
+const L: Record<
+  Lang,
+  {
+    back: (sportName: string) => string;
+    edit: string;
+  }
+> = {
+  ko: {
+    back: (sportName) => `${sportName} 유명 선수 훈련법`,
+    edit: "수정",
+  },
+  en: {
+    back: (sportName) => `${sportName} famous athlete training methods`,
+    edit: "Edit",
+  },
+  es: {
+    back: (sportName) => `Métodos de entrenamiento de atletas famosos de ${sportName}`,
+    edit: "Editar",
+  },
+};
 
 export default async function AthleteGuidePage({
   params,
@@ -21,8 +44,13 @@ export default async function AthleteGuidePage({
   const isCoach = session.role === "COACH";
   const { sportId, slug } = await params;
 
+  const lang = await getLang();
+  const t = L[lang];
+
   const sport = getSport(sportId);
   if (!sport) notFound();
+
+  const sportName = SPORT_I18N[sportId]?.[lang]?.name ?? sport.name;
 
   const guide = await prisma.athleteGuide.findUnique({
     where: { slug },
@@ -38,7 +66,7 @@ export default async function AthleteGuidePage({
       <main className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between">
           <Link href={`/sports/${sportId}/athletes`} className="text-sm text-slate-400 hover:text-slate-600">
-            ← {sport.name} 유명 선수 훈련법
+            ← {t.back(sportName)}
           </Link>
           {isCoach && (
             <div className="flex items-center gap-3">
@@ -46,12 +74,13 @@ export default async function AthleteGuidePage({
                 href={`/sports/${sportId}/athletes/${guide.slug}/edit`}
                 className="text-xs font-medium text-slate-400 hover:text-brand"
               >
-                수정
+                {t.edit}
               </Link>
               <DeletePostButton
                 slug={guide.slug}
                 redirectTo={`/sports/${sportId}/athletes`}
                 endpointBase="/api/athlete-guides"
+                lang={lang}
               />
             </div>
           )}

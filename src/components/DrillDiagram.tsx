@@ -1,11 +1,26 @@
 import type { DiagramSpec } from "@/lib/soccerDrills";
+import type { Lang } from "@/lib/i18n";
+
+const ARIA_LABEL: Record<Lang, string> = {
+  ko: "드릴 다이어그램",
+  en: "Drill diagram",
+  es: "Diagrama del ejercicio",
+};
 
 // Renders a soccer drill as an original SVG pitch diagram. Coordinates are on a
 // 100 x 64 field (0,0 = top-left). Arrow types: pass (dashed), run (solid),
 // dribble (wavy). Not derived from any third-party artwork.
-export default function DrillDiagram({ spec, className = "" }: { spec: DiagramSpec; className?: string }) {
+export default function DrillDiagram({
+  spec,
+  className = "",
+  lang = "ko",
+}: {
+  spec: DiagramSpec;
+  className?: string;
+  lang?: Lang;
+}) {
   return (
-    <svg viewBox="0 0 100 64" className={`w-full rounded-xl ${className}`} role="img" aria-label="드릴 다이어그램">
+    <svg viewBox="0 0 100 64" className={`w-full rounded-xl ${className}`} role="img" aria-label={ARIA_LABEL[lang]}>
       <defs>
         <marker id="dd-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0L10 5L0 10z" fill="#0f172a" />

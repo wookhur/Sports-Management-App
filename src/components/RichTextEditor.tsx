@@ -5,13 +5,90 @@ import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { useCallback } from "react";
 import { FontSize } from "@/lib/tiptapFontSize";
+import type { Lang } from "@/lib/i18n";
 
-const FONT_SIZES = [
-  { label: "작게", value: "14px" },
-  { label: "보통", value: "" },
-  { label: "크게", value: "20px" },
-  { label: "아주 크게", value: "28px" },
-];
+const L: Record<
+  Lang,
+  {
+    sizeSmall: string;
+    sizeNormal: string;
+    sizeLarge: string;
+    sizeXLarge: string;
+    fontSize: string;
+    bold: string;
+    italic: string;
+    underline: string;
+    strike: string;
+    heading: string;
+    bulletList: string;
+    orderedList: string;
+    blockquote: string;
+    link: string;
+    undo: string;
+    redo: string;
+    linkPrompt: string;
+  }
+> = {
+  ko: {
+    sizeSmall: "작게",
+    sizeNormal: "보통",
+    sizeLarge: "크게",
+    sizeXLarge: "아주 크게",
+    fontSize: "글씨 크기",
+    bold: "굵게",
+    italic: "기울임",
+    underline: "밑줄",
+    strike: "취소선",
+    heading: "소제목",
+    bulletList: "글머리 기호 목록",
+    orderedList: "번호 매기기 목록",
+    blockquote: "인용구",
+    link: "링크",
+    undo: "실행 취소",
+    redo: "다시 실행",
+    linkPrompt: "링크 주소를 입력하세요",
+  },
+  en: {
+    sizeSmall: "Small",
+    sizeNormal: "Normal",
+    sizeLarge: "Large",
+    sizeXLarge: "Extra large",
+    fontSize: "Font size",
+    bold: "Bold",
+    italic: "Italic",
+    underline: "Underline",
+    strike: "Strikethrough",
+    heading: "Heading",
+    bulletList: "Bullet list",
+    orderedList: "Numbered list",
+    blockquote: "Blockquote",
+    link: "Link",
+    undo: "Undo",
+    redo: "Redo",
+    linkPrompt: "Enter the link URL",
+  },
+  es: {
+    sizeSmall: "Pequeño",
+    sizeNormal: "Normal",
+    sizeLarge: "Grande",
+    sizeXLarge: "Muy grande",
+    fontSize: "Tamaño de letra",
+    bold: "Negrita",
+    italic: "Cursiva",
+    underline: "Subrayado",
+    strike: "Tachado",
+    heading: "Subtítulo",
+    bulletList: "Lista con viñetas",
+    orderedList: "Lista numerada",
+    blockquote: "Cita",
+    link: "Enlace",
+    undo: "Deshacer",
+    redo: "Rehacer",
+    linkPrompt: "Escribe la dirección del enlace",
+  },
+};
+
+const FONT_SIZE_VALUES = ["14px", "", "20px", "28px"] as const;
 
 function ToolbarButton({
   active,
@@ -47,10 +124,19 @@ function ToolbarDivider() {
 export default function RichTextEditor({
   content,
   onChange,
+  lang = "ko",
 }: {
   content: string;
   onChange: (html: string) => void;
+  lang?: Lang;
 }) {
+  const s = L[lang];
+  const fontSizes = [
+    { label: s.sizeSmall, value: FONT_SIZE_VALUES[0] },
+    { label: s.sizeNormal, value: FONT_SIZE_VALUES[1] },
+    { label: s.sizeLarge, value: FONT_SIZE_VALUES[2] },
+    { label: s.sizeXLarge, value: FONT_SIZE_VALUES[3] },
+  ];
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, FontSize],
     content,
@@ -66,14 +152,14 @@ export default function RichTextEditor({
   const setLink = useCallback(() => {
     if (!editor) return;
     const previous = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("링크 주소를 입력하세요", previous ?? "https://");
+    const url = window.prompt(s.linkPrompt, previous ?? "https://");
     if (url === null) return;
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
+  }, [editor, s.linkPrompt]);
 
   if (!editor) return null;
 
@@ -89,65 +175,65 @@ export default function RichTextEditor({
             if (!v) editor.chain().focus().unsetFontSize().run();
             else editor.chain().focus().setFontSize(v).run();
           }}
-          aria-label="글씨 크기"
+          aria-label={s.fontSize}
           className="h-7 rounded-md border border-slate-200 bg-white px-1.5 text-xs font-medium text-slate-700 outline-none"
         >
-          {FONT_SIZES.map((f) => (
+          {fontSizes.map((f) => (
             <option key={f.label} value={f.value}>
               {f.label}
             </option>
           ))}
         </select>
         <ToolbarDivider />
-        <ToolbarButton label="굵게" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <ToolbarButton label={s.bold} active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
           <span className="font-bold">B</span>
         </ToolbarButton>
-        <ToolbarButton label="기울임" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>
+        <ToolbarButton label={s.italic} active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>
           <span className="italic">I</span>
         </ToolbarButton>
-        <ToolbarButton label="밑줄" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}>
+        <ToolbarButton label={s.underline} active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}>
           <span className="underline">U</span>
         </ToolbarButton>
-        <ToolbarButton label="취소선" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}>
+        <ToolbarButton label={s.strike} active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}>
           <span className="line-through">S</span>
         </ToolbarButton>
         <ToolbarDivider />
         <ToolbarButton
-          label="소제목"
+          label={s.heading}
           active={editor.isActive("heading", { level: 2 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         >
           H2
         </ToolbarButton>
         <ToolbarButton
-          label="글머리 기호 목록"
+          label={s.bulletList}
           active={editor.isActive("bulletList")}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         >
           •≡
         </ToolbarButton>
         <ToolbarButton
-          label="번호 매기기 목록"
+          label={s.orderedList}
           active={editor.isActive("orderedList")}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
         >
           1≡
         </ToolbarButton>
         <ToolbarButton
-          label="인용구"
+          label={s.blockquote}
           active={editor.isActive("blockquote")}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
         >
           &ldquo;
         </ToolbarButton>
-        <ToolbarButton label="링크" active={editor.isActive("link")} onClick={setLink}>
+        <ToolbarButton label={s.link} active={editor.isActive("link")} onClick={setLink}>
           🔗
         </ToolbarButton>
         <ToolbarDivider />
-        <ToolbarButton label="실행 취소" onClick={() => editor.chain().focus().undo().run()}>
+        <ToolbarButton label={s.undo} onClick={() => editor.chain().focus().undo().run()}>
           ↺
         </ToolbarButton>
-        <ToolbarButton label="다시 실행" onClick={() => editor.chain().focus().redo().run()}>
+        <ToolbarButton label={s.redo} onClick={() => editor.chain().focus().redo().run()}>
           ↻
         </ToolbarButton>
       </div>

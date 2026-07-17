@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Lang } from "@/lib/i18n";
 
 export interface MyAssignment {
   id: string;
@@ -13,10 +14,58 @@ export interface MyAssignment {
   completedAt: string | null;
 }
 
+const L: Record<
+  Lang,
+  {
+    title: string;
+    remaining: (n: number) => string;
+    empty: string;
+    coachAttr: (name: string) => string;
+    viewMaterial: string;
+    ariaComplete: (title: string) => string;
+    ariaUncomplete: (title: string) => string;
+  }
+> = {
+  ko: {
+    title: "📋 내 훈련 과제",
+    remaining: (n) => `${n}개 남음`,
+    empty: "코치가 과제를 배정하면 여기에 표시돼요.",
+    coachAttr: (name) => `${name} 코치`,
+    viewMaterial: "훈련 자료 보기 →",
+    ariaComplete: (title) => `${title} 완료`,
+    ariaUncomplete: (title) => `${title} 완료 취소`,
+  },
+  en: {
+    title: "📋 My training tasks",
+    remaining: (n) => `${n} left`,
+    empty: "Tasks assigned by your coach will show up here.",
+    coachAttr: (name) => `Coach ${name}`,
+    viewMaterial: "View training material →",
+    ariaComplete: (title) => `Mark "${title}" complete`,
+    ariaUncomplete: (title) => `Mark "${title}" incomplete`,
+  },
+  es: {
+    title: "📋 Mis tareas de entrenamiento",
+    remaining: (n) => (n === 1 ? "1 pendiente" : `${n} pendientes`),
+    empty: "Las tareas que te asigne tu entrenador aparecerán aquí.",
+    coachAttr: (name) => `Entrenador ${name}`,
+    viewMaterial: "Ver material de entrenamiento →",
+    ariaComplete: (title) => `Marcar "${title}" como completada`,
+    ariaUncomplete: (title) => `Desmarcar "${title}" como completada`,
+  },
+};
+
 // Athlete side: homework list with a completion checkbox.
-export default function AssignmentCard({ assignments }: { assignments: MyAssignment[] }) {
+export default function AssignmentCard({
+  assignments,
+  lang = "ko",
+}: {
+  assignments: MyAssignment[];
+  lang?: Lang;
+}) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const s = L[lang];
 
   async function toggle(a: MyAssignment) {
     setBusyId(a.id);
@@ -35,12 +84,12 @@ export default function AssignmentCard({ assignments }: { assignments: MyAssignm
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold">📋 내 훈련 과제</h2>
-        <span className="badge bg-brand/10 text-brand">{pending.length}개 남음</span>
+        <h2 className="font-bold">{s.title}</h2>
+        <span className="badge bg-brand/10 text-brand">{s.remaining(pending.length)}</span>
       </div>
 
       {assignments.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">코치가 과제를 배정하면 여기에 표시돼요.</p>
+        <p className="mt-3 text-sm text-slate-500">{s.empty}</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {[...pending, ...done].map((a) => (
@@ -49,7 +98,7 @@ export default function AssignmentCard({ assignments }: { assignments: MyAssignm
                 type="button"
                 onClick={() => toggle(a)}
                 disabled={busyId === a.id}
-                aria-label={a.completedAt ? `${a.title} 완료 취소` : `${a.title} 완료`}
+                aria-label={a.completedAt ? s.ariaUncomplete(a.title) : s.ariaComplete(a.title)}
                 aria-pressed={Boolean(a.completedAt)}
                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs transition-colors ${
                   a.completedAt
@@ -65,12 +114,12 @@ export default function AssignmentCard({ assignments }: { assignments: MyAssignm
                 </p>
                 {a.note && <p className="mt-0.5 text-xs text-slate-500">{a.note}</p>}
                 <p className="mt-0.5 text-xs text-slate-400">
-                  {a.coachName} 코치
+                  {s.coachAttr(a.coachName)}
                   {a.linkHref && (
                     <>
                       {" · "}
                       <Link href={a.linkHref} className="font-medium text-brand hover:underline">
-                        훈련 자료 보기 →
+                        {s.viewMaterial}
                       </Link>
                     </>
                   )}
