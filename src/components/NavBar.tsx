@@ -14,13 +14,16 @@ export default async function NavBar() {
   const isCoach = session.role === "COACH";
   const lang = await getLang();
   const s = t(lang).nav;
+  const sb = t(lang).sidebar;
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center">
-          <SidebarToggleButton />
-          <Link href="/" className="flex items-center gap-2 font-bold">
+          <SidebarToggleButton label={sb.openMenu} />
+          {/* Below lg the sidebar is hidden, so the brand lives here; on lg
+              the sidebar header owns it. */}
+          <Link href="/" className="flex items-center gap-2 font-bold lg:hidden">
             <span className="text-xl">🏅</span>
             <span>sideline365</span>
           </Link>
@@ -29,19 +32,20 @@ export default async function NavBar() {
           <div className="mr-1 hidden sm:block">
             <SearchBox compact />
           </div>
-          <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+          {/* Quick links duplicate the sidebar on lg — show them only below it. */}
+          <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
             {s.home}
           </Link>
           {isCoach ? (
-            <Link href="/coach" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+            <Link href="/coach" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
               {s.coachDashboard}
             </Link>
           ) : (
-            <Link href="/records" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+            <Link href="/records" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
               {s.myRecords}
             </Link>
           )}
-          <Link href="/blog" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100">
+          <Link href="/blog" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
             {s.blog}
           </Link>
           {/* Plain <a>, not <Link>: forces a full navigation so the server

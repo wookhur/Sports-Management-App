@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {session ? (
           <SidebarProvider>
             <div className="lg:flex">
-              <Sidebar />
+              <Sidebar lang={lang} user={{ name: session.name, role: session.role }} />
               <div className="min-w-0 flex-1">{children}</div>
             </div>
           </SidebarProvider>

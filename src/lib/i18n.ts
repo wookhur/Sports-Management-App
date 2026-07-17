@@ -382,6 +382,67 @@ const nav: Record<Lang, NavDict> = {
   },
 };
 
+// Left sidebar (menu bar) labels.
+export interface SidebarDict {
+  menu: string;
+  home: string;
+  library: string;
+  stars: string;
+  blog: string;
+  search: string;
+  sports: string;
+  myActivity: string;
+  myRecords: string;
+  coachDashboard: string;
+  openMenu: string;
+  closeMenu: string;
+}
+
+const sidebar: Record<Lang, SidebarDict> = {
+  ko: {
+    menu: "메뉴",
+    home: "홈",
+    library: "트레이닝 라이브러리",
+    stars: "스타 루틴",
+    blog: "블로그",
+    search: "통합 검색",
+    sports: "스포츠",
+    myActivity: "내 활동",
+    myRecords: "내 기록",
+    coachDashboard: "코치 대시보드",
+    openMenu: "메뉴 열기",
+    closeMenu: "메뉴 닫기",
+  },
+  en: {
+    menu: "Menu",
+    home: "Home",
+    library: "Training Library",
+    stars: "Star Routines",
+    blog: "Blog",
+    search: "Search",
+    sports: "Sports",
+    myActivity: "My Activity",
+    myRecords: "My Records",
+    coachDashboard: "Coach Dashboard",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+  },
+  es: {
+    menu: "Menú",
+    home: "Inicio",
+    library: "Biblioteca de entrenamiento",
+    stars: "Rutinas de estrellas",
+    blog: "Blog",
+    search: "Buscar",
+    sports: "Deportes",
+    myActivity: "Mi actividad",
+    myRecords: "Mis marcas",
+    coachDashboard: "Panel del entrenador",
+    openMenu: "Abrir menú",
+    closeMenu: "Cerrar menú",
+  },
+};
+
 export function t(lang: Lang) {
-  return { login: login[lang], signup: signup[lang], nav: nav[lang] };
+  return { login: login[lang], signup: signup[lang], nav: nav[lang], sidebar: sidebar[lang] };
 }
