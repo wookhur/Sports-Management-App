@@ -271,6 +271,113 @@ async function main() {
     });
   }
 
+  // "스타 루틴" (star-athlete routines) across multiple sports — the training
+  // methods of some of the most recognizable names in each sport plus the
+  // science/reasoning behind them. Each carries its own `sport` (must match a
+  // key in SPORTS). Upserted by slug like everything above, so re-running the
+  // seed never duplicates or overwrites in-app edits.
+  const starAthletes: {
+    sport: string;
+    slug: string;
+    athleteName: string;
+    title: string;
+    excerpt: string;
+    body: string;
+  }[] = [
+    // ---- 육상 / 단거리 (Track & Field / Sprinting) ----
+    {
+      sport: "track",
+      slug: "track-usain-bolt",
+      athleteName: "Usain Bolt",
+      title: "Usain Bolt: Training Method & the Science Behind It",
+      excerpt:
+        "Sprint-specific power training — horizontal, hip-dominant work over heavy lifting, tuned to the exact force demands of a sprint stride.",
+      body: `<p><strong>Event:</strong> 100m / 200m sprint</p><p><strong>Type:</strong> Pure sprinter (fastest man ever recorded)</p><h2>Training Method</h2><ul><li>Horizontal, hip-extension-dominant exercises: pendulum quadruped hip extensions, hang cleans, sled work</li><li>Deliberately avoids excessive heavy lifting (e.g., maximal back squats)</li><li>Sprint mechanics and top-speed running treated as the highest-value stimulus</li></ul><h2>The Science</h2><ul><li>Research shows horizontal ground-reaction force in sprinting comes mostly from the hip extensors and knee flexors — not the muscles that vertical lifts like back squats emphasize — so the training matches the specific force demands of a sprint stride.</li><li>Skipping heavy lifting preserves the central nervous system for sprinting itself, the highest-value neural stimulus for speed.</li><li>Bolt is also a leverage case study: at 6'5" he covered 100m in about 41 strides (vs. 45–47 for typical elite sprinters), with an estimated unusually high proportion of fast-twitch (Type IIb) fibers — the fiber type built for rapid, forceful, short-duration contraction.</li></ul><h2>Sources</h2><ul><li><a href="https://bretcontreras.com/how-does-usain-bolt-train/">How Does Usain Bolt Train? — Bret Contreras</a></li><li><a href="https://biologyinsights.com/how-usain-bolts-physique-created-a-champion/">How Usain Bolt's Physique Created a Champion — Biology Insights</a></li></ul>`,
+    },
+    // ---- 축구 (Soccer) ----
+    {
+      sport: "soccer",
+      slug: "soccer-cristiano-ronaldo",
+      athleteName: "Cristiano Ronaldo",
+      title: "Cristiano Ronaldo: Training Method & the Science Behind It",
+      excerpt:
+        "High-intensity sprint intervals, hypertrophy-range strength work, and multi-directional core training instead of traditional crunches.",
+      body: `<p><strong>Sport:</strong> Soccer</p><p><strong>Type:</strong> Explosive attacker with elite longevity</p><h2>Training Method</h2><ul><li>High-intensity sprint intervals</li><li>Strength work in the 65–75% one-rep-max range for 8–12 reps</li><li>Core built on twisting, balancing, and agile movements (planks, lateral sprints, complex compound lifts) rather than traditional crunches</li></ul><h2>The Science</h2><ul><li>Research from Laval University links high-intensity sprint intervals to greater fat loss and elevated resting metabolism — which helps explain his low body-fat percentage into his 40s.</li><li>The 65–75%-of-max, 8–12 rep range is what a Gothenburg University study associated with optimal muscle growth.</li><li>Penn State research found that football's twisting, balancing, agile movements recruit more core musculature than a standard sit-up — which is why his program favors compound, multi-directional movements over crunches.</li></ul><h2>Sources</h2><ul><li><a href="https://bleacherreport.com/articles/2361255-learn-how-to-train-like-cristiano-ronaldo-with-sports-science">Learn How to Train Like Cristiano Ronaldo with Sports Science — Bleacher Report</a></li></ul>`,
+    },
+    // ---- 농구 (Basketball) ----
+    {
+      sport: "basketball",
+      slug: "basketball-lebron-james",
+      athleteName: "LeBron James",
+      title: "LeBron James: Training Method & the Science Behind It",
+      excerpt:
+        "Recovery treated as seriously as the lifting itself — cryotherapy, hyperbaric chambers, compression, and sleep tracking that let a 40-year-old train at a young player's intensity.",
+      body: `<p><strong>Sport:</strong> Basketball</p><p><strong>Type:</strong> Elite longevity through recovery science</p><h2>Training Method</h2><ul><li>At this stage of his career, recovery is treated as seriously as the lifting itself</li><li>Cryotherapy, hyperbaric chambers, compression, sleep tracking, and in-season load management</li><li>Reportedly a ~$1.5M/year recovery setup</li></ul><h2>The Science</h2><ul><li>High-intensity training creates micro-damage and inflammation, and the actual adaptation — getting stronger and faster — happens during recovery, not during the workout itself.</li><li>Expanding recovery capacity is what lets a 40-year-old keep training at a young player's intensity.</li></ul><h2>Sources</h2><ul><li><a href="https://peakprimalwellness.com/blogs/wellness/lebron-james-recovery-setup">LeBron James Recovery Setup — Peak Primal Wellness</a></li></ul>`,
+    },
+    // ---- 라크로스 (Lacrosse) ----
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-brennan-oneill",
+      athleteName: "Brennan O'Neill",
+      title: "Brennan O'Neill: Training Method & the Science Behind It",
+      excerpt:
+        "Off-season strength 4–5 days a week paired with a deception-first shooting approach — head and shoulder fakes borrowed from box lacrosse.",
+      body: `<p><strong>Position:</strong> Midfield, Denver Outlaws</p><p><strong>Note:</strong> PLL's #1-ranked player (2025)</p><h2>Training Method</h2><ul><li>Off-season strength work 4–5 days a week (legs, arms, core)</li><li>A shooting approach built on deception — head and shoulder fakes borrowed from box lacrosse — rather than elaborate stick moves</li></ul><h2>The Science</h2><ul><li>O'Neill's own explanation is simple biomechanics: "Shooting is full body. You want a good plant, so you need strong legs." A stable, powerful base lets the upper body deliver force into the shot without losing accuracy.</li><li>The head-fake emphasis works because in tight spaces a goalie reacts to eye and body cues faster than to stick movement — so deceiving the eyes beats trying to out-stick-fake the goalie.</li></ul><h2>Sources</h2><ul><li><a href="https://www.usalacrosse.com/magazine/misc/how/game-ready-shooting-tips-us-national-teamer-brennan-oneill">Brennan O'Neill shooting tips — USA Lacrosse</a></li><li><a href="https://premierlacrosseleague.com/players-top-50">2025 PLL Players Top 50</a></li></ul>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-tom-schreiber",
+      athleteName: "Tom Schreiber",
+      title: "Tom Schreiber: Training Method & the Science Behind It",
+      excerpt:
+        "Daily lacrosse-specific reps at game speed — shooting, dodging, and wall ball every day — built on the principle of specificity.",
+      body: `<p><strong>Position:</strong> Midfield, Utah Archers</p><p><strong>Note:</strong> Longtime consensus "best all-around midfielder"</p><h2>Training Method</h2><ul><li>Daily lacrosse-specific reps: shooting, dodging, and wall ball, every single day</li><li>Layered with medicine ball work, rowing/cycling/jump-rope cardio, and sprints</li><li>His week alternates lifting and stick-work days, with dedicated footwork sessions and lighter upper-body days before games</li></ul><h2>The Science</h2><ul><li>Schreiber's three stated principles are dodging from multiple angles, shooting accurately with both hands while moving, and drilling at full game speed.</li><li>This reflects a core training principle called specificity — skills only transfer to games if they're practiced at game speed and under game-like variability (both hands, multiple angles), not in slow, repetitive isolation.</li></ul><h2>Sources</h2><ul><li><a href="https://www.usalacrosse.com/magazine/many-talents-and-surprising-modesty-tom-schreiber">Tom Schreiber training feature — USA Lacrosse</a></li></ul>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-trevor-baptiste",
+      athleteName: "Trevor Baptiste",
+      title: "Trevor Baptiste: Training Method & the Science Behind It",
+      excerpt:
+        "Trains for the scramble, not just the clamp — winning the 50/50 ground-ball battle after the draw as a bet on probability.",
+      body: `<p><strong>Position:</strong> Faceoff / FOGO, New York Atlas</p><p><strong>Note:</strong> Widely considered the best ever at the position</p><h2>Training Method</h2><ul><li>Rather than obsessing over winning every clamp cleanly, Baptiste trains for the scramble</li><li>Anticipates what happens when the draw is lost and wins the 50/50 ground-ball battle that follows</li><li>Works in coordination with his wing players</li></ul><h2>The Science</h2><ul><li>A faceoff is decided in a fraction of a second off the whistle, so no technique wins every rep.</li><li>Training the "second phase" (the scramble) is a bet on probability: it's more reliably repeatable than trying to perfect a single explosive first-move technique, and it turns a coin-flip battle into a team-coordinated advantage.</li></ul><h2>Sources</h2><ul><li><a href="https://www.laxfactor.com/2018/03/become-a-better-face-off-specialist/">Trevor Baptiste faceoff strategy — LaxFactor</a></li></ul>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-blaze-riorden",
+      athleteName: "Blaze Riorden",
+      title: "Blaze Riorden: Training Method & the Science Behind It",
+      excerpt:
+        "A hockey-style butterfly stance plus reaction-ball drills that build genuine reflexes against shots traveling over 90 mph.",
+      body: `<p><strong>Position:</strong> Goalie, Carolina Chaos</p><h2>Training Method</h2><ul><li>Plays a hockey-style "butterfly" stance, unusual for field lacrosse goalies</li><li>Leans on stick-handling skills carried over from his early years as an attackman to start transition offense right off a save</li><li>Elite goalie training centers on reaction balls and "colored ball" call-outs — irregular-bounce balls, or balls a coach names by color mid-flight, forcing the goalie to process visual information and react physically in the same instant</li></ul><h2>The Science</h2><ul><li>The butterfly stance maximizes low-body coverage against a shot that can travel over 90 mph, leaving a goalie under half a second to read release point and react — so covering more net passively reduces how much has to be covered reactively.</li><li>The reaction-ball drills work because they remove predictable bounce patterns, forcing the brain to build genuine reflexive (not memorized) responses — closer to what an actual game shot demands.</li></ul><h2>Sources</h2><ul><li><a href="https://en.wikipedia.org/wiki/Blaze_Riorden">Blaze Riorden — Wikipedia</a></li><li><a href="https://laxgoalierat.com/lacrosse-goalie-drills/">Lacrosse goalie reaction drills — Lax Goalie Rat</a></li></ul>`,
+    },
+    {
+      sport: "lacrosse",
+      slug: "lacrosse-lyle-thompson",
+      athleteName: "Lyle Thompson",
+      title: "Lyle Thompson: Training Method & the Science Behind It",
+      excerpt:
+        "Balance over maxing any single quality — rotating blocks of strength, cardio, and core, with hip strength deliberately targeted.",
+      body: `<p><strong>Position:</strong> Attack (Iroquois Nationals)</p><p><strong>Note:</strong> One of the most decorated attackmen ever</p><h2>Training Method</h2><ul><li>Roughly two hours in the gym built around balance rather than maxing any one quality: about 30 minutes of strength work, 10 minutes of cardio, 10 minutes of core, then another 60 minutes of strength</li><li>Rotates the training block every two months</li><li>Signature lifts: front squats, goblet squats, hang cleans, and pull-ups ("the great equalizer," in his words)</li></ul><h2>The Science</h2><ul><li>Thompson's rationale is that lacrosse punishes any single weak link — a lack of leg strength, core stability, or hip mobility all show up in one-on-one battles — so he deliberately balances mobility, stability, and strength instead of overtraining one at the expense of the others.</li><li>He specifically targets hip strength because weak hips are a common limiting factor for lacrosse players' dodging and defensive positioning.</li></ul><h2>Sources</h2><ul><li><a href="https://barbend.com/lacrosse-strength-training/">Lyle Thompson strength training — BarBend</a></li></ul>`,
+    },
+  ];
+
+  for (const a of starAthletes) {
+    await prisma.athleteGuide.upsert({
+      where: { slug: a.slug },
+      update: {},
+      create: {
+        sport: a.sport,
+        slug: a.slug,
+        athleteName: a.athleteName,
+        title: a.title,
+        excerpt: a.excerpt,
+        body: a.body,
+        authorId: coach.id,
+      },
+    });
+  }
+
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");
