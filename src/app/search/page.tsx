@@ -7,8 +7,9 @@ import SearchBox from "@/components/SearchBox";
 import { searchWorkouts, STROKE_KO, LEVEL_KO } from "@/lib/swimming";
 import { searchDrills } from "@/lib/soccerDrills";
 import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
+import { searchGuides } from "@/lib/sports";
 import { getLang } from "@/lib/getLang";
-import type { Lang } from "@/lib/i18n";
+import { SPORT_I18N, type Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,8 @@ const L: Record<
     workoutMeta: (id: string, level: string, total: string) => string;
     soccerHeading: string;
     lacrosseHeading: string;
+    starsHeading: string;
+    guidesHeading: string;
     blogHeading: string;
   }
 > = {
@@ -35,6 +38,8 @@ const L: Record<
     workoutMeta: (id, level, total) => `${id} · ${level} · 총 ${total}m`,
     soccerHeading: "⚽ 축구 드릴",
     lacrosseHeading: "🥍 라크로스 훈련 영상",
+    starsHeading: "⭐ 스타 루틴",
+    guidesHeading: "📋 훈련 가이드",
     blogHeading: "📝 블로그",
   },
   en: {
@@ -46,6 +51,8 @@ const L: Record<
     workoutMeta: (id, level, total) => `${id} · ${level} · ${total}m total`,
     soccerHeading: "⚽ Soccer drills",
     lacrosseHeading: "🥍 Lacrosse training videos",
+    starsHeading: "⭐ Star routines",
+    guidesHeading: "📋 Training guides",
     blogHeading: "📝 Blog",
   },
   es: {
@@ -57,6 +64,8 @@ const L: Record<
     workoutMeta: (id, level, total) => `${id} · ${level} · ${total}m en total`,
     soccerHeading: "⚽ Ejercicios de fútbol",
     lacrosseHeading: "🥍 Videos de entrenamiento de lacrosse",
+    starsHeading: "⭐ Rutinas de estrellas",
+    guidesHeading: "📋 Guías de entrenamiento",
     blogHeading: "📝 Blog",
   },
 };
@@ -74,10 +83,26 @@ export default async function SearchPage({
 
   const workouts = query ? searchWorkouts(query) : [];
   const drills = query ? searchDrills(query) : [];
+  const guides = query ? searchGuides(query) : [];
   const laxVideos = query
     ? lacrosseSearchItems()
         .filter((v) => `${v.title} ${v.note} ${v.group}`.toLowerCase().includes(query.toLowerCase()))
         .slice(0, 6)
+    : [];
+  const stars = query
+    ? await prisma.athleteGuide.findMany({
+        where: {
+          published: true,
+          OR: [
+            { athleteName: { contains: query, mode: "insensitive" } },
+            { title: { contains: query, mode: "insensitive" } },
+            { excerpt: { contains: query, mode: "insensitive" } },
+            { body: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      })
     : [];
   const posts = query
     ? await prisma.blogPost.findMany({
@@ -95,7 +120,8 @@ export default async function SearchPage({
       })
     : [];
 
-  const total = workouts.length + drills.length + laxVideos.length + posts.length;
+  const total =
+    workouts.length + drills.length + guides.length + laxVideos.length + stars.length + posts.length;
 
   return (
     <>
@@ -132,6 +158,20 @@ export default async function SearchPage({
           </Group>
         )}
 
+        {/* Star routines */}
+        {stars.length > 0 && (
+          <Group title={s.starsHeading}>
+            {stars.map((g) => (
+              <ResultRow
+                key={g.id}
+                href={`/sports/${g.sport}/athletes/${g.slug}`}
+                title={`${SPORT_I18N[g.sport]?.[lang]?.name ?? g.sport} · ${g.athleteName}`}
+                meta={g.title}
+              />
+            ))}
+          </Group>
+        )}
+
         {/* Soccer drills */}
         {drills.length > 0 && (
           <Group title={s.soccerHeading}>
@@ -141,6 +181,20 @@ export default async function SearchPage({
                 href={`/sports/soccer/drills/${d.id}`}
                 title={d.title}
                 meta={`${d.category} · ${d.summary}`}
+              />
+            ))}
+          </Group>
+        )}
+
+        {/* Training guides (per-sport step guides) */}
+        {guides.length > 0 && (
+          <Group title={s.guidesHeading}>
+            {guides.map((g) => (
+              <ResultRow
+                key={`${g.sportId}-${g.id}`}
+                href={`/sports/${g.sportId}/guides/${g.id}`}
+                title={`${SPORT_I18N[g.sportId]?.[lang]?.name ?? g.sportName} · ${g.title}`}
+                meta={g.summary}
               />
             ))}
           </Group>

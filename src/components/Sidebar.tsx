@@ -11,7 +11,6 @@ import {
   HomeIcon,
   LibraryIcon,
   PenIcon,
-  SearchIcon,
   StarIcon,
   TimerIcon,
   TrophyIcon,
@@ -101,7 +100,6 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
             onNavigate={onNavigate}
           />
           <NavItem href="/blog" active={pathname.startsWith("/blog")} icon={<PenIcon className="h-5 w-5" />} label={s.blog} onNavigate={onNavigate} />
-          <NavItem href="/search" active={pathname.startsWith("/search")} icon={<SearchIcon className="h-5 w-5" />} label={s.search} onNavigate={onNavigate} />
         </div>
 
         <SectionLabel>{s.sports}</SectionLabel>
@@ -200,10 +198,13 @@ export default function Sidebar({ lang, user }: SidebarProps) {
     <>
       {/* Desktop: permanent left column, sticky for independent scrolling */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
-        <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 transition-colors hover:bg-slate-50"
+        >
           <span className="text-xl" aria-hidden="true">🏅</span>
           <span className="text-lg font-bold tracking-tight">sideline365</span>
-        </div>
+        </Link>
         <SidebarNav lang={lang} user={user} onNavigate={() => {}} />
       </aside>
 
@@ -213,10 +214,10 @@ export default function Sidebar({ lang, user }: SidebarProps) {
           <div className="absolute inset-0 bg-slate-900/50" onClick={close} aria-hidden="true" />
           <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <span className="flex items-center gap-2 font-bold">
+              <Link href="/" onClick={close} className="flex items-center gap-2 font-bold">
                 <span className="text-xl" aria-hidden="true">🏅</span>
                 sideline365
-              </span>
+              </Link>
               <button
                 type="button"
                 onClick={close}

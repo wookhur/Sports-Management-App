@@ -260,3 +260,31 @@ export function getMetric(sportId: string, metricKey: string): Metric | undefine
 export function getGuide(sportId: string, guideId: string): Guide | undefined {
   return getSport(sportId)?.guides?.find((g) => g.id === guideId);
 }
+
+export interface GuideSearchHit extends Guide {
+  sportId: string;
+  sportName: string;
+}
+
+/** Full-text search across every sport's step-by-step guides. */
+export function searchGuides(query: string, limit = 6): GuideSearchHit[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const hits: GuideSearchHit[] = [];
+  for (const sport of SPORT_LIST) {
+    for (const g of sport.guides ?? []) {
+      const hay = [
+        g.title,
+        g.summary,
+        g.focus,
+        g.level,
+        ...g.steps.flatMap((s) => [s.title, s.detail]),
+        ...g.tips,
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (hay.includes(q)) hits.push({ ...g, sportId: sport.id, sportName: sport.name });
+    }
+  }
+  return hits.slice(0, limit);
+}
