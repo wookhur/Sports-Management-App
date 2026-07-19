@@ -329,6 +329,22 @@ async function main() {
       excerpt: "Sprint intervals, 65–75% 1RM hypertrophy work, and multi-directional core training — the science behind CR7's longevity.",
       body: `<h2>Training Method</h2><p>High-intensity sprint intervals, strength work in the 65–75% one-rep-max range for 8–12 reps, and core training built on twisting/balancing/agile movements (planks, lateral sprints, complex compound lifts) instead of traditional crunches.</p><h2>Why It Works</h2><p>Research from Laval University links high-intensity sprint intervals to greater fat loss and elevated resting metabolism, which explains his low body-fat percentage into his 40s. The 65–75%-of-max, 8–12 rep range is what a Gothenburg University study associated with optimal muscle growth. And Penn State research found that football's twisting, balancing, agile movements recruit more core musculature than a standard sit-up — which is why his program favors compound, multi-directional movements over crunches.</p>`,
     },
+    {
+      sport: "track",
+      slug: "track-usain-bolt",
+      athleteName: "Usain Bolt",
+      title: "Usain Bolt: Training Method & the Science Behind It",
+      excerpt: "The fastest man ever recorded skipped heavy lifting for horizontal, hip-extension-dominant work — matched exactly to a sprint stride's force demands.",
+      body: `<p><strong>Event:</strong> Track & Field / Sprinting (fastest man ever recorded)</p><h2>Training Method</h2><p>Rather than generic heavy lifting, Bolt's program leaned on horizontal, hip-extension-dominant exercises — pendulum quadruped hip extensions, hang cleans, sled work — while deliberately avoiding excessive heavy lifting.</p><h2>Why It Works</h2><p>Research shows horizontal ground-reaction force in sprinting comes mostly from the hip extensors and knee flexors, not the muscles vertical lifts like back squats emphasize — so training matched the specific force demands of a sprint stride. Skipping heavy lifting preserved his central nervous system for sprinting itself, the highest-value neural stimulus for speed. Physiologically, Bolt is also a leverage case study: at 6'5" he covered 100m in about 41 strides (vs. 45–47 for typical elite sprinters) with an estimated unusually high proportion of fast-twitch (Type IIb) fibers — the fiber type built for rapid, forceful, short-duration contraction.</p>`,
+    },
+    {
+      sport: "basketball",
+      slug: "basketball-lebron-james",
+      athleteName: "LeBron James",
+      title: "LeBron James: Training Method & the Science Behind It",
+      excerpt: "At this stage of his career, recovery — cryotherapy, hyperbaric chambers, sleep tracking — gets treated as seriously as the lifting itself.",
+      body: `<h2>Training Method</h2><p>At this stage of his career, recovery is treated as seriously as the lifting itself — cryotherapy, hyperbaric chambers, compression, sleep tracking, and in-season load management, reportedly a ~$1.5M/year setup.</p><h2>Why It Works</h2><p>High-intensity training creates micro-damage and inflammation, and the actual adaptation (getting stronger/faster) happens during recovery, not during the workout itself. Expanding recovery capacity is what lets a 40-year-old keep training at a young player's intensity.</p>`,
+    },
   ];
 
   for (const a of moreAthletes) {

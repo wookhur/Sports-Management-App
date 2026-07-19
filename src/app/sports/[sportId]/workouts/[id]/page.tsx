@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
 import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
-import { getWorkout, getVideo, STROKE_KO, LEVEL_KO } from "@/lib/swimming";
+import { getWorkout, getVideo, strokeLabel, levelLabel } from "@/lib/swimming";
 
 const phaseAccent: Record<string, string> = {
   "Warm-up": "from-sky-500 to-cyan-500",
@@ -102,10 +102,10 @@ export default async function WorkoutDetailPage({
         <header className="mt-3 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 p-6 text-white">
           <span className="font-mono text-xs text-white/80">{workout.id}</span>
           <h1 className="mt-1 text-2xl font-bold">
-            {STROKE_KO[workout.stroke]} · {s.baseLabel(workout.base)}
+            {strokeLabel(workout.stroke, lang)} · {s.baseLabel(workout.base)}
           </h1>
           <div className="mt-3 flex flex-wrap gap-2 text-sm">
-            <span className="badge bg-white/20 text-white">{LEVEL_KO[workout.level]}</span>
+            <span className="badge bg-white/20 text-white">{levelLabel(workout.level, lang)}</span>
             <span className="badge bg-white/20 text-white">{s.totalDistance(total)}</span>
             <span className="badge bg-white/20 text-white">{s.phaseCount(workout.phases.length)}</span>
           </div>

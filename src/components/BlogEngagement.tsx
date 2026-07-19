@@ -165,7 +165,7 @@ export default function BlogEngagement({
               <p className="text-xs font-semibold text-slate-600">
                 {c.authorName}
                 {c.authorRole === "COACH" && <span className="badge ml-1.5 bg-brand/10 text-brand">{s.coachBadge}</span>}
-                <span className="ml-2 font-normal text-slate-400">{formatDate(c.createdAt)}</span>
+                <span className="ml-2 font-normal text-slate-400">{formatDate(c.createdAt, lang)}</span>
               </p>
               {(c.mine || canModerate) && (
                 <button

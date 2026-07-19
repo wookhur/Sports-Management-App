@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import SearchBox from "@/components/SearchBox";
-import { searchWorkouts, STROKE_KO, LEVEL_KO } from "@/lib/swimming";
+import { searchWorkouts, strokeLabel, levelLabel } from "@/lib/swimming";
 import { searchDrills } from "@/lib/soccerDrills";
 import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
 import { searchGuides } from "@/lib/sports";
@@ -151,8 +151,8 @@ export default async function SearchPage({
               <ResultRow
                 key={w.id}
                 href={`/sports/swimming/workouts/${w.id}`}
-                title={s.workoutTitle(STROKE_KO[w.stroke], w.base)}
-                meta={s.workoutMeta(w.id, LEVEL_KO[w.level], w.totalDistanceM.toLocaleString())}
+                title={s.workoutTitle(strokeLabel(w.stroke, lang), w.base)}
+                meta={s.workoutMeta(w.id, levelLabel(w.level, lang), w.totalDistanceM.toLocaleString())}
               />
             ))}
           </Group>

@@ -90,7 +90,7 @@ export default async function AthleteGuidePage({
           {!guide.coverImage && <div className="text-5xl">{sport.emoji}</div>}
           <div className="mt-3 flex items-center gap-2">
             <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
-            <span className="text-sm text-slate-400">{formatDate(guide.createdAt)}</span>
+            <span className="text-sm text-slate-400">{formatDate(guide.createdAt, lang)}</span>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{guide.title}</h1>
           <p className="mt-2 text-slate-500">{guide.author?.name ?? "sideline365"}</p>

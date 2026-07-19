@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatDuration } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+import { metricLabel, type Lang } from "@/lib/i18n";
 
 export interface GoalView {
   id: string;
+  metricKey: string;
   metricName: string;
   targetMs: number;
   achieved: boolean;
@@ -170,11 +171,12 @@ export default function GoalManager({
         {goals.map((g) => {
           const pct =
             g.bestMs == null ? 0 : Math.max(0, Math.min(100, Math.round((g.targetMs / g.bestMs) * 100)));
+          const name = metricLabel(g.metricKey, g.metricName, lang);
           return (
             <div key={g.id} className="rounded-xl border border-slate-200 p-3.5">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-slate-800">
-                  {g.metricName}
+                  {name}
                   {s.targetBefore}
                   <span className="font-mono text-slate-500">{formatDuration(g.targetMs)}</span>
                   {s.targetAfter}
@@ -184,7 +186,7 @@ export default function GoalManager({
                   <button
                     type="button"
                     onClick={() => remove(g.id)}
-                    aria-label={s.deleteAria(g.metricName)}
+                    aria-label={s.deleteAria(name)}
                     className="text-xs text-slate-300 transition-colors hover:text-red-500"
                   >
                     ✕
@@ -219,7 +221,7 @@ export default function GoalManager({
         >
           {metrics.map((m) => (
             <option key={m.key} value={m.key}>
-              {m.name}
+              {metricLabel(m.key, m.name, lang)}
             </option>
           ))}
         </select>

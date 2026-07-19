@@ -288,6 +288,22 @@ const signup: Record<Lang, SignupDict> = {
 
 // Sport interest cards inside the wizard (kept separate from src/lib/sports.ts
 // so the rest of the app — home page, sport hubs, guides — is unaffected).
+// Swimming metric display names. Values are stored per-record as a Korean
+// snapshot (metricName), so display always translates by metricKey through
+// this map with the stored string as fallback (custom entries, old data).
+export const METRIC_I18N: Record<string, Record<Lang, string>> = {
+  freestyle_50m: { ko: "자유형 50m", en: "Freestyle 50m", es: "Estilo libre 50m" },
+  freestyle_100m: { ko: "자유형 100m", en: "Freestyle 100m", es: "Estilo libre 100m" },
+  backstroke_50m: { ko: "배영 50m", en: "Backstroke 50m", es: "Espalda 50m" },
+  breaststroke_50m: { ko: "평영 50m", en: "Breaststroke 50m", es: "Pecho 50m" },
+  butterfly_50m: { ko: "접영 50m", en: "Butterfly 50m", es: "Mariposa 50m" },
+  custom: { ko: "직접 입력 (거리 선택)", en: "Custom (choose distance)", es: "Personalizado (elige distancia)" },
+};
+
+export function metricLabel(metricKey: string, fallback: string, lang: Lang): string {
+  return METRIC_I18N[metricKey]?.[lang] ?? fallback;
+}
+
 export const SPORT_I18N: Record<string, Record<Lang, { name: string; tagline: string }>> = {
   lacrosse: {
     ko: { name: "라크로스", tagline: "스틱 핸들링부터 1대1까지, 단계별 훈련 방식" },
@@ -303,6 +319,16 @@ export const SPORT_I18N: Record<string, Record<Lang, { name: string; tagline: st
     ko: { name: "수영", tagline: "영법·거리별 랩 타임을 측정하고 기록으로 남기세요" },
     en: { name: "Swimming", tagline: "Track lap times by stroke and distance" },
     es: { name: "Natación", tagline: "Registra tus tiempos por estilo y distancia" },
+  },
+  track: {
+    ko: { name: "육상", tagline: "세계 최고 스프린터들의 훈련법을 만나보세요" },
+    en: { name: "Track & Field", tagline: "See how the world's fastest sprinters train" },
+    es: { name: "Atletismo", tagline: "Descubre cómo entrenan los velocistas más rápidos del mundo" },
+  },
+  basketball: {
+    ko: { name: "농구", tagline: "세계적인 농구 선수들의 훈련법을 만나보세요" },
+    en: { name: "Basketball", tagline: "See how elite basketball players train" },
+    es: { name: "Baloncesto", tagline: "Descubre cómo entrenan los jugadores de élite" },
   },
 };
 

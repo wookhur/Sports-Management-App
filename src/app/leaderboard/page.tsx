@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { SPORT_LIST, getSport } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import { formatDate, formatDuration } from "@/lib/format";
-import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -151,7 +151,7 @@ export default async function LeaderboardPage({
                     isActive ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
-                  {m.name}
+                  {metricLabel(m.key, m.name, lang)}
                 </Link>
               );
             })}
@@ -162,7 +162,7 @@ export default async function LeaderboardPage({
           <div className="card mt-6 p-12 text-center text-slate-500">{t.noMetrics}</div>
         ) : ranked.length === 0 ? (
           <div className="card mt-6 p-12 text-center text-slate-500">
-            {t.empty(active?.name ?? "")}
+            {t.empty(active ? metricLabel(active.key, active.name, lang) : "")}
           </div>
         ) : (
           <div className="card mt-6 divide-y divide-slate-100">
@@ -182,7 +182,7 @@ export default async function LeaderboardPage({
                       {isMe && <span className="badge ml-2 bg-brand/10 text-brand">{t.me}</span>}
                     </p>
                     {dateOf.get(row.userId) && (
-                      <p className="text-xs text-slate-400">{formatDate(dateOf.get(row.userId)!)}</p>
+                      <p className="text-xs text-slate-400">{formatDate(dateOf.get(row.userId)!, lang)}</p>
                     )}
                   </div>
                   <span className="font-mono text-lg font-bold tabular-nums">

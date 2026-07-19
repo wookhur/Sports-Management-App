@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import { formatDate, formatDuration } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+import { metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -150,9 +150,9 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
                   <div key={r.id} className="flex items-center justify-between px-5 py-3.5">
                     <div>
                       <p className="text-sm font-medium">
-                        {r.user.name} · {r.metricName}
+                        {r.user.name} · {metricLabel(r.metricKey, r.metricName, lang)}
                       </p>
-                      <p className="text-xs text-slate-400">{formatDate(r.createdAt)}</p>
+                      <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
                     </div>
                     {r.durationMs != null && (
                       <span className="font-mono font-semibold tabular-nums">{formatDuration(r.durationMs)}</span>

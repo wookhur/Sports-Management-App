@@ -11,8 +11,8 @@ import {
   STROKES,
   BASES,
   LEVELS,
-  STROKE_KO,
-  LEVEL_KO,
+  strokeLabel,
+  levelLabel,
 } from "@/lib/swimming";
 
 const PAGE_SIZE = 24;
@@ -149,7 +149,7 @@ export default async function SwimWorkoutsPage({
             label={s.filterStroke}
             allLabel={s.all}
             basePath={basePath}
-            options={STROKES.map((st) => ({ value: st, label: STROKE_KO[st] }))}
+            options={STROKES.map((st) => ({ value: st, label: strokeLabel(st, lang) }))}
             active={stroke}
             activeSP={activeSP}
             param="stroke"
@@ -167,7 +167,7 @@ export default async function SwimWorkoutsPage({
             label={s.filterLevel}
             allLabel={s.all}
             basePath={basePath}
-            options={LEVELS.map((l) => ({ value: l, label: LEVEL_KO[l] }))}
+            options={LEVELS.map((l) => ({ value: l, label: levelLabel(l, lang) }))}
             active={level}
             activeSP={activeSP}
             param="level"
@@ -190,10 +190,10 @@ export default async function SwimWorkoutsPage({
             >
               <div className="flex items-center justify-between">
                 <span className="font-mono text-xs text-slate-400">{w.id}</span>
-                <span className={`badge ${levelBadge[w.level]}`}>{LEVEL_KO[w.level]}</span>
+                <span className={`badge ${levelBadge[w.level]}`}>{levelLabel(w.level, lang)}</span>
               </div>
               <p className="mt-2 font-bold group-hover:text-brand">
-                {STROKE_KO[w.stroke]} · {s.baseLabel(w.base)}
+                {strokeLabel(w.stroke, lang)} · {s.baseLabel(w.base)}
               </p>
               <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
                 <span>{s.totalDistance(w.totalDistanceM)}</span>

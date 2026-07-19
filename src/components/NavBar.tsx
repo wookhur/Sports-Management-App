@@ -30,7 +30,7 @@ export default async function NavBar() {
         </div>
         <div className="flex items-center gap-1 text-sm">
           <div className="mr-1 hidden sm:block">
-            <SearchBox compact />
+            <SearchBox compact lang={lang} />
           </div>
           {/* Quick links duplicate the sidebar on lg — show them only below it. */}
           <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
@@ -60,7 +60,7 @@ export default async function NavBar() {
             <span className="hidden text-xs text-slate-500 sm:inline">
               {session.name} · {isCoach ? s.roleCoach : s.roleAthlete}
             </span>
-            <LogoutButton />
+            <LogoutButton lang={lang} />
           </div>
         </div>
       </nav>

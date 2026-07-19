@@ -9,6 +9,7 @@ export interface CommentView {
 export interface RecordView {
   id: string;
   sport: string;
+  metricKey: string;
   metricName: string;
   distanceM: number | null;
   durationMs: number | null;

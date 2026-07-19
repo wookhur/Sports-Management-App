@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Metric } from "@/lib/sports";
 import { formatDuration, formatPace } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+import { metricLabel, type Lang } from "@/lib/i18n";
 
 type Mode = "timer" | "manual";
 
@@ -270,7 +270,7 @@ export default function Stopwatch({
           >
             {metrics.map((m) => (
               <option key={m.key} value={m.key}>
-                {m.name}
+                {metricLabel(m.key, m.name, lang)}
               </option>
             ))}
           </select>

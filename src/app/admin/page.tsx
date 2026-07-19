@@ -184,7 +184,7 @@ export default async function AdminPage() {
                     <td className="px-5 py-3 text-right tabular-nums">
                       {u.currentStreak > 0 ? s.streakDays(u.currentStreak) : "—"}
                     </td>
-                    <td className="px-5 py-3 text-right text-xs text-slate-400">{formatDate(u.createdAt)}</td>
+                    <td className="px-5 py-3 text-right text-xs text-slate-400">{formatDate(u.createdAt, lang)}</td>
                   </tr>
                 ))}
               </tbody>

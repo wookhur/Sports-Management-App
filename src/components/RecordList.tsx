@@ -5,7 +5,7 @@ import { useState } from "react";
 import { SPORTS } from "@/lib/sports";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
 import type { RecordView } from "@/lib/types";
-import type { Lang } from "@/lib/i18n";
+import { metricLabel, type Lang } from "@/lib/i18n";
 
 const L: Record<
   Lang,
@@ -153,12 +153,12 @@ function RecordItem({
         <div>
           <p className="flex items-center gap-2 font-semibold">
             <span>{sport?.emoji}</span>
-            {record.metricName}
+            {metricLabel(record.metricKey, record.metricName, lang)}
             {mode === "coach" && record.ownerName && (
               <span className="badge bg-slate-100 text-slate-500">{record.ownerName}</span>
             )}
           </p>
-          <p className="text-xs text-slate-400">{formatDate(record.createdAt)}</p>
+          <p className="text-xs text-slate-400">{formatDate(record.createdAt, lang)}</p>
           {record.notes && <p className="mt-2 text-sm text-slate-600">“{record.notes}”</p>}
         </div>
         <div className="text-right">
@@ -210,7 +210,7 @@ function RecordItem({
                   {c.authorRole === "COACH" ? "📋" : "🏃"} {c.authorName}
                 </span>
                 <span className="text-slate-300">·</span>
-                <span className="text-slate-400">{formatDate(c.createdAt)}</span>
+                <span className="text-slate-400">{formatDate(c.createdAt, lang)}</span>
               </p>
               <p className="mt-1 text-sm text-slate-700">{c.body}</p>
             </div>

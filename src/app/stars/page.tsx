@@ -167,7 +167,7 @@ export default async function StarRoutinesPage({
                     </h2>
                     <p className="mt-1 line-clamp-2 flex-1 text-sm text-slate-500">{guide.excerpt}</p>
                     <p className="mt-3 text-xs text-slate-400">
-                      {guide.author?.name ?? "sideline365"} · {formatDate(guide.createdAt)}
+                      {guide.author?.name ?? "sideline365"} · {formatDate(guide.createdAt, lang)}
                     </p>
                   </div>
                 </Link>

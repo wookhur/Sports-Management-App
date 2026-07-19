@@ -90,6 +90,7 @@ export default async function RecordsPage() {
   }
   const goalView: GoalView[] = goals.map((g) => ({
     id: g.id,
+    metricKey: g.metricKey,
     metricName: g.metricName,
     targetMs: g.targetMs,
     achieved: Boolean(g.achievedAt),
@@ -103,6 +104,7 @@ export default async function RecordsPage() {
   const view: RecordView[] = records.map((r) => ({
     id: r.id,
     sport: r.sport,
+    metricKey: r.metricKey,
     metricName: r.metricName,
     distanceM: r.distanceM,
     durationMs: r.durationMs,
@@ -134,7 +136,7 @@ export default async function RecordsPage() {
             </h2>
             <div className="grid gap-4 lg:grid-cols-2">
               {chartMetrics.map(([key, t]) => (
-                <RecordTrendChart key={key} metricName={t.metricName} points={t.points} lang={lang} />
+                <RecordTrendChart key={key} metricKey={key} metricName={t.metricName} points={t.points} lang={lang} />
               ))}
             </div>
           </section>

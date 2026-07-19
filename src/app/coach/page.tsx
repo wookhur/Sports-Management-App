@@ -118,6 +118,7 @@ export default async function CoachPage() {
   const view: RecordView[] = records.map((r) => ({
     id: r.id,
     sport: r.sport,
+    metricKey: r.metricKey,
     metricName: r.metricName,
     distanceM: r.distanceM,
     durationMs: r.durationMs,

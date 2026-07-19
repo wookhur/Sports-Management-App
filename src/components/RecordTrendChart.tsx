@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatDuration } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+import { metricLabel, type Lang } from "@/lib/i18n";
 
 export interface TrendPoint {
   /** ISO date string */
@@ -44,15 +44,18 @@ const DATE_LOCALE: Record<Lang, string> = { ko: "ko-KR", en: "en-US", es: "es-ES
 // Single-series line chart of one metric's times (lower = better), brand
 // blue on the light surface, recessive grid, hover tooltip, PB highlighted.
 export default function RecordTrendChart({
+  metricKey,
   metricName,
   points,
   lang = "ko",
 }: {
+  metricKey: string;
   metricName: string;
   points: TrendPoint[];
   lang?: Lang;
 }) {
   const s = L[lang];
+  const name = metricLabel(metricKey, metricName, lang);
   const dateLocale = DATE_LOCALE[lang];
   const [hover, setHover] = useState<number | null>(null);
 
@@ -112,7 +115,7 @@ export default function RecordTrendChart({
   return (
     <div className="card p-5">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="font-bold text-slate-800">{metricName}</h3>
+        <h3 className="font-bold text-slate-800">{name}</h3>
         <span className={`text-xs font-medium ${improvedMs > 0 ? "text-emerald-600" : "text-slate-400"}`}>
           {improvedMs > 0 ? s.improved(formatDuration(improvedMs)) : s.trend}
         </span>
@@ -123,7 +126,7 @@ export default function RecordTrendChart({
         viewBox={`0 0 ${W} ${H}`}
         className="mt-3 w-full"
         role="img"
-        aria-label={s.chartAria(metricName, formatDuration(points[bestIdx].ms))}
+        aria-label={s.chartAria(name, formatDuration(points[bestIdx].ms))}
         onMouseMove={onMove}
         onMouseLeave={() => setHover(null)}
       >

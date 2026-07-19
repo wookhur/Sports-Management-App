@@ -84,7 +84,7 @@ export default async function BlogPostPage({
           {!post.coverImage && <div className="text-5xl">{post.emoji}</div>}
           <div className="mt-3 flex items-center gap-2">
             {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
-            <span className="text-sm text-slate-400">{formatDate(post.createdAt)}</span>
+            <span className="text-sm text-slate-400">{formatDate(post.createdAt, lang)}</span>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{post.title}</h1>
           <p className="mt-2 text-slate-500">{post.author?.name ?? "sideline365"}</p>

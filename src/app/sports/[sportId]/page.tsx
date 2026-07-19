@@ -6,7 +6,7 @@ import { getSport } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import Stopwatch from "@/components/Stopwatch";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
-import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 const levelColors: Record<string, string> = {
@@ -301,12 +301,12 @@ export default async function SportPage({
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="flex items-center gap-1.5 font-medium">
-                              {r.metricName}
+                              {metricLabel(r.metricKey, r.metricName, lang)}
                               {isBest && (
                                 <span className="badge bg-yellow-50 text-yellow-600">{t.best}</span>
                               )}
                             </p>
-                            <p className="text-xs text-slate-400">{formatDate(r.createdAt)}</p>
+                            <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-mono text-lg font-semibold tabular-nums">

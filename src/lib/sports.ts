@@ -240,11 +240,39 @@ const swimming: SportDef = {
 };
 
 // -----------------------------------------------------------------------------
+// 🏃 육상 — 스타 루틴만 제공 (가이드·기록 측정 예정)
+// -----------------------------------------------------------------------------
+const track: SportDef = {
+  id: "track",
+  name: "육상",
+  emoji: "🏃",
+  gradient: "from-orange-500 to-amber-600",
+  accent: "#ea580c",
+  tagline: "세계 최고 스프린터들의 훈련법을 만나보세요",
+  features: [],
+};
+
+// -----------------------------------------------------------------------------
+// 🏀 농구 — 스타 루틴만 제공 (가이드·기록 측정 예정)
+// -----------------------------------------------------------------------------
+const basketball: SportDef = {
+  id: "basketball",
+  name: "농구",
+  emoji: "🏀",
+  gradient: "from-red-500 to-rose-600",
+  accent: "#dc2626",
+  tagline: "세계적인 농구 선수들의 훈련법을 만나보세요",
+  features: [],
+};
+
+// -----------------------------------------------------------------------------
 
 export const SPORTS: Record<string, SportDef> = {
   lacrosse,
   soccer,
   swimming,
+  track,
+  basketball,
 };
 
 export const SPORT_LIST: SportDef[] = Object.values(SPORTS);

@@ -12,7 +12,7 @@ import BadgeRow from "@/components/BadgeRow";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration } from "@/lib/format";
-import { SPORT_I18N, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -183,7 +183,9 @@ export default async function HomePage({
       count: week.length,
       pbCount: pbs.length,
       metricCount: new Set(week.map((r) => r.metricKey)).size,
-      bestLine: bestPb ? `${bestPb.metricName} ${formatDuration(bestPb.durationMs!)}` : null,
+      bestLine: bestPb
+        ? `${metricLabel(bestPb.metricKey, bestPb.metricName, lang)} ${formatDuration(bestPb.durationMs!)}`
+        : null,
     };
   }
 
@@ -381,8 +383,8 @@ export default async function HomePage({
                 {recentRecords.map((r) => (
                   <div key={r.id} className="flex items-center justify-between px-5 py-3.5">
                     <div>
-                      <p className="font-medium">{r.metricName}</p>
-                      <p className="text-xs text-slate-400">{formatDate(r.createdAt)}</p>
+                      <p className="font-medium">{metricLabel(r.metricKey, r.metricName, lang)}</p>
+                      <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {r.durationMs != null && (

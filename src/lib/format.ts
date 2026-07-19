@@ -24,11 +24,13 @@ export function formatPace(distanceM: number, ms: number): string | null {
   return `${minutes}:${seconds.toString().padStart(2, "0")}/100m`;
 }
 
-export function formatDate(input: Date | string): string {
+const DATE_LOCALE: Record<string, string> = { ko: "ko-KR", en: "en-US", es: "es-ES" };
+
+export function formatDate(input: Date | string, lang: string = "ko"): string {
   const d = typeof input === "string" ? new Date(input) : input;
   // Dates are stored in UTC; the serverless runtime's local timezone isn't
   // guaranteed to be Korea, so pin display explicitly to KST.
-  return new Intl.DateTimeFormat("ko-KR", {
+  return new Intl.DateTimeFormat(DATE_LOCALE[lang] ?? "ko-KR", {
     timeZone: "Asia/Seoul",
     month: "long",
     day: "numeric",

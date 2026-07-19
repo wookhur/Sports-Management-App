@@ -94,7 +94,7 @@ export default async function BlogListPage() {
                 <Link href={`/blog/${post.slug}`}>
                   <div className="flex items-center gap-2">
                     {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
-                    <span className="text-xs text-slate-400">{formatDate(post.createdAt)}</span>
+                    <span className="text-xs text-slate-400">{formatDate(post.createdAt, lang)}</span>
                   </div>
                   <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{post.title}</h2>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">{post.excerpt}</p>

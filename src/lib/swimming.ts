@@ -1,6 +1,7 @@
 import "server-only";
 import indexData from "@/data/swimming/index.json";
 import videosData from "@/data/swimming/videos.json";
+import type { Lang } from "./i18n";
 
 // Reference swim-workout database (1,440 workouts). This is static, read-only
 // coaching content shipped as committed JSON — user data still lives in the DB.
@@ -64,6 +65,23 @@ export const LEVEL_KO: Record<string, string> = {
   Intermediate: "중급",
   Advanced: "고급",
 };
+const LEVEL_ES: Record<string, string> = {
+  Beginner: "Principiante",
+  Intermediate: "Intermedio",
+  Advanced: "Avanzado",
+};
+
+/** Stroke name in the given language. English is the data's native form. */
+export function strokeLabel(stroke: string, lang: Lang = "ko"): string {
+  return lang === "ko" ? STROKE_KO[stroke] ?? stroke : stroke;
+}
+
+/** Level name in the given language. English is the data's native form. */
+export function levelLabel(level: string, lang: Lang = "ko"): string {
+  if (lang === "ko") return LEVEL_KO[level] ?? level;
+  if (lang === "es") return LEVEL_ES[level] ?? level;
+  return level;
+}
 
 export interface WorkoutFilter {
   stroke?: string;

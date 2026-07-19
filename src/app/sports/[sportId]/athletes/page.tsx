@@ -110,7 +110,7 @@ export default async function AthleteGuideListPage({
                 <Link href={`/sports/${sportId}/athletes/${guide.slug}`}>
                   <div className="flex items-center gap-2">
                     <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
-                    <span className="text-xs text-slate-400">{formatDate(guide.createdAt)}</span>
+                    <span className="text-xs text-slate-400">{formatDate(guide.createdAt, lang)}</span>
                   </div>
                   <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{guide.title}</h2>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">{guide.excerpt}</p>
