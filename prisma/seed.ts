@@ -153,7 +153,7 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
+  const clareNam = await prisma.user.upsert({
     where: { email: "clare.nam@example.com" },
     update: {},
     create: {
@@ -266,7 +266,8 @@ async function main() {
         title: a.title,
         excerpt: a.excerpt,
         body: a.body,
-        authorId: coach.id,
+        // Swimming star routines are authored by Clare Nam.
+        authorId: clareNam.id,
       },
     });
   }
@@ -446,10 +447,19 @@ async function main() {
         title: a.title,
         excerpt: a.excerpt,
         body: a.body,
-        authorId: coach.id,
+        // Swimming star routines are authored by Clare Nam; the rest by the coach.
+        authorId: a.sport === "swimming" ? clareNam.id : coach.id,
       },
     });
   }
+
+  // Ensure every swimming star routine is attributed to Clare Nam, including
+  // rows already seeded on production (the upserts above only set authorId on
+  // first create, never on re-seed). Idempotent.
+  await prisma.athleteGuide.updateMany({
+    where: { sport: "swimming" },
+    data: { authorId: clareNam.id },
+  });
 
   // Community board ("자유게시판") starter posts. Fixed ids keep the upsert
   // idempotent across re-seeds so we never duplicate the welcome content.
