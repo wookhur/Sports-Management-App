@@ -45,6 +45,13 @@ model User {
   // this moment count as "new" until I open my records page again.
   lastSeenCommentsAt DateTime?
 
+  // Gamification ("미션 & 캐릭터"): 완두콩(beans) is the spendable currency
+  // earned by completing daily missions; XP is cumulative and drives the
+  // character/house level; houseRepairs holds the ids of finished repairs.
+  beans        Int      @default(0)
+  charXp       Int      @default(0)
+  houseRepairs String[] @default([])
+
   records       Record[]
   comments      Comment[]
   posts         BlogPost[]
@@ -52,6 +59,10 @@ model User {
   goals         Goal[]
   blogComments  BlogComment[]
   blogLikes     BlogLike[]
+  missionClaims MissionClaim[]
+  boardPosts    BoardPost[]
+  boardComments BoardComment[]
+  boardLikes    BoardLike[]
 
   assignmentsGiven    Assignment[] @relation("AssignmentCoach")
   assignmentsReceived Assignment[] @relation("AssignmentAthlete")
@@ -250,4 +261,60 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([recordId])
+}
+
+// One row per (user, mission, day) recording that a daily mission was claimed.
+// `day` is a YYYY-MM-DD string in Asia/Seoul so missions reset at local midnight.
+model MissionClaim {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  missionKey String
+  day        String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, missionKey, day])
+  @@index([userId, day])
+}
+
+// "자유게시판" — a casual community feed. Any logged-in user can post text
+// plus optional images (stored via the BlogImage upload pipeline). Views are
+// bumped on the detail page.
+model BoardPost {
+  id        String   @id @default(cuid())
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  title     String?
+  body      String
+  images    String[] @default([])
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  comments BoardComment[]
+  likes    BoardLike[]
+
+  @@index([createdAt])
+}
+
+model BoardComment {
+  id        String    @id @default(cuid())
+  post      BoardPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  createdAt DateTime  @default(now())
+
+  @@index([postId])
+  @@index([authorId, createdAt])
+}
+
+model BoardLike {
+  post      BoardPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime  @default(now())
+
+  @@id([postId, userId])
 }

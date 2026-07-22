@@ -451,6 +451,36 @@ async function main() {
     });
   }
 
+  // Community board ("자유게시판") starter posts. Fixed ids keep the upsert
+  // idempotent across re-seeds so we never duplicate the welcome content.
+  const boardSeed: { id: string; authorId: string; title: string | null; body: string }[] = [
+    {
+      id: "seed-board-welcome",
+      authorId: coach.id,
+      title: "자유게시판을 열었어요 🎉",
+      body: "훈련 이야기, 식단, 오늘의 컨디션까지 무엇이든 자유롭게 나눠요. 서로에게 따뜻한 선플 댓글도 남겨주세요! 게시글을 올리고 댓글을 달면 미션에서 완두콩도 받을 수 있어요 🌱",
+    },
+    {
+      id: "seed-board-poke",
+      authorId: athlete.id,
+      title: "연어 아보카도 포케 최애 메뉴 🥗",
+      body: "최애 메뉴🧡 진짜 엄청 자주 먹음ㅋ 곡물밥 포케로! 원래 걍 다 먹는데 어니언 후레이크가 칼로리 쩐데서 빼구.. 스윗콘도 칼로리·당·탄수니까 빼고..ㅎ 훈련 후 회복식으로 딱 좋아요.",
+    },
+    {
+      id: "seed-board-sleep",
+      authorId: athlete.id,
+      title: "요즘 수면 루틴 챙기는 중",
+      body: "일찍 자고 일찍 일어나니까 오전 훈련 컨디션이 확실히 달라요. 자기 전 스트레칭 10분 + 물 한 잔이 제 루틴! 다들 회복 어떻게 챙기시나요?",
+    },
+  ];
+  for (const b of boardSeed) {
+    await prisma.boardPost.upsert({
+      where: { id: b.id },
+      update: {},
+      create: { id: b.id, authorId: b.authorId, title: b.title, body: b.body },
+    });
+  }
+
   console.log("Seed complete:");
   console.log("  Coach   -> coach@example.com / password123");
   console.log("  Athlete -> athlete@example.com / password123");

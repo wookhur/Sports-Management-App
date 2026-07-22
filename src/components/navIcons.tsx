@@ -100,6 +100,24 @@ export function TrophyIcon({ className }: IconProps) {
   );
 }
 
+export function TargetIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </svg>
+  );
+}
+
+export function ChatIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
+    </svg>
+  );
+}
+
 export function MenuIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">

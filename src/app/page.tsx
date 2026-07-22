@@ -9,9 +9,10 @@ import StreakCard from "@/components/StreakCard";
 import AssignmentCard, { type MyAssignment } from "@/components/AssignmentCard";
 import JoinTeamCard, { type MyTeam } from "@/components/JoinTeamCard";
 import BadgeRow from "@/components/BadgeRow";
+import WeekCalendar, { type WeekDay } from "@/components/WeekCalendar";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { touchStreak, topStreaks } from "@/lib/streak";
-import { formatDate, formatDuration } from "@/lib/format";
+import { formatDate, formatDuration, seoulDayKey, weekInSeoul } from "@/lib/format";
 import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
@@ -152,6 +153,31 @@ export default async function HomePage({
   const streak = await touchStreak(session.userId);
   const leaders = await topStreaks(5);
 
+  // Week calendar: mark days in the current (Seoul) week that have activity
+  // — a logged record or a community-board post.
+  const { days: weekDaysRaw, todayKey } = weekInSeoul();
+  const weekStart = new Date(`${weekDaysRaw[0].key}T00:00:00+09:00`);
+  const [weekRecords, weekPosts] = await Promise.all([
+    prisma.record.findMany({
+      where: { userId: session.userId, createdAt: { gte: weekStart } },
+      select: { createdAt: true },
+    }),
+    prisma.boardPost.findMany({
+      where: { authorId: session.userId, createdAt: { gte: weekStart } },
+      select: { createdAt: true },
+    }),
+  ]);
+  const activeDays = new Set<string>([
+    ...weekRecords.map((r) => seoulDayKey(r.createdAt)),
+    ...weekPosts.map((p) => seoulDayKey(p.createdAt)),
+  ]);
+  const weekDays: WeekDay[] = weekDaysRaw.map((d) => ({
+    key: d.key,
+    dayNum: d.dayNum,
+    isToday: d.key === todayKey,
+    hasActivity: activeDays.has(d.key),
+  }));
+
   const recentRecords = isCoach
     ? []
     : await prisma.record.findMany({
@@ -268,6 +294,10 @@ export default async function HomePage({
             <span className="text-brand">→</span>
           </Link>
         )}
+
+        <section className="mb-6">
+          <WeekCalendar lang={lang} days={weekDays} />
+        </section>
 
         <section className="mb-8">
           <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />

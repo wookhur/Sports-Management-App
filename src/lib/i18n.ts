@@ -417,6 +417,8 @@ export interface SidebarDict {
   leaderboard: string;
   blog: string;
   search: string;
+  missions: string;
+  board: string;
   sports: string;
   myActivity: string;
   myRecords: string;
@@ -435,6 +437,8 @@ const sidebar: Record<Lang, SidebarDict> = {
     leaderboard: "리더보드",
     blog: "블로그",
     search: "통합 검색",
+    missions: "미션",
+    board: "자유게시판",
     sports: "스포츠",
     myActivity: "내 활동",
     myRecords: "내 기록",
@@ -451,6 +455,8 @@ const sidebar: Record<Lang, SidebarDict> = {
     leaderboard: "Leaderboard",
     blog: "Blog",
     search: "Search",
+    missions: "Missions",
+    board: "Community",
     sports: "Sports",
     myActivity: "My Activity",
     myRecords: "My Records",
@@ -467,6 +473,8 @@ const sidebar: Record<Lang, SidebarDict> = {
     leaderboard: "Clasificación",
     blog: "Blog",
     search: "Buscar",
+    missions: "Misiones",
+    board: "Comunidad",
     sports: "Deportes",
     myActivity: "Mi actividad",
     myRecords: "Mis marcas",
@@ -477,6 +485,245 @@ const sidebar: Record<Lang, SidebarDict> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Missions & character hub (/missions)
+// ---------------------------------------------------------------------------
+export interface MissionsDict {
+  title: string;
+  subtitle: string;
+  beans: string; // unit label, e.g. "콩"
+  levelLabel: (n: number) => string;
+  toNextLevel: (lp: number) => string;
+  houseTitle: string;
+  houseSub: string;
+  houseDone: string;
+  repairCta: (cost: number, unit: string) => string;
+  repaired: string;
+  notEnough: string;
+  allQuests: string;
+  dailyHeading: string;
+  communityHeading: string;
+  reward: (n: number, unit: string) => string;
+  claim: string;
+  claimed: string;
+  claiming: string;
+  progressDays: (n: number) => string;
+  go: string; // "하러 가기" CTA when not yet met
+  howItWorks: string;
+}
+
+const missions: Record<Lang, MissionsDict> = {
+  ko: {
+    title: "미션",
+    subtitle: "미션을 완료하고 완두콩을 모아 집을 수리해보세요.",
+    beans: "콩",
+    levelLabel: (n) => `Lv.${n}`,
+    toNextLevel: (lp) => `다음 레벨까지 ${lp}LP`,
+    houseTitle: "외관 수리하기",
+    houseSub: "부서진 집을 새로운 아이템으로 수리해봐요",
+    houseDone: "집을 모두 수리했어요! 🎉",
+    repairCta: (cost, unit) => `${cost}${unit}으로 수리하기`,
+    repaired: "수리 완료",
+    notEnough: "완두콩이 부족해요",
+    allQuests: "전체 퀘스트 확인하기",
+    dailyHeading: "오늘의 미션",
+    communityHeading: "함께 해요! 자유게시판",
+    reward: (n, unit) => `${n}${unit}`,
+    claim: "받기",
+    claimed: "완료",
+    claiming: "받는 중…",
+    progressDays: (n) => `현재 ${n}일`,
+    go: "하러 가기",
+    howItWorks: "미션을 완료하면 완두콩을 얻고, 모은 완두콩으로 부서진 집을 수리할 수 있어요. 레벨을 올려 새로운 아이템도 잠금 해제하세요.",
+  },
+  en: {
+    title: "Missions",
+    subtitle: "Complete missions, collect beans, and repair your house.",
+    beans: " beans",
+    levelLabel: (n) => `Lv.${n}`,
+    toNextLevel: (lp) => `${lp} LP to next level`,
+    houseTitle: "Repair the exterior",
+    houseSub: "Fix the broken house with new items",
+    houseDone: "The house is fully repaired! 🎉",
+    repairCta: (cost, unit) => `Repair · ${cost} ${unit}`,
+    repaired: "Repaired",
+    notEnough: "Not enough beans",
+    allQuests: "View all quests",
+    dailyHeading: "Today's missions",
+    communityHeading: "Community board",
+    reward: (n, unit) => `${n}${unit}`,
+    claim: "Claim",
+    claimed: "Done",
+    claiming: "Claiming…",
+    progressDays: (n) => `${n} day${n === 1 ? "" : "s"} so far`,
+    go: "Go",
+    howItWorks: "Complete missions to earn beans, then spend them repairing your broken house. Level up to unlock new items.",
+  },
+  es: {
+    title: "Misiones",
+    subtitle: "Completa misiones, junta guisantes y repara tu casa.",
+    beans: " guisantes",
+    levelLabel: (n) => `Nv.${n}`,
+    toNextLevel: (lp) => `${lp} LP para el siguiente nivel`,
+    houseTitle: "Repara el exterior",
+    houseSub: "Arregla la casa rota con nuevos objetos",
+    houseDone: "¡La casa está totalmente reparada! 🎉",
+    repairCta: (cost, unit) => `Reparar · ${cost} ${unit}`,
+    repaired: "Reparado",
+    notEnough: "Guisantes insuficientes",
+    allQuests: "Ver todas las misiones",
+    dailyHeading: "Misiones de hoy",
+    communityHeading: "Tablón de la comunidad",
+    reward: (n, unit) => `${n}${unit}`,
+    claim: "Reclamar",
+    claimed: "Hecho",
+    claiming: "Reclamando…",
+    progressDays: (n) => `${n} día${n === 1 ? "" : "s"} hasta ahora`,
+    go: "Ir",
+    howItWorks: "Completa misiones para ganar guisantes y gástalos reparando tu casa rota. Sube de nivel para desbloquear nuevos objetos.",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Community board (/board)
+// ---------------------------------------------------------------------------
+export interface BoardDict {
+  title: string;
+  subtitle: string;
+  newPost: string;
+  empty: string;
+  writeTitle: string;
+  titleLabel: string;
+  titlePlaceholder: string;
+  bodyLabel: string;
+  bodyPlaceholder: string;
+  addImages: string;
+  publish: string;
+  publishing: string;
+  cancel: string;
+  errBody: string;
+  errSave: string;
+  backToBoard: string;
+  commentsHeading: (n: number) => string;
+  noComments: string;
+  commentPlaceholder: string;
+  send: string;
+  sending: string;
+  likeAria: string;
+  views: string;
+  deletePost: string;
+  deleteConfirm: string;
+}
+
+const board: Record<Lang, BoardDict> = {
+  ko: {
+    title: "자유게시판",
+    subtitle: "훈련, 식단, 일상 무엇이든 자유롭게 나눠요.",
+    newPost: "글쓰기",
+    empty: "아직 게시글이 없어요. 첫 글을 남겨보세요!",
+    writeTitle: "새 게시글",
+    titleLabel: "제목 (선택)",
+    titlePlaceholder: "제목을 입력하세요",
+    bodyLabel: "내용",
+    bodyPlaceholder: "오늘 있었던 일을 자유롭게 적어보세요…",
+    addImages: "사진 추가",
+    publish: "게시하기",
+    publishing: "게시 중…",
+    cancel: "취소",
+    errBody: "내용을 입력해주세요",
+    errSave: "게시에 실패했어요. 다시 시도해주세요.",
+    backToBoard: "← 자유게시판",
+    commentsHeading: (n) => `댓글 ${n}개`,
+    noComments: "첫 댓글을 남겨보세요.",
+    commentPlaceholder: "따뜻한 댓글을 남겨주세요",
+    send: "등록",
+    sending: "등록 중…",
+    likeAria: "좋아요",
+    views: "조회",
+    deletePost: "삭제",
+    deleteConfirm: "이 게시글을 삭제할까요?",
+  },
+  en: {
+    title: "Community",
+    subtitle: "Share anything — training, meals, everyday life.",
+    newPost: "New post",
+    empty: "No posts yet. Be the first to share!",
+    writeTitle: "New post",
+    titleLabel: "Title (optional)",
+    titlePlaceholder: "Enter a title",
+    bodyLabel: "Body",
+    bodyPlaceholder: "Share what's on your mind today…",
+    addImages: "Add photos",
+    publish: "Publish",
+    publishing: "Publishing…",
+    cancel: "Cancel",
+    errBody: "Please write something",
+    errSave: "Couldn't publish. Please try again.",
+    backToBoard: "← Community",
+    commentsHeading: (n) => `${n} comment${n === 1 ? "" : "s"}`,
+    noComments: "Be the first to comment.",
+    commentPlaceholder: "Leave a kind comment",
+    send: "Post",
+    sending: "Posting…",
+    likeAria: "Like",
+    views: "views",
+    deletePost: "Delete",
+    deleteConfirm: "Delete this post?",
+  },
+  es: {
+    title: "Comunidad",
+    subtitle: "Comparte lo que quieras: entrenamiento, comidas, día a día.",
+    newPost: "Nueva publicación",
+    empty: "Aún no hay publicaciones. ¡Sé el primero!",
+    writeTitle: "Nueva publicación",
+    titleLabel: "Título (opcional)",
+    titlePlaceholder: "Escribe un título",
+    bodyLabel: "Contenido",
+    bodyPlaceholder: "Comparte lo que piensas hoy…",
+    addImages: "Agregar fotos",
+    publish: "Publicar",
+    publishing: "Publicando…",
+    cancel: "Cancelar",
+    errBody: "Por favor escribe algo",
+    errSave: "No se pudo publicar. Inténtalo de nuevo.",
+    backToBoard: "← Comunidad",
+    commentsHeading: (n) => `${n} comentario${n === 1 ? "" : "s"}`,
+    noComments: "Sé el primero en comentar.",
+    commentPlaceholder: "Deja un comentario amable",
+    send: "Enviar",
+    sending: "Enviando…",
+    likeAria: "Me gusta",
+    views: "vistas",
+    deletePost: "Eliminar",
+    deleteConfirm: "¿Eliminar esta publicación?",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Week calendar (home)
+// ---------------------------------------------------------------------------
+export interface CalendarDict {
+  weekdays: [string, string, string, string, string, string, string]; // Mon..Sun
+  today: string;
+  activity: string;
+}
+
+const calendar: Record<Lang, CalendarDict> = {
+  ko: { weekdays: ["월", "화", "수", "목", "금", "토", "일"], today: "오늘", activity: "활동" },
+  en: { weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], today: "Today", activity: "Activity" },
+  es: { weekdays: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"], today: "Hoy", activity: "Actividad" },
+};
+
+// Mission title/subtitle come from src/lib/missions.ts (keyed by Lang there).
+
 export function t(lang: Lang) {
-  return { login: login[lang], signup: signup[lang], nav: nav[lang], sidebar: sidebar[lang] };
+  return {
+    login: login[lang],
+    signup: signup[lang],
+    nav: nav[lang],
+    sidebar: sidebar[lang],
+    missions: missions[lang],
+    board: board[lang],
+    calendar: calendar[lang],
+  };
 }
