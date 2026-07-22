@@ -83,7 +83,7 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
             initialLiked={liked}
             initialLikes={post.likes.length}
             initialComments={initialComments}
-            isAuthor={post.author.id === session.userId}
+            canDelete={post.author.id === session.userId || session.role === "COACH"}
           />
         </div>
       </main>

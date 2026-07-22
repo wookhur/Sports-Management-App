@@ -18,7 +18,7 @@ interface Props {
   initialLiked: boolean;
   initialLikes: number;
   initialComments: BoardCommentView[];
-  isAuthor: boolean;
+  canDelete: boolean;
 }
 
 export default function BoardInteractions({
@@ -27,7 +27,7 @@ export default function BoardInteractions({
   initialLiked,
   initialLikes,
   initialComments,
-  isAuthor,
+  canDelete,
 }: Props) {
   const s = t(lang).board;
   const router = useRouter();
@@ -109,7 +109,7 @@ export default function BoardInteractions({
           <span className="tabular-nums">{likes}</span>
         </button>
         <span className="text-sm text-slate-400">💬 {comments.length}</span>
-        {isAuthor && (
+        {canDelete && (
           <button
             type="button"
             onClick={del}

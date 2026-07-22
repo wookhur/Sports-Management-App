@@ -9,7 +9,10 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const post = await prisma.boardPost.findUnique({ where: { id }, select: { authorId: true } });
   if (!post) return fail("게시글을 찾을 수 없습니다", 404);
-  if (post.authorId !== session.userId) return fail("삭제 권한이 없습니다", 403);
+  // The author can delete their own post; coaches can moderate any post.
+  if (post.authorId !== session.userId && session.role !== "COACH") {
+    return fail("삭제 권한이 없습니다", 403);
+  }
 
   await prisma.boardPost.delete({ where: { id } });
   return ok({ ok: true });
