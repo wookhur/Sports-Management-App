@@ -418,6 +418,7 @@ export interface SidebarDict {
   blog: string;
   search: string;
   missions: string;
+  journal: string;
   board: string;
   sports: string;
   myActivity: string;
@@ -438,6 +439,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     blog: "블로그",
     search: "통합 검색",
     missions: "미션",
+    journal: "훈련 일지",
     board: "자유게시판",
     sports: "스포츠",
     myActivity: "내 활동",
@@ -456,6 +458,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     blog: "Blog",
     search: "Search",
     missions: "Missions",
+    journal: "Training Journal",
     board: "Community",
     sports: "Sports",
     myActivity: "My Activity",
@@ -474,6 +477,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     blog: "Blog",
     search: "Buscar",
     missions: "Misiones",
+    journal: "Diario de entrenamiento",
     board: "Comunidad",
     sports: "Deportes",
     myActivity: "Mi actividad",
@@ -716,6 +720,236 @@ const calendar: Record<Lang, CalendarDict> = {
 
 // Mission title/subtitle come from src/lib/missions.ts (keyed by Lang there).
 
+// ---------------------------------------------------------------------------
+// Training journal (/journal) — daily score in the style of a diet-app meal
+// score. Score-part labels mirror the macro chips (탄/단/지) of that pattern.
+// ---------------------------------------------------------------------------
+export interface JournalDict {
+  title: string;
+  subtitle: string;
+  scoreTitle: string;
+  pts: (n: number) => string;
+  minutesLabel: string;
+  minutesVal: (n: number) => string;
+  partVolume: string;
+  partIntensity: string;
+  partMeasure: string;
+  partConsistency: string;
+  warnOver: string;
+  warnRest: string;
+  coachName: string;
+  // Rule-based coach feedback lines
+  fbStart: string;
+  fbPb: (n: number) => string;
+  fbGreat: string;
+  fbGood: string;
+  fbVolumeLow: (target: number) => string;
+  fbIntensityLow: string;
+  fbOvertrain: string;
+  fbRest: string;
+  fbMeasureTip: string;
+  fbConsistency: string;
+  // Form
+  addTitle: string;
+  sportLabel: string;
+  kindLabel: string;
+  kinds: Record<string, string>; // TrainingKind → label
+  minutesInput: string;
+  intensityLabel: string;
+  rpeHintLow: string;
+  rpeHintMid: string;
+  rpeHintHigh: string;
+  notesLabel: string;
+  notesPlaceholder: string;
+  save: string;
+  saving: string;
+  errSave: string;
+  deleteConfirm: string;
+  deleteAria: string;
+  // Lists
+  todaySessions: string;
+  todayRecords: string;
+  emptyToday: string;
+  pbBadge: string;
+  measureCta: string;
+  weekTitle: string;
+  weekAvg: (n: number) => string;
+  // Home card
+  homeCta: string;
+  homeEmpty: string;
+}
+
+const journal: Record<Lang, JournalDict> = {
+  ko: {
+    title: "훈련 일지",
+    subtitle: "오늘 한 훈련을 기록하면 바로 점수로 알려드려요.",
+    scoreTitle: "오늘의 트레이닝 점수",
+    pts: (n) => `${n}점`,
+    minutesLabel: "총 훈련 시간",
+    minutesVal: (n) => `${n}분`,
+    partVolume: "훈련량",
+    partIntensity: "강도",
+    partMeasure: "측정",
+    partConsistency: "꾸준함",
+    warnOver: "과훈련 주의",
+    warnRest: "휴식 필요",
+    coachName: "AI 코치 Roy",
+    fbStart: "첫 기록을 남겨볼까요? 짧은 훈련이라도 기록하면 점수가 시작돼요!",
+    fbPb: (n) => `오늘 최고 기록 ${n}개 갱신! 🏆 측정 보너스가 반영됐어요.`,
+    fbGreat: "완벽에 가까운 하루예요. 이 리듬을 유지해봐요! 🔥",
+    fbGood: "좋은 흐름이에요. 부족한 부분만 조금 채우면 더 올라가요.",
+    fbVolumeLow: (target) => `훈련량이 조금 부족해요. 하루 ${target}분을 목표로 해봐요.`,
+    fbIntensityLow: "강도가 낮았어요. 다음 세션엔 RPE 5–8 구간을 노려봐요.",
+    fbOvertrain: "오늘은 꽤 몰아붙였네요. 내일은 회복 세션이나 휴식을 추천해요.",
+    fbRest: "7일 연속 훈련 중이에요. 성장은 회복에서 나와요 — 휴식일을 잡아봐요.",
+    fbMeasureTip: "스톱워치로 시간을 재면 측정 점수 +15, PB면 +5까지 받을 수 있어요.",
+    fbConsistency: "어제도 훈련했다면 꾸준함 점수가 붙어요. 내일도 이어가봐요!",
+    addTitle: "훈련 추가",
+    sportLabel: "종목",
+    kindLabel: "훈련 종류",
+    kinds: {
+      technique: "기술",
+      strength: "근력",
+      cardio: "유산소",
+      match: "시합",
+      recovery: "회복",
+    },
+    minutesInput: "시간 (분)",
+    intensityLabel: "강도 (RPE)",
+    rpeHintLow: "가볍게",
+    rpeHintMid: "적당히 힘듦",
+    rpeHintHigh: "한계까지",
+    notesLabel: "메모 (선택)",
+    notesPlaceholder: "예: 접영 턴 연습 위주, 마지막 세트 힘들었음",
+    save: "기록하기",
+    saving: "기록 중…",
+    errSave: "저장에 실패했어요. 다시 시도해주세요.",
+    deleteConfirm: "이 훈련 기록을 삭제할까요?",
+    deleteAria: "훈련 기록 삭제",
+    todaySessions: "오늘의 훈련",
+    todayRecords: "오늘의 측정 기록",
+    emptyToday: "아직 오늘 기록한 훈련이 없어요.",
+    pbBadge: "PB!",
+    measureCta: "기록 측정하러 가기 →",
+    weekTitle: "최근 7일",
+    weekAvg: (n) => `평균 ${n}점`,
+    homeCta: "일지 쓰기 →",
+    homeEmpty: "오늘 훈련을 기록해보세요",
+  },
+  en: {
+    title: "Training Journal",
+    subtitle: "Log today's training and get an instant score.",
+    scoreTitle: "Today's training score",
+    pts: (n) => `${n}`,
+    minutesLabel: "Total training time",
+    minutesVal: (n) => `${n} min`,
+    partVolume: "Volume",
+    partIntensity: "Intensity",
+    partMeasure: "Measured",
+    partConsistency: "Consistency",
+    warnOver: "Overtraining risk",
+    warnRest: "Rest needed",
+    coachName: "AI Coach Roy",
+    fbStart: "Ready for your first entry? Even a short session starts your score!",
+    fbPb: (n) => `${n} personal best${n === 1 ? "" : "s"} today! 🏆 Measurement bonus applied.`,
+    fbGreat: "A near-perfect day. Keep this rhythm going! 🔥",
+    fbGood: "Solid work. Top up the weaker parts and the score climbs.",
+    fbVolumeLow: (target) => `A bit light on volume — aim for ${target} minutes a day.`,
+    fbIntensityLow: "Intensity was low. Target RPE 5–8 next session.",
+    fbOvertrain: "You pushed hard today. A recovery session or rest is smart tomorrow.",
+    fbRest: "Seven straight days of training. Growth comes from recovery — plan a rest day.",
+    fbMeasureTip: "Time yourself with the stopwatch for +15 measurement points, +5 more on a PB.",
+    fbConsistency: "Training on back-to-back days earns the consistency bonus. Keep it rolling!",
+    addTitle: "Add training",
+    sportLabel: "Sport",
+    kindLabel: "Type",
+    kinds: {
+      technique: "Technique",
+      strength: "Strength",
+      cardio: "Cardio",
+      match: "Match",
+      recovery: "Recovery",
+    },
+    minutesInput: "Duration (min)",
+    intensityLabel: "Intensity (RPE)",
+    rpeHintLow: "Easy",
+    rpeHintMid: "Hard-ish",
+    rpeHintHigh: "Max effort",
+    notesLabel: "Notes (optional)",
+    notesPlaceholder: "e.g. Fly turns focus, last set was brutal",
+    save: "Log it",
+    saving: "Saving…",
+    errSave: "Couldn't save. Please try again.",
+    deleteConfirm: "Delete this training entry?",
+    deleteAria: "Delete training entry",
+    todaySessions: "Today's training",
+    todayRecords: "Today's timed records",
+    emptyToday: "Nothing logged yet today.",
+    pbBadge: "PB!",
+    measureCta: "Go time a swim →",
+    weekTitle: "Last 7 days",
+    weekAvg: (n) => `avg ${n}`,
+    homeCta: "Write journal →",
+    homeEmpty: "Log today's training",
+  },
+  es: {
+    title: "Diario de entrenamiento",
+    subtitle: "Registra el entrenamiento de hoy y recibe una puntuación al instante.",
+    scoreTitle: "Puntuación de hoy",
+    pts: (n) => `${n}`,
+    minutesLabel: "Tiempo total",
+    minutesVal: (n) => `${n} min`,
+    partVolume: "Volumen",
+    partIntensity: "Intensidad",
+    partMeasure: "Medición",
+    partConsistency: "Constancia",
+    warnOver: "Riesgo de sobreentrenamiento",
+    warnRest: "Descanso necesario",
+    coachName: "Entrenador IA Roy",
+    fbStart: "¿Listo para tu primer registro? ¡Hasta una sesión corta inicia tu puntuación!",
+    fbPb: (n) => `¡${n} mejor${n === 1 ? " marca" : "es marcas"} hoy! 🏆 Bono de medición aplicado.`,
+    fbGreat: "Un día casi perfecto. ¡Mantén este ritmo! 🔥",
+    fbGood: "Buen trabajo. Refuerza las partes débiles y la puntuación sube.",
+    fbVolumeLow: (target) => `Faltó algo de volumen — apunta a ${target} minutos al día.`,
+    fbIntensityLow: "La intensidad fue baja. Apunta a RPE 5–8 en la próxima sesión.",
+    fbOvertrain: "Hoy apretaste fuerte. Mañana conviene recuperación o descanso.",
+    fbRest: "Siete días seguidos entrenando. El progreso nace del descanso — planifica un día libre.",
+    fbMeasureTip: "Cronometra una prueba para +15 puntos de medición, +5 más si es tu mejor marca.",
+    fbConsistency: "Entrenar días seguidos suma el bono de constancia. ¡Sigue así!",
+    addTitle: "Añadir entrenamiento",
+    sportLabel: "Deporte",
+    kindLabel: "Tipo",
+    kinds: {
+      technique: "Técnica",
+      strength: "Fuerza",
+      cardio: "Cardio",
+      match: "Partido",
+      recovery: "Recuperación",
+    },
+    minutesInput: "Duración (min)",
+    intensityLabel: "Intensidad (RPE)",
+    rpeHintLow: "Suave",
+    rpeHintMid: "Exigente",
+    rpeHintHigh: "Al máximo",
+    notesLabel: "Notas (opcional)",
+    notesPlaceholder: "ej. Enfoque en virajes de mariposa, última serie durísima",
+    save: "Registrar",
+    saving: "Guardando…",
+    errSave: "No se pudo guardar. Inténtalo de nuevo.",
+    deleteConfirm: "¿Eliminar este registro?",
+    deleteAria: "Eliminar registro de entrenamiento",
+    todaySessions: "Entrenamiento de hoy",
+    todayRecords: "Marcas cronometradas de hoy",
+    emptyToday: "Aún no has registrado nada hoy.",
+    pbBadge: "¡PB!",
+    measureCta: "Ir a cronometrar →",
+    weekTitle: "Últimos 7 días",
+    weekAvg: (n) => `media ${n}`,
+    homeCta: "Escribir diario →",
+    homeEmpty: "Registra el entrenamiento de hoy",
+  },
+};
+
 export function t(lang: Lang) {
   return {
     login: login[lang],
@@ -725,5 +959,6 @@ export function t(lang: Lang) {
     missions: missions[lang],
     board: board[lang],
     calendar: calendar[lang],
+    journal: journal[lang],
   };
 }

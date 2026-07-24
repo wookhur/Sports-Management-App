@@ -17,6 +17,7 @@ import {
   ChartIcon,
   TargetIcon,
   ChatIcon,
+  ClipboardIcon,
 } from "./navIcons";
 
 export interface SidebarUser {
@@ -80,6 +81,13 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
         <SectionLabel>{s.menu}</SectionLabel>
         <div className="space-y-0.5">
           <NavItem href="/" active={pathname === "/"} icon={<HomeIcon className="h-5 w-5" />} label={s.home} onNavigate={onNavigate} />
+          <NavItem
+            href="/journal"
+            active={pathname.startsWith("/journal")}
+            icon={<ClipboardIcon className="h-5 w-5" />}
+            label={s.journal}
+            onNavigate={onNavigate}
+          />
           <NavItem
             href="/missions"
             active={pathname.startsWith("/missions")}

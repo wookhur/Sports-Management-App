@@ -100,6 +100,18 @@ export function TrophyIcon({ className }: IconProps) {
   );
 }
 
+export function ClipboardIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <path d="M9 4a3 3 0 0 1 6 0" />
+      <path d="M9 10h6" />
+      <path d="M9 14h6" />
+      <path d="M9 18h3" />
+    </svg>
+  );
+}
+
 export function TargetIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">

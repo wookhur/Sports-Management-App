@@ -52,17 +52,18 @@ model User {
   charXp       Int      @default(0)
   houseRepairs String[] @default([])
 
-  records       Record[]
-  comments      Comment[]
-  posts         BlogPost[]
-  athleteGuides AthleteGuide[]
-  goals         Goal[]
-  blogComments  BlogComment[]
-  blogLikes     BlogLike[]
-  missionClaims MissionClaim[]
-  boardPosts    BoardPost[]
-  boardComments BoardComment[]
-  boardLikes    BoardLike[]
+  records          Record[]
+  comments         Comment[]
+  posts            BlogPost[]
+  athleteGuides    AthleteGuide[]
+  goals            Goal[]
+  blogComments     BlogComment[]
+  blogLikes        BlogLike[]
+  missionClaims    MissionClaim[]
+  boardPosts       BoardPost[]
+  boardComments    BoardComment[]
+  boardLikes       BoardLike[]
+  trainingSessions TrainingSession[]
 
   assignmentsGiven    Assignment[] @relation("AssignmentCoach")
   assignmentsReceived Assignment[] @relation("AssignmentAthlete")
@@ -261,6 +262,25 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([recordId])
+}
+
+// "훈련 일지" — one diary entry per training block. A day's entries (plus any
+// timed Records logged that day) are scored into the daily training score,
+// the sports-app analogue of a diet app's per-day meal score. `day` is a
+// YYYY-MM-DD string in Asia/Seoul, same convention as MissionClaim.
+model TrainingSession {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  day       String
+  sport     String // sport id from the registry
+  kind      String // technique | strength | cardio | match | recovery
+  minutes   Int
+  intensity Int // RPE 1–10
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, day])
 }
 
 // One row per (user, mission, day) recording that a daily mission was claimed.

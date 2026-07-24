@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 const GO_HREF: Record<string, string | null> = {
   streak5: null,
   logRecord: "/records",
+  move: "/journal",
   boardPost: "/board/new",
   boardComment: "/board",
 };

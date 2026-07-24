@@ -20,7 +20,7 @@ export interface MissionDef {
   category: MissionCategory;
   // How completion is verified. "manual" missions are self-reported (the user
   // just taps to claim); the rest are auto-verified against real app data.
-  kind: "streak" | "record" | "boardPost" | "boardComment" | "manual";
+  kind: "streak" | "record" | "training" | "boardPost" | "boardComment" | "manual";
   title: Record<Lang, string>;
   subtitle: Record<Lang, string>;
 }
@@ -52,9 +52,9 @@ export const MISSIONS: MissionDef[] = [
     reward: 5,
     goal: 1,
     category: "daily",
-    kind: "manual",
-    title: { ko: "움직이기", en: "Get moving", es: "Muévete" },
-    subtitle: { ko: "200 kcal 이상", en: "200+ kcal", es: "200+ kcal" },
+    kind: "training",
+    title: { ko: "훈련 일지 쓰기", en: "Write your training journal", es: "Escribe tu diario de entrenamiento" },
+    subtitle: { ko: "오늘의 트레이닝 점수 받기", en: "Get today's training score", es: "Consigue tu puntuación de hoy" },
   },
   {
     key: "water",
@@ -161,10 +161,11 @@ export async function computeMissions(userId: string): Promise<MissionStatus[]> 
   const day = seoulDayKey();
   const dayStart = new Date(`${day}T00:00:00+09:00`);
 
-  const [user, claims, recordsToday, postsToday, commentsToday] = await Promise.all([
+  const [user, claims, recordsToday, sessionsToday, postsToday, commentsToday] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: { currentStreak: true } }),
     prisma.missionClaim.findMany({ where: { userId, day }, select: { missionKey: true } }),
     prisma.record.count({ where: { userId, createdAt: { gte: dayStart } } }),
+    prisma.trainingSession.count({ where: { userId, day } }),
     prisma.boardPost.count({ where: { authorId: userId, createdAt: { gte: dayStart } } }),
     prisma.boardComment.count({ where: { authorId: userId, createdAt: { gte: dayStart } } }),
   ]);
@@ -180,6 +181,9 @@ export async function computeMissions(userId: string): Promise<MissionStatus[]> 
         break;
       case "record":
         progress = recordsToday;
+        break;
+      case "training":
+        progress = sessionsToday;
         break;
       case "boardPost":
         progress = postsToday;
@@ -222,6 +226,8 @@ export async function isMissionMet(userId: string, key: string): Promise<boolean
     }
     case "record":
       return (await prisma.record.count({ where: { userId, createdAt: { gte: dayStart } } })) >= def.goal;
+    case "training":
+      return (await prisma.trainingSession.count({ where: { userId, day } })) >= def.goal;
     case "boardPost":
       return (await prisma.boardPost.count({ where: { authorId: userId, createdAt: { gte: dayStart } } })) >= def.goal;
     case "boardComment":
