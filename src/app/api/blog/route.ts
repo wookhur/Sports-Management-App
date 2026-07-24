@@ -18,12 +18,10 @@ const schema = z.object({
   coverImage: coverImageSchema,
 });
 
-// Coaches author posts. (Timestamp comes from the request so the module stays
-// free of Date.now at import time.)
+// Any logged-in user can author posts.
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return fail("로그인이 필요합니다", 401);
-  if (session.role !== "COACH") return fail("코치만 글을 작성할 수 있습니다", 403);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
@@ -32,9 +30,17 @@ export async function POST(req: Request) {
   const body = sanitizeBlogHtml(parsed.data.body);
   if (isBodyEmpty(body)) return fail("본문을 입력하세요");
 
+  // Slug is the post URL and must be unique. With every user able to publish,
+  // title collisions are common, so append a numeric suffix until it's free.
+  const base = slugify(title) || "post";
+  let slug = base;
+  for (let n = 2; await prisma.blogPost.findUnique({ where: { slug }, select: { id: true } }); n++) {
+    slug = `${base}-${n}`;
+  }
+
   const post = await prisma.blogPost.create({
     data: {
-      slug: slugify(title),
+      slug,
       title,
       excerpt,
       body,

@@ -24,11 +24,14 @@ type Params = { params: Promise<{ slug: string }> };
 export async function PATCH(req: Request, { params }: Params) {
   const session = await getSession();
   if (!session) return fail("로그인이 필요합니다", 401);
-  if (session.role !== "COACH") return fail("코치만 글을 수정할 수 있습니다", 403);
 
   const { slug } = await params;
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
   if (!existing) return fail("글을 찾을 수 없습니다", 404);
+  // Author can edit their own post; coaches can moderate any post.
+  if (existing.authorId !== session.userId && session.role !== "COACH") {
+    return fail("수정 권한이 없습니다", 403);
+  }
 
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
@@ -54,11 +57,13 @@ export async function PATCH(req: Request, { params }: Params) {
 export async function DELETE(_req: Request, { params }: Params) {
   const session = await getSession();
   if (!session) return fail("로그인이 필요합니다", 401);
-  if (session.role !== "COACH") return fail("코치만 글을 삭제할 수 있습니다", 403);
 
   const { slug } = await params;
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
   if (!existing) return fail("글을 찾을 수 없습니다", 404);
+  if (existing.authorId !== session.userId && session.role !== "COACH") {
+    return fail("삭제 권한이 없습니다", 403);
+  }
 
   await prisma.blogPost.delete({ where: { slug } });
   return ok({ ok: true });

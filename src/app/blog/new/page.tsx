@@ -15,8 +15,6 @@ const L: Record<Lang, { back: string; title: string }> = {
 export default async function NewBlogPostPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  // Authoring is coach-only for now.
-  if (session.role !== "COACH") redirect("/blog");
   const lang = await getLang();
   const s = L[lang];
 

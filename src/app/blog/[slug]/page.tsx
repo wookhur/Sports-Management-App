@@ -33,9 +33,10 @@ export default async function BlogPostPage({
 
   const post = await prisma.blogPost.findUnique({
     where: { slug },
-    include: { author: { select: { name: true } } },
+    include: { author: { select: { id: true, name: true } } },
   });
   if (!post || !post.published) notFound();
+  const canManage = post.author?.id === session.userId || isCoach;
 
   const bodyHtml = sanitizeBlogHtml(toEditableHtml(post.body));
 
@@ -67,7 +68,7 @@ export default async function BlogPostPage({
           <Link href="/blog" className="text-sm text-slate-400 hover:text-slate-600">
             {s.back}
           </Link>
-          {isCoach && (
+          {canManage && (
             <div className="flex items-center gap-3">
               <Link
                 href={`/blog/${post.slug}/edit`}
@@ -104,7 +105,7 @@ export default async function BlogPostPage({
           initialLiked={Boolean(myLike)}
           initialLikeCount={likeCount}
           comments={commentView}
-          canModerate={isCoach}
+          canModerate={canManage}
           lang={lang}
         />
       </main>

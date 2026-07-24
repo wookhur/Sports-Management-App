@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import Landing from "@/components/Landing";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
@@ -13,6 +13,7 @@ import WeekCalendar, { type WeekDay } from "@/components/WeekCalendar";
 import { HomeScoreCard } from "@/components/TrainingScoreCard";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { journalOverview } from "@/lib/trainingScore";
+import { homeEncouragement } from "@/lib/encourage";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration, seoulDayKey, weekInSeoul } from "@/lib/format";
 import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
@@ -139,17 +140,21 @@ export default async function HomePage({
   searchParams: Promise<{ tutorial?: string }>;
 }) {
   const session = await getSession();
-  if (!session) redirect("/login");
-
   const lang = await getLang();
+  // Logged-out visitors get the dramatic intro instead of a bare redirect.
+  if (!session) return <Landing lang={lang} />;
+
   const s = L[lang];
   const isCoach = session.role === "COACH";
   const { tutorial } = await searchParams;
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { onboarded: true },
+    select: { onboarded: true, homeHidden: true },
   });
   const showTour = tutorial === "1" || !user?.onboarded;
+  // Home-dashboard personalization: sections the user chose to hide.
+  const hidden = new Set(user?.homeHidden ?? []);
+  const show = (key: string) => !hidden.has(key);
 
   // Record today's visit and read the leaderboard (idempotent per day).
   const streak = await touchStreak(session.userId);
@@ -283,12 +288,22 @@ export default async function HomePage({
     ? await prisma.coachAthlete.count({ where: { coachId: session.userId } })
     : 0;
 
+  // AI-coach encouragement banner (streak-aware, e.g. "오 3일째 오셨네요!").
+  const cheer = homeEncouragement({
+    lang,
+    name: session.name,
+    streak: streak.current,
+    advancedToday: streak.advancedToday,
+    todayScore: todayScore?.total ?? 0,
+    activeToday: activeDays.has(todayKey),
+  });
+
   return (
     <>
       <NavBar />
       <OnboardingTour role={session.role} initialOpen={showTour} lang={lang} />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <section className="mb-8">
+        <section className="mb-6">
           <h1 className="text-2xl font-bold sm:text-3xl">
             {s.greeting(session.name)}
           </h1>
@@ -296,6 +311,11 @@ export default async function HomePage({
             {isCoach ? s.subCoach : s.subAthlete}
           </p>
         </section>
+
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand/15 bg-gradient-to-r from-brand/5 to-indigo-50 px-4 py-3">
+          <span className="text-2xl" aria-hidden="true">{cheer.emoji}</span>
+          <p className="text-sm font-semibold text-slate-700">{cheer.text}</p>
+        </div>
 
         {newFeedback > 0 && (
           <Link
@@ -309,11 +329,13 @@ export default async function HomePage({
           </Link>
         )}
 
-        <section className="mb-6">
-          <WeekCalendar lang={lang} days={weekDays} />
-        </section>
+        {show("calendar") && (
+          <section className="mb-6">
+            <WeekCalendar lang={lang} days={weekDays} />
+          </section>
+        )}
 
-        {todayScore && (
+        {todayScore && show("score") && (
           <section className="mb-6">
             <HomeScoreCard
               lang={lang}
@@ -324,11 +346,13 @@ export default async function HomePage({
           </section>
         )}
 
-        <section className="mb-8">
-          <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />
-        </section>
+        {show("streak") && (
+          <section className="mb-8">
+            <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />
+          </section>
+        )}
 
-        {weekly && (
+        {weekly && show("weekly") && (
           <section className="mb-8">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
               {s.weeklyTitle} <span className="font-normal normal-case text-slate-300">{s.weeklySub}</span>
@@ -357,14 +381,14 @@ export default async function HomePage({
           </section>
         )}
 
-        {!isCoach && (
+        {!isCoach && show("tasks") && (
           <section className="mb-8 grid gap-4 md:grid-cols-2">
             <AssignmentCard assignments={myAssignments} lang={lang} />
             <JoinTeamCard teams={myTeams} lang={lang} />
           </section>
         )}
 
-        {!isCoach && badges.length > 0 && (
+        {!isCoach && badges.length > 0 && show("badges") && (
           <section className="mb-8">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
               {s.badgesTitle} <span className="font-normal normal-case text-slate-300">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
@@ -388,6 +412,7 @@ export default async function HomePage({
           </Link>
         )}
 
+        {show("sports") && (
         <section>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
             {s.sportsTitle}
@@ -418,8 +443,9 @@ export default async function HomePage({
             ))}
           </div>
         </section>
+        )}
 
-        {!isCoach && (
+        {!isCoach && show("recent") && (
           <section className="mt-10">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">

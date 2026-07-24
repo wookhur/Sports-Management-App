@@ -4,6 +4,9 @@ import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { getSport } from "@/lib/sports";
 import { TRAINING_KINDS } from "@/lib/trainingScore";
+import { sessionEncouragement } from "@/lib/encourage";
+import { resolveLang } from "@/lib/i18n";
+import { cookies } from "next/headers";
 import { seoulDayKey } from "@/lib/format";
 
 const schema = z.object({
@@ -24,10 +27,11 @@ export async function POST(req: Request) {
   const { sport, kind, minutes, intensity, notes } = parsed.data;
   if (!getSport(sport)) return fail("알 수 없는 종목입니다");
 
+  const day = seoulDayKey();
   const entry = await prisma.trainingSession.create({
     data: {
       userId: session.userId,
-      day: seoulDayKey(),
+      day,
       sport,
       kind,
       minutes,
@@ -37,5 +41,10 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  return ok({ id: entry.id }, 201);
+  // Encouraging note back to the athlete (data-input positive reinforcement).
+  const countToday = await prisma.trainingSession.count({ where: { userId: session.userId, day } });
+  const lang = resolveLang((await cookies()).get("lang")?.value);
+  const cheer = sessionEncouragement(lang, countToday);
+
+  return ok({ id: entry.id, cheer }, 201);
 }

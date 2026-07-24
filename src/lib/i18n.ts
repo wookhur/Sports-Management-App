@@ -617,6 +617,17 @@ export interface BoardDict {
   views: string;
   deletePost: string;
   deleteConfirm: string;
+  // Categories (general / tips / gameplay) + video
+  categoryLabel: string;
+  catAll: string;
+  catGeneral: string;
+  catTips: string;
+  catGameplay: string;
+  videoLabel: string;
+  videoPlaceholder: string;
+  videoHint: string;
+  watchVideo: string;
+  catEmpty: string;
 }
 
 const board: Record<Lang, BoardDict> = {
@@ -646,6 +657,16 @@ const board: Record<Lang, BoardDict> = {
     views: "조회",
     deletePost: "삭제",
     deleteConfirm: "이 게시글을 삭제할까요?",
+    categoryLabel: "분류",
+    catAll: "전체",
+    catGeneral: "일반",
+    catTips: "💡 팁",
+    catGameplay: "🎬 경기영상",
+    videoLabel: "경기 영상 링크 (선택)",
+    videoPlaceholder: "YouTube·Vimeo·Hudl 링크 붙여넣기",
+    videoHint: "우리 팀 경기 영상 링크를 붙여넣으면 자동으로 재생돼요.",
+    watchVideo: "영상 보기",
+    catEmpty: "이 분류에는 아직 게시글이 없어요.",
   },
   en: {
     title: "Community",
@@ -673,6 +694,16 @@ const board: Record<Lang, BoardDict> = {
     views: "views",
     deletePost: "Delete",
     deleteConfirm: "Delete this post?",
+    categoryLabel: "Category",
+    catAll: "All",
+    catGeneral: "General",
+    catTips: "💡 Tips",
+    catGameplay: "🎬 Gameplay",
+    videoLabel: "Gameplay video link (optional)",
+    videoPlaceholder: "Paste a YouTube / Vimeo / Hudl link",
+    videoHint: "Paste your team's gameplay link and it plays right here.",
+    watchVideo: "Watch video",
+    catEmpty: "No posts in this category yet.",
   },
   es: {
     title: "Comunidad",
@@ -700,6 +731,16 @@ const board: Record<Lang, BoardDict> = {
     views: "vistas",
     deletePost: "Eliminar",
     deleteConfirm: "¿Eliminar esta publicación?",
+    categoryLabel: "Categoría",
+    catAll: "Todo",
+    catGeneral: "General",
+    catTips: "💡 Consejos",
+    catGameplay: "🎬 Jugadas",
+    videoLabel: "Enlace de video (opcional)",
+    videoPlaceholder: "Pega un enlace de YouTube / Vimeo / Hudl",
+    videoHint: "Pega el enlace del video de tu equipo y se reproduce aquí.",
+    watchVideo: "Ver video",
+    catEmpty: "Aún no hay publicaciones en esta categoría.",
   },
 };
 
@@ -950,6 +991,168 @@ const journal: Record<Lang, JournalDict> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Public landing / intro page
+// ---------------------------------------------------------------------------
+export interface LandingDict {
+  kicker: string;
+  headline1: string;
+  headline2: string;
+  headlineHi: string; // highlighted word
+  sub: string;
+  ctaStart: string;
+  ctaLogin: string;
+  stats: { value: string; label: string }[];
+  featuresTitle: string;
+  features: { emoji: string; title: string; desc: string }[];
+  finalTitle: string;
+  finalSub: string;
+  finalCta: string;
+}
+
+const landing: Record<Lang, LandingDict> = {
+  ko: {
+    kicker: "선수와 코치를 위한 트레이닝 플랫폼",
+    headline1: "매일의 훈련을",
+    headline2: "성장으로",
+    headlineHi: "기록",
+    sub: "기록을 측정하고, 점수로 확인하고, 미션으로 동기부여하세요. sideline365는 훈련의 모든 순간을 데이터로 만듭니다.",
+    ctaStart: "무료로 시작하기",
+    ctaLogin: "로그인",
+    stats: [
+      { value: "1,440+", label: "수영 훈련 데이터" },
+      { value: "40+", label: "스타 선수 루틴" },
+      { value: "5", label: "종목" },
+    ],
+    featuresTitle: "필요한 모든 것이 한 곳에",
+    features: [
+      { emoji: "⏱️", title: "기록 측정", desc: "스톱워치로 랩타임을 재고 개인 최고 기록을 추적하세요." },
+      { emoji: "📓", title: "훈련 일지 & 점수", desc: "매일 훈련을 기록하면 즉시 100점 만점 점수로 알려드려요." },
+      { emoji: "🎯", title: "미션 & 캐릭터", desc: "미션을 완료해 완두콩을 모으고 나만의 집을 키우세요." },
+      { emoji: "⭐", title: "스타 루틴", desc: "세계적인 선수들의 실제 훈련법을 만나보세요." },
+      { emoji: "🏆", title: "리더보드 & 배지", desc: "친구·팀과 경쟁하고 성취를 배지로 남기세요." },
+      { emoji: "💬", title: "커뮤니티", desc: "블로그·자유게시판·경기영상으로 함께 성장하세요." },
+    ],
+    finalTitle: "오늘, 첫 기록을 남겨보세요",
+    finalSub: "가입은 1분이면 충분해요.",
+    finalCta: "지금 시작하기",
+  },
+  en: {
+    kicker: "The training platform for athletes and coaches",
+    headline1: "Turn every workout",
+    headline2: "into progress",
+    headlineHi: "Track",
+    sub: "Measure your times, see them scored, and stay motivated with missions. sideline365 turns every moment of training into data.",
+    ctaStart: "Start free",
+    ctaLogin: "Log in",
+    stats: [
+      { value: "1,440+", label: "swim workouts" },
+      { value: "40+", label: "star routines" },
+      { value: "5", label: "sports" },
+    ],
+    featuresTitle: "Everything you need, in one place",
+    features: [
+      { emoji: "⏱️", title: "Time tracking", desc: "Clock lap times with the stopwatch and chase personal bests." },
+      { emoji: "📓", title: "Journal & score", desc: "Log daily training and get an instant score out of 100." },
+      { emoji: "🎯", title: "Missions & character", desc: "Complete missions, collect beans, and grow your house." },
+      { emoji: "⭐", title: "Star routines", desc: "See how the world's best athletes actually train." },
+      { emoji: "🏆", title: "Leaderboards & badges", desc: "Compete with friends and teams, earn badges." },
+      { emoji: "💬", title: "Community", desc: "Blog, community board, and gameplay clips — grow together." },
+    ],
+    finalTitle: "Log your first time today",
+    finalSub: "Signing up takes a minute.",
+    finalCta: "Get started now",
+  },
+  es: {
+    kicker: "La plataforma de entrenamiento para atletas y entrenadores",
+    headline1: "Convierte cada sesión",
+    headline2: "en progreso",
+    headlineHi: "Registra",
+    sub: "Mide tus tiempos, míralos puntuados y mantente motivado con misiones. sideline365 convierte cada momento en datos.",
+    ctaStart: "Empieza gratis",
+    ctaLogin: "Iniciar sesión",
+    stats: [
+      { value: "1,440+", label: "entrenamientos" },
+      { value: "40+", label: "rutinas estrella" },
+      { value: "5", label: "deportes" },
+    ],
+    featuresTitle: "Todo lo que necesitas, en un solo lugar",
+    features: [
+      { emoji: "⏱️", title: "Cronometraje", desc: "Toma tiempos con el cronómetro y persigue tus mejores marcas." },
+      { emoji: "📓", title: "Diario y puntuación", desc: "Registra el entrenamiento diario y recibe una puntuación al instante." },
+      { emoji: "🎯", title: "Misiones y personaje", desc: "Completa misiones, junta guisantes y haz crecer tu casa." },
+      { emoji: "⭐", title: "Rutinas estrella", desc: "Descubre cómo entrenan de verdad los mejores atletas." },
+      { emoji: "🏆", title: "Clasificaciones e insignias", desc: "Compite con amigos y equipos, gana insignias." },
+      { emoji: "💬", title: "Comunidad", desc: "Blog, tablón y clips de juego — creced juntos." },
+    ],
+    finalTitle: "Registra tu primer tiempo hoy",
+    finalSub: "Registrarse toma un minuto.",
+    finalCta: "Empieza ahora",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Home-dashboard customization (in profile / settings)
+// ---------------------------------------------------------------------------
+export interface SettingsDict {
+  homeTitle: string;
+  homeSub: string;
+  saved: string;
+  saveErr: string;
+  widgets: Record<string, string>; // widget key → label
+}
+
+const settings: Record<Lang, SettingsDict> = {
+  ko: {
+    homeTitle: "홈 화면 설정",
+    homeSub: "홈에서 보고 싶은 항목만 켜두세요.",
+    saved: "저장됨",
+    saveErr: "저장에 실패했어요.",
+    widgets: {
+      calendar: "주간 캘린더",
+      score: "오늘의 트레이닝 점수",
+      streak: "연속 출석",
+      weekly: "주간 리포트",
+      tasks: "훈련 과제 & 팀",
+      badges: "배지",
+      sports: "종목",
+      recent: "최근 기록",
+    },
+  },
+  en: {
+    homeTitle: "Home screen",
+    homeSub: "Keep only the sections you want to see on your home.",
+    saved: "Saved",
+    saveErr: "Couldn't save.",
+    widgets: {
+      calendar: "Week calendar",
+      score: "Today's training score",
+      streak: "Streak",
+      weekly: "Weekly report",
+      tasks: "Assignments & teams",
+      badges: "Badges",
+      sports: "Sports",
+      recent: "Recent records",
+    },
+  },
+  es: {
+    homeTitle: "Pantalla de inicio",
+    homeSub: "Deja solo las secciones que quieras ver en tu inicio.",
+    saved: "Guardado",
+    saveErr: "No se pudo guardar.",
+    widgets: {
+      calendar: "Calendario semanal",
+      score: "Puntuación de hoy",
+      streak: "Racha",
+      weekly: "Reporte semanal",
+      tasks: "Tareas y equipos",
+      badges: "Insignias",
+      sports: "Deportes",
+      recent: "Marcas recientes",
+    },
+  },
+};
+
 export function t(lang: Lang) {
   return {
     login: login[lang],
@@ -960,5 +1163,7 @@ export function t(lang: Lang) {
     board: board[lang],
     calendar: calendar[lang],
     journal: journal[lang],
+    landing: landing[lang],
+    settings: settings[lang],
   };
 }

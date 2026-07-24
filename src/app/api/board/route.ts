@@ -2,11 +2,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { BOARD_CATEGORIES } from "@/lib/board";
 
 const schema = z.object({
   title: z.string().max(120).optional(),
   body: z.string().min(1, "내용을 입력해주세요").max(5000),
   images: z.array(z.string().url().or(z.string().startsWith("/"))).max(6).optional(),
+  category: z.enum(BOARD_CATEGORIES).optional(),
+  videoUrl: z.string().url("올바른 링크를 입력해주세요").max(500).optional().or(z.literal("")),
 });
 
 export async function POST(req: Request) {
@@ -16,13 +19,15 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
 
-  const { title, body, images } = parsed.data;
+  const { title, body, images, category, videoUrl } = parsed.data;
   const post = await prisma.boardPost.create({
     data: {
       authorId: session.userId,
       title: title?.trim() || null,
       body: body.trim(),
       images: images ?? [],
+      category: category ?? "general",
+      videoUrl: videoUrl?.trim() || null,
     },
     select: { id: true },
   });

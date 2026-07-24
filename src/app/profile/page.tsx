@@ -7,6 +7,8 @@ import { computeBadges } from "@/lib/badges";
 import NavBar from "@/components/NavBar";
 import BadgeRow from "@/components/BadgeRow";
 import ProfileEditor, { type ProfileData } from "@/components/ProfileEditor";
+import HomeSettings from "@/components/HomeSettings";
+import { HOME_WIDGETS } from "@/lib/homeWidgets";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
@@ -82,6 +84,7 @@ export default async function ProfilePage() {
       sportInterests: true,
       currentStreak: true,
       longestStreak: true,
+      homeHidden: true,
       createdAt: true,
       _count: { select: { records: true } },
     },
@@ -154,6 +157,10 @@ export default async function ProfilePage() {
               emoji: s.emoji,
             }))}
           />
+        </section>
+
+        <section className="mt-6">
+          <HomeSettings lang={lang} widgets={[...HOME_WIDGETS]} initialHidden={user.homeHidden} />
         </section>
       </main>
     </>

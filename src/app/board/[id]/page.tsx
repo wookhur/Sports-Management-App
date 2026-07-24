@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import BoardInteractions, { type BoardCommentView } from "@/components/BoardInteractions";
 import { formatRelative } from "@/lib/format";
+import { embedUrl } from "@/lib/board";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
@@ -65,6 +66,28 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
 
           {post.title && <h1 className="mb-2 text-xl font-bold">{post.title}</h1>}
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-slate-700">{post.body}</p>
+
+          {post.videoUrl &&
+            (embedUrl(post.videoUrl) ? (
+              <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-black">
+                <iframe
+                  src={embedUrl(post.videoUrl)!}
+                  title="gameplay"
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <a
+                href={post.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-brand transition hover:bg-slate-50"
+              >
+                🎬 {s.watchVideo} ↗
+              </a>
+            ))}
 
           {post.images.length > 0 && (
             <div className="mt-4 grid gap-2 sm:grid-cols-2">

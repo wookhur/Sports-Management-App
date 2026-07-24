@@ -12,7 +12,6 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return fail("로그인이 필요합니다", 401);
-  if (session.role !== "COACH") return fail("코치만 이미지를 업로드할 수 있습니다", 403);
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");

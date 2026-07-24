@@ -25,12 +25,14 @@ export default function JournalForm({ lang }: { lang: Lang }) {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cheer, setCheer] = useState<{ emoji: string; text: string } | null>(null);
 
   const rpeHint = intensity <= 4 ? s.rpeHintLow : intensity <= 8 ? s.rpeHintMid : s.rpeHintHigh;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setCheer(null);
     setSaving(true);
     try {
       const res = await fetch("/api/training", {
@@ -43,6 +45,7 @@ export default function JournalForm({ lang }: { lang: Lang }) {
         setError(data?.error ?? s.errSave);
       } else {
         setNotes("");
+        if (data?.cheer) setCheer(data.cheer);
         router.refresh();
       }
     } catch {
@@ -134,6 +137,12 @@ export default function JournalForm({ lang }: { lang: Lang }) {
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {cheer && (
+        <p className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
+          <span aria-hidden="true">{cheer.emoji}</span>
+          {cheer.text}
+        </p>
+      )}
 
       <button
         type="submit"

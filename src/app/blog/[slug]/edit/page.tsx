@@ -20,11 +20,12 @@ export default async function EditBlogPostPage({
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "COACH") redirect("/blog");
 
   const { slug } = await params;
   const post = await prisma.blogPost.findUnique({ where: { slug } });
   if (!post) notFound();
+  // Only the author (or a coach) may edit.
+  if (post.authorId !== session.userId && session.role !== "COACH") redirect(`/blog/${slug}`);
   const lang = await getLang();
   const s = L[lang];
 

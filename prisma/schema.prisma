@@ -52,6 +52,10 @@ model User {
   charXp       Int      @default(0)
   houseRepairs String[] @default([])
 
+  // Home dashboard personalization: widget keys the user has chosen to hide.
+  // Empty = show every default section.
+  homeHidden String[] @default([])
+
   records          Record[]
   comments         Comment[]
   posts            BlogPost[]
@@ -304,9 +308,13 @@ model BoardPost {
   id        String   @id @default(cuid())
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
+  // Community section: "general" (일반), "tips" (팁), or "gameplay" (경기영상).
+  // gameplay/tips posts are the "share your team's gameplay or tips" surface.
+  category  String   @default("general")
   title     String?
   body      String
   images    String[] @default([])
+  videoUrl  String? // optional gameplay clip link (YouTube/Vimeo/Hudl/…)
   views     Int      @default(0)
   createdAt DateTime @default(now())
 

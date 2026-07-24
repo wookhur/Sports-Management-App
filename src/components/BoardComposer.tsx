@@ -10,12 +10,20 @@ export default function BoardComposer({ lang }: { lang: Lang }) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [category, setCategory] = useState<"general" | "tips" | "gameplay">("general");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const CATS: { key: "general" | "tips" | "gameplay"; label: string }[] = [
+    { key: "general", label: s.catGeneral },
+    { key: "tips", label: s.catTips },
+    { key: "gameplay", label: s.catGameplay },
+  ];
 
   async function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -52,7 +60,13 @@ export default function BoardComposer({ lang }: { lang: Lang }) {
       const res = await fetch("/api/board", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim() || undefined, body, images }),
+        body: JSON.stringify({
+          title: title.trim() || undefined,
+          body,
+          images,
+          category,
+          videoUrl: videoUrl.trim() || undefined,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -70,6 +84,39 @@ export default function BoardComposer({ lang }: { lang: Lang }) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      <div>
+        <label className="label">{s.categoryLabel}</label>
+        <div className="flex flex-wrap gap-2">
+          {CATS.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => setCategory(c.key)}
+              aria-pressed={category === c.key}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                category === c.key ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {category === "gameplay" && (
+        <div>
+          <label className="label">{s.videoLabel}</label>
+          <input
+            className="input"
+            type="url"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder={s.videoPlaceholder}
+          />
+          <p className="mt-1 text-xs text-slate-400">{s.videoHint}</p>
+        </div>
+      )}
+
       <div>
         <label className="label">{s.titleLabel}</label>
         <input
