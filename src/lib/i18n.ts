@@ -420,6 +420,7 @@ export interface SidebarDict {
   missions: string;
   journal: string;
   board: string;
+  games: string;
   sports: string;
   myActivity: string;
   myRecords: string;
@@ -441,6 +442,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     missions: "미션",
     journal: "훈련 일지",
     board: "자유게시판",
+    games: "미니게임",
     sports: "스포츠",
     myActivity: "내 활동",
     myRecords: "내 기록",
@@ -460,6 +462,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     missions: "Missions",
     journal: "Training Journal",
     board: "Community",
+    games: "Mini-games",
     sports: "Sports",
     myActivity: "My Activity",
     myRecords: "My Records",
@@ -479,6 +482,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     missions: "Misiones",
     journal: "Diario de entrenamiento",
     board: "Comunidad",
+    games: "Minijuegos",
     sports: "Deportes",
     myActivity: "Mi actividad",
     myRecords: "Mis marcas",
@@ -1153,6 +1157,141 @@ const settings: Record<Lang, SettingsDict> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Bullseye mini-game (/games/bullseye)
+// ---------------------------------------------------------------------------
+export interface GamesDict {
+  title: string;
+  subtitle: string;
+  howTitle: string;
+  how: string[];
+  start: string;
+  playAgain: string;
+  shotOf: (n: number, total: number) => string;
+  aimPhase: string;
+  powerPhase: string;
+  aimHint: string;
+  powerHint: string;
+  lock: string;
+  total: string;
+  pts: (n: number) => string;
+  bullseye: string;
+  finalScore: string;
+  newRecord: string;
+  yourRank: (n: number) => string;
+  submitting: string;
+  leaderboard: string;
+  myBest: string;
+  noScores: string;
+  you: string;
+  plays: (n: number) => string;
+  rankCol: string;
+  playerCol: string;
+  scoreCol: string;
+}
+
+const games: Record<Lang, GamesDict> = {
+  ko: {
+    title: "🎯 불스아이 챌린지",
+    subtitle: "조준·파워·정확도로 과녁 정중앙을 노려보세요. 5발 합산 점수로 친구들과 대결!",
+    howTitle: "플레이 방법",
+    how: [
+      "1️⃣ 조준(AIM): 좌우로 움직이는 조준선을 탭해서 좌우 위치를 정하세요.",
+      "2️⃣ 파워(POWER): 차오르는 파워 게이지를 탭해서 힘을 정하세요. 딱 맞으면 정중앙!",
+      "3️⃣ 정중앙에 가까울수록 높은 점수. 5발을 쏴서 합산 점수를 겨뤄요.",
+    ],
+    start: "게임 시작",
+    playAgain: "다시 하기",
+    shotOf: (n, total) => `${n} / ${total} 발`,
+    aimPhase: "조준",
+    powerPhase: "파워",
+    aimHint: "탭해서 좌우를 맞추세요",
+    powerHint: "탭해서 파워를 맞추세요",
+    lock: "탭 / 스페이스",
+    total: "합계",
+    pts: (n) => `${n}점`,
+    bullseye: "불스아이! 🎯",
+    finalScore: "최종 점수",
+    newRecord: "🏆 신기록 달성!",
+    yourRank: (n) => `현재 ${n}위`,
+    submitting: "기록 저장 중…",
+    leaderboard: "🏆 리더보드",
+    myBest: "내 최고 점수",
+    noScores: "아직 기록이 없어요. 첫 도전자가 되어보세요!",
+    you: "나",
+    plays: (n) => `${n}회 플레이`,
+    rankCol: "순위",
+    playerCol: "플레이어",
+    scoreCol: "점수",
+  },
+  en: {
+    title: "🎯 Bullseye Challenge",
+    subtitle: "Aim, power, accuracy — hit dead center. Compete with friends on total over 5 shots!",
+    howTitle: "How to play",
+    how: [
+      "1️⃣ AIM: tap to lock the sweeping horizontal position.",
+      "2️⃣ POWER: tap to lock the rising power gauge. Perfect power = dead center!",
+      "3️⃣ Closer to center = more points. Take 5 shots and compare totals.",
+    ],
+    start: "Start game",
+    playAgain: "Play again",
+    shotOf: (n, total) => `Shot ${n} / ${total}`,
+    aimPhase: "AIM",
+    powerPhase: "POWER",
+    aimHint: "Tap to set left/right",
+    powerHint: "Tap to set power",
+    lock: "Tap / Space",
+    total: "Total",
+    pts: (n) => `${n}`,
+    bullseye: "Bullseye! 🎯",
+    finalScore: "Final score",
+    newRecord: "🏆 New record!",
+    yourRank: (n) => `Rank #${n}`,
+    submitting: "Saving…",
+    leaderboard: "🏆 Leaderboard",
+    myBest: "My best",
+    noScores: "No scores yet. Be the first!",
+    you: "You",
+    plays: (n) => `${n} plays`,
+    rankCol: "#",
+    playerCol: "Player",
+    scoreCol: "Score",
+  },
+  es: {
+    title: "🎯 Desafío Diana",
+    subtitle: "Puntería, potencia y precisión: da en el centro. ¡Compite con amigos por el total de 5 tiros!",
+    howTitle: "Cómo jugar",
+    how: [
+      "1️⃣ PUNTERÍA: toca para fijar la posición horizontal en movimiento.",
+      "2️⃣ POTENCIA: toca para fijar la barra que sube. ¡Potencia perfecta = centro!",
+      "3️⃣ Más cerca del centro = más puntos. Haz 5 tiros y compara totales.",
+    ],
+    start: "Empezar",
+    playAgain: "Jugar otra vez",
+    shotOf: (n, total) => `Tiro ${n} / ${total}`,
+    aimPhase: "PUNTERÍA",
+    powerPhase: "POTENCIA",
+    aimHint: "Toca para ajustar izq/der",
+    powerHint: "Toca para ajustar la potencia",
+    lock: "Toca / Espacio",
+    total: "Total",
+    pts: (n) => `${n}`,
+    bullseye: "¡Diana! 🎯",
+    finalScore: "Puntuación final",
+    newRecord: "🏆 ¡Nuevo récord!",
+    yourRank: (n) => `Puesto #${n}`,
+    submitting: "Guardando…",
+    leaderboard: "🏆 Clasificación",
+    myBest: "Mi mejor",
+    noScores: "Aún no hay puntuaciones. ¡Sé el primero!",
+    you: "Tú",
+    plays: (n) => `${n} partidas`,
+    rankCol: "#",
+    playerCol: "Jugador",
+    scoreCol: "Puntos",
+  },
+};
+
 export function t(lang: Lang) {
   return {
     login: login[lang],
@@ -1165,5 +1304,6 @@ export function t(lang: Lang) {
     journal: journal[lang],
     landing: landing[lang],
     settings: settings[lang],
+    games: games[lang],
   };
 }

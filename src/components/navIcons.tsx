@@ -100,6 +100,18 @@ export function TrophyIcon({ className }: IconProps) {
   );
 }
 
+export function CrosshairIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 2v4" />
+      <path d="M12 18v4" />
+      <path d="M2 12h4" />
+      <path d="M18 12h4" />
+    </svg>
+  );
+}
+
 export function ClipboardIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">

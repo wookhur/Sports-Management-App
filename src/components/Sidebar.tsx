@@ -18,6 +18,7 @@ import {
   TargetIcon,
   ChatIcon,
   ClipboardIcon,
+  CrosshairIcon,
 } from "./navIcons";
 
 export interface SidebarUser {
@@ -100,6 +101,13 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
             active={pathname.startsWith("/board")}
             icon={<ChatIcon className="h-5 w-5" />}
             label={s.board}
+            onNavigate={onNavigate}
+          />
+          <NavItem
+            href="/games/bullseye"
+            active={pathname.startsWith("/games")}
+            icon={<CrosshairIcon className="h-5 w-5" />}
+            label={s.games}
             onNavigate={onNavigate}
           />
           <NavItem
