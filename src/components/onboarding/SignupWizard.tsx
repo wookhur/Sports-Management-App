@@ -7,6 +7,7 @@ import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
 import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, GRADE_I18N_ES, type Lang, type SignupDict } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import RoybotAvatar from "../RoybotAvatar";
+import BrandMark from "../BrandMark";
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -133,9 +134,36 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0B1412] text-[#EAFBF6]" style={{ fontFamily: BODY_FONT }}>
+    <div className="flex min-h-screen bg-[#0B1412] text-[#EAFBF6]" style={{ fontFamily: BODY_FONT }}>
       <RoyFontLink />
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 py-6">
+
+      {/* Left brand panel — desktop only, gives the flow a wide PC layout */}
+      <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 lg:flex xl:w-3/5">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-16 top-10 h-72 w-72 rounded-full bg-teal-500/20 blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-emerald-600/10 blur-3xl" />
+        </div>
+        <div className="relative flex items-center gap-2">
+          <BrandMark className="h-8 w-8" />
+          <span className="text-xl font-bold tracking-tight" style={{ fontFamily: HEADING_FONT }}>
+            Sideline365
+          </span>
+        </div>
+        <div className="relative flex flex-col items-center">
+          <RoybotAvatar
+            tier="beginner"
+            className="h-72 w-72 drop-shadow-[0_0_50px_rgba(45,212,191,0.4)]"
+          />
+          <p className="mt-8 max-w-sm text-center text-xl font-medium text-[#EAFBF6]/90">
+            {t(lang).login.tagline}
+          </p>
+        </div>
+        <p className="relative text-sm text-[#5f746f]">Sideline365 · Student Sports</p>
+      </aside>
+
+      {/* Right column: the wizard flow */}
+      <div className="flex min-h-screen w-full flex-col lg:w-1/2 xl:w-2/5">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 py-6 lg:py-10">
         {/* Top bar: back + skip + language */}
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -215,6 +243,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
           )}
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -232,9 +261,11 @@ function IntroStep({ s, onOkay }: { s: SignupDict; onOkay: () => void }) {
         {s.intro.greetingSuffix}
       </h1>
       <p className="mt-3 text-lg text-[#9CB3AE]">{s.intro.sub}</p>
-      <div className="flex flex-1 items-center justify-center">
+      {/* On desktop the left brand panel shows Roybot, so hide this one there. */}
+      <div className="flex flex-1 items-center justify-center lg:hidden">
         <RoybotAvatar tier="beginner" className="h-44 w-44 drop-shadow-[0_0_24px_rgba(45,212,191,0.35)]" />
       </div>
+      <div className="hidden flex-1 lg:block" aria-hidden="true" />
       <div className="mt-auto space-y-4">
         <button
           onClick={onOkay}
