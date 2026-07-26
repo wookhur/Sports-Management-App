@@ -1,91 +1,81 @@
 // "미션 & 캐릭터" gamification engine.
 //
-// Users complete daily missions to earn 완두콩 (beans) — a spendable currency —
-// and XP that levels up their character/house. Beans are spent repairing the
-// broken egg-house. Mission definitions live here as static data; per-user
-// status (met / claimed today / progress) is computed from live DB data via
-// computeMissions().
+// Users complete daily missions to earn 완두콩 (beans) — a spendable currency
+// spent caring for their pet (see lib/pet.ts). Missions are sport-agnostic
+// (training / conditioning / lifestyle) so they fit every athlete regardless
+// of their main sport, and they're grouped into tiers: which tier a user sees
+// advances with their pet's growth, so the mission board "replaces itself" as
+// they progress. Per-user status is computed from live DB data.
 
 import { prisma } from "./db";
 import { seoulDayKey } from "./format";
 import type { Lang } from "./i18n";
 
-export type MissionCategory = "daily" | "community";
+/** Which mission tier a user sees, based on their pet's growth. Advancing the
+ *  pet swaps the whole mission set for the next tier. */
+export function missionTierForGrowth(growth: number): number {
+  if (growth >= 320) return 2;
+  if (growth >= 120) return 1;
+  return 0;
+}
+
+export type MissionCategory = "training" | "conditioning" | "lifestyle";
 
 export interface MissionDef {
   key: string;
   emoji: string;
   reward: number; // beans (and XP) awarded on claim
   goal: number; // target count for progress display (1 = binary)
+  tier: number; // 0,1,2 — shown according to the user's progress
   category: MissionCategory;
   // How completion is verified. "manual" missions are self-reported (the user
   // just taps to claim); the rest are auto-verified against real app data.
   kind: "streak" | "record" | "training" | "boardPost" | "boardComment" | "manual";
   title: Record<Lang, string>;
-  subtitle: Record<Lang, string>;
 }
 
 export const MISSIONS: MissionDef[] = [
-  {
-    key: "streak5",
-    emoji: "⚡",
-    reward: 5,
-    goal: 5,
-    category: "daily",
-    kind: "streak",
-    title: { ko: "5일 달성하기", en: "Reach a 5-day streak", es: "Logra una racha de 5 días" },
-    subtitle: { ko: "연속 기록", en: "Activity streak", es: "Racha de actividad" },
-  },
-  {
-    key: "logRecord",
-    emoji: "🍽️",
-    reward: 5,
-    goal: 1,
-    category: "daily",
-    kind: "record",
-    title: { ko: "기록 남기기", en: "Log a record", es: "Registra una marca" },
-    subtitle: { ko: "오늘의 훈련", en: "Today's training", es: "Entrenamiento de hoy" },
-  },
-  {
-    key: "move",
-    emoji: "🔥",
-    reward: 5,
-    goal: 1,
-    category: "daily",
-    kind: "training",
-    title: { ko: "훈련 일지 쓰기", en: "Write your training journal", es: "Escribe tu diario de entrenamiento" },
-    subtitle: { ko: "오늘의 트레이닝 점수 받기", en: "Get today's training score", es: "Consigue tu puntuación de hoy" },
-  },
-  {
-    key: "water",
-    emoji: "💧",
-    reward: 3,
-    goal: 1,
-    category: "daily",
-    kind: "manual",
-    title: { ko: "물 마시기", en: "Drink water", es: "Bebe agua" },
-    subtitle: { ko: "하루 1L 이상", en: "1L+ a day", es: "1L+ al día" },
-  },
-  {
-    key: "boardPost",
-    emoji: "📝",
-    reward: 5,
-    goal: 1,
-    category: "community",
-    kind: "boardPost",
-    title: { ko: "게시글 올리기", en: "Post to the board", es: "Publica en el tablón" },
-    subtitle: { ko: "함께 해요! 자유게시판", en: "Community board", es: "Tablón de la comunidad" },
-  },
-  {
-    key: "boardComment",
-    emoji: "💬",
-    reward: 1,
-    goal: 3,
-    category: "community",
-    kind: "boardComment",
-    title: { ko: "선플 댓글 쓰기", en: "Write kind comments", es: "Escribe comentarios amables" },
-    subtitle: { ko: "함께 해요! 자유게시판", en: "Community board", es: "Tablón de la comunidad" },
-  },
+  // ---- Tier 0 ----
+  { key: "logRecord", emoji: "🏅", reward: 5, goal: 1, tier: 0, category: "training", kind: "record",
+    title: { ko: "오늘 기록 하나 남기기", en: "Log one record today", es: "Registra una marca hoy" } },
+  { key: "journal0", emoji: "📓", reward: 5, goal: 1, tier: 0, category: "training", kind: "training",
+    title: { ko: "훈련 일지 쓰기", en: "Write your training journal", es: "Escribe tu diario" } },
+  { key: "water0", emoji: "💧", reward: 3, goal: 1, tier: 0, category: "conditioning", kind: "manual",
+    title: { ko: "물 1L 이상 마시기", en: "Drink 1L+ of water", es: "Bebe 1L+ de agua" } },
+  { key: "stretch0", emoji: "🤸", reward: 3, goal: 1, tier: 0, category: "conditioning", kind: "manual",
+    title: { ko: "스트레칭 하기", en: "Do some stretching", es: "Haz estiramientos" } },
+  { key: "sleep0", emoji: "😴", reward: 4, goal: 1, tier: 0, category: "lifestyle", kind: "manual",
+    title: { ko: "일찍 잠자리 들기", en: "Get to bed early", es: "Acuéstate temprano" } },
+  { key: "post0", emoji: "📝", reward: 4, goal: 1, tier: 0, category: "lifestyle", kind: "boardPost",
+    title: { ko: "커뮤니티에 글 남기기", en: "Post to the community", es: "Publica en la comunidad" } },
+
+  // ---- Tier 1 ----
+  { key: "streak5", emoji: "⚡", reward: 6, goal: 5, tier: 1, category: "training", kind: "streak",
+    title: { ko: "연속 출석 5일 달성", en: "Reach a 5-day streak", es: "Racha de 5 días" } },
+  { key: "twoSessions", emoji: "🔥", reward: 6, goal: 2, tier: 1, category: "training", kind: "training",
+    title: { ko: "하루 훈련 2번 기록", en: "Log 2 sessions in a day", es: "Registra 2 sesiones" } },
+  { key: "walk1", emoji: "🚶", reward: 4, goal: 1, tier: 1, category: "conditioning", kind: "manual",
+    title: { ko: "30분 이상 걷기", en: "Walk for 30+ minutes", es: "Camina 30+ min" } },
+  { key: "core1", emoji: "🧘", reward: 4, goal: 1, tier: 1, category: "conditioning", kind: "manual",
+    title: { ko: "코어 운동 하기", en: "Do a core workout", es: "Entrena el core" } },
+  { key: "meal1", emoji: "🥗", reward: 4, goal: 1, tier: 1, category: "lifestyle", kind: "manual",
+    title: { ko: "건강한 식사 챙기기", en: "Eat a healthy meal", es: "Come sano" } },
+  { key: "comment1", emoji: "💬", reward: 4, goal: 3, tier: 1, category: "lifestyle", kind: "boardComment",
+    title: { ko: "선플 댓글 3개 쓰기", en: "Write 3 kind comments", es: "Escribe 3 comentarios amables" } },
+
+  // ---- Tier 2 ----
+  { key: "streak10", emoji: "🏆", reward: 8, goal: 10, tier: 2, category: "training", kind: "streak",
+    title: { ko: "연속 출석 10일 달성", en: "Reach a 10-day streak", es: "Racha de 10 días" } },
+  { key: "journal2", emoji: "💪", reward: 6, goal: 1, tier: 2, category: "training", kind: "training",
+    title: { ko: "고강도 훈련 일지 쓰기", en: "Log a hard training session", es: "Registra un entrenamiento intenso" } },
+  { key: "hydrate2", emoji: "🚰", reward: 5, goal: 1, tier: 2, category: "conditioning", kind: "manual",
+    title: { ko: "물 2L 마시기", en: "Drink 2L of water", es: "Bebe 2L de agua" } },
+  { key: "mobility2", emoji: "🌀", reward: 5, goal: 1, tier: 2, category: "conditioning", kind: "manual",
+    title: { ko: "모빌리티 루틴 하기", en: "Do a mobility routine", es: "Rutina de movilidad" } },
+  { key: "rise2", emoji: "🌅", reward: 5, goal: 1, tier: 2, category: "lifestyle", kind: "manual",
+    title: { ko: "일찍 일어나기", en: "Wake up early", es: "Levántate temprano" } },
+  { key: "gratitude2", emoji: "🙏", reward: 4, goal: 1, tier: 2, category: "lifestyle", kind: "manual",
+    title: { ko: "감사 일기 쓰기", en: "Write a gratitude note", es: "Escribe algo por lo que estás agradecido" } },
 ];
 
 export function getMission(key: string): MissionDef | undefined {
@@ -120,28 +110,6 @@ export function levelInfo(xp: number): LevelInfo {
 }
 
 // ---------------------------------------------------------------------------
-// House repairs
-// ---------------------------------------------------------------------------
-export interface RepairDef {
-  key: string;
-  emoji: string;
-  cost: number; // beans
-  title: Record<Lang, string>;
-}
-
-// Ordered cheapest → priciest so early progress is achievable.
-export const REPAIRS: RepairDef[] = [
-  { key: "roof", emoji: "🏠", cost: 10, title: { ko: "지붕 수리하기", en: "Fix the roof", es: "Arregla el tejado" } },
-  { key: "door", emoji: "🚪", cost: 15, title: { ko: "현관문 수리하기", en: "Fix the front door", es: "Arregla la puerta" } },
-  { key: "window", emoji: "🪟", cost: 20, title: { ko: "창문 수리하기", en: "Fix the windows", es: "Arregla las ventanas" } },
-  { key: "wall", emoji: "🧱", cost: 25, title: { ko: "벽 수리하기", en: "Fix the walls", es: "Arregla las paredes" } },
-];
-
-export function getRepair(key: string): RepairDef | undefined {
-  return REPAIRS.find((r) => r.key === key);
-}
-
-// ---------------------------------------------------------------------------
 // Per-user mission status
 // ---------------------------------------------------------------------------
 export interface MissionStatus {
@@ -156,13 +124,14 @@ export interface MissionStatus {
   category: MissionCategory;
 }
 
-/** Compute today's mission board for a user (Asia/Seoul day boundary). */
+/** Compute today's mission board for a user (Asia/Seoul day boundary). The set
+ *  shown is the tier that matches the user's pet growth. */
 export async function computeMissions(userId: string): Promise<MissionStatus[]> {
   const day = seoulDayKey();
   const dayStart = new Date(`${day}T00:00:00+09:00`);
 
   const [user, claims, recordsToday, sessionsToday, postsToday, commentsToday] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { currentStreak: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { currentStreak: true, petGrowth: true } }),
     prisma.missionClaim.findMany({ where: { userId, day }, select: { missionKey: true } }),
     prisma.record.count({ where: { userId, createdAt: { gte: dayStart } } }),
     prisma.trainingSession.count({ where: { userId, day } }),
@@ -172,8 +141,9 @@ export async function computeMissions(userId: string): Promise<MissionStatus[]> 
 
   const claimed = new Set(claims.map((c) => c.missionKey));
   const streak = user?.currentStreak ?? 0;
+  const tier = missionTierForGrowth(user?.petGrowth ?? 0);
 
-  return MISSIONS.map((m) => {
+  return MISSIONS.filter((m) => m.tier === tier).map((m) => {
     let progress = 0;
     switch (m.kind) {
       case "streak":

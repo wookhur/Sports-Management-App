@@ -507,17 +507,18 @@ export interface MissionsDict {
   title: string;
   subtitle: string;
   beans: string; // unit label, e.g. "콩"
-  levelLabel: (n: number) => string;
-  toNextLevel: (lp: number) => string;
-  houseTitle: string;
-  houseSub: string;
-  houseDone: string;
-  repairCta: (cost: number, unit: string) => string;
-  repaired: string;
+  petTitle: string;
+  petSub: string;
+  hatchTo: (n: number) => string; // "부화까지 N"
+  growTo: (n: number) => string; // "다음 단계까지 N"
+  maxed: string;
+  hatchedMsg: string;
+  careHeading: string;
+  careCta: (cost: number, unit: string) => string;
   notEnough: string;
-  allQuests: string;
-  dailyHeading: string;
-  communityHeading: string;
+  catTraining: string;
+  catConditioning: string;
+  catLifestyle: string;
   reward: (n: number, unit: string) => string;
   claim: string;
   claimed: string;
@@ -530,72 +531,75 @@ export interface MissionsDict {
 const missions: Record<Lang, MissionsDict> = {
   ko: {
     title: "미션",
-    subtitle: "미션을 완료하고 완두콩을 모아 집을 수리해보세요.",
+    subtitle: "미션을 완료해 완두콩을 모으고, 알을 돌봐 새로 키워보세요.",
     beans: "콩",
-    levelLabel: (n) => `Lv.${n}`,
-    toNextLevel: (lp) => `다음 레벨까지 ${lp}LP`,
-    houseTitle: "외관 수리하기",
-    houseSub: "부서진 집을 새로운 아이템으로 수리해봐요",
-    houseDone: "집을 모두 수리했어요! 🎉",
-    repairCta: (cost, unit) => `${cost}${unit}으로 수리하기`,
-    repaired: "수리 완료",
+    petTitle: "내 친구 키우기",
+    petSub: "완두콩으로 돌보면 무럭무럭 자라요",
+    hatchTo: (n) => `부화까지 ${n}`,
+    growTo: (n) => `다음 단계까지 ${n}`,
+    maxed: "다 자랐어요! 최고예요 🎉",
+    hatchedMsg: "축하해요! 알이 부화했어요 🐣",
+    careHeading: "돌보기",
+    careCta: (cost, unit) => `${cost}${unit}`,
     notEnough: "완두콩이 부족해요",
-    allQuests: "전체 퀘스트 확인하기",
-    dailyHeading: "오늘의 미션",
-    communityHeading: "함께 해요! 자유게시판",
+    catTraining: "훈련",
+    catConditioning: "컨디셔닝",
+    catLifestyle: "건강한 생활",
     reward: (n, unit) => `${n}${unit}`,
     claim: "받기",
     claimed: "완료",
     claiming: "받는 중…",
     progressDays: (n) => `현재 ${n}일`,
     go: "하러 가기",
-    howItWorks: "미션을 완료하면 완두콩을 얻고, 모은 완두콩으로 부서진 집을 수리할 수 있어요. 레벨을 올려 새로운 아이템도 잠금 해제하세요.",
+    howItWorks: "미션을 완료하면 완두콩을 얻어요. 완두콩으로 알을 돌보면 자라서 부화하고, 진행할수록 새로운 미션과 돌보기 활동이 열려요.",
   },
   en: {
     title: "Missions",
-    subtitle: "Complete missions, collect beans, and repair your house.",
+    subtitle: "Complete missions to earn beans, then care for your egg until it hatches.",
     beans: " beans",
-    levelLabel: (n) => `Lv.${n}`,
-    toNextLevel: (lp) => `${lp} LP to next level`,
-    houseTitle: "Repair the exterior",
-    houseSub: "Fix the broken house with new items",
-    houseDone: "The house is fully repaired! 🎉",
-    repairCta: (cost, unit) => `Repair · ${cost} ${unit}`,
-    repaired: "Repaired",
+    petTitle: "Raise your friend",
+    petSub: "Care for it with beans and watch it grow",
+    hatchTo: (n) => `${n} to hatch`,
+    growTo: (n) => `${n} to next stage`,
+    maxed: "All grown up! Amazing 🎉",
+    hatchedMsg: "Congrats! Your egg hatched 🐣",
+    careHeading: "Care",
+    careCta: (cost, unit) => `${cost}${unit}`,
     notEnough: "Not enough beans",
-    allQuests: "View all quests",
-    dailyHeading: "Today's missions",
-    communityHeading: "Community board",
+    catTraining: "Training",
+    catConditioning: "Conditioning",
+    catLifestyle: "Healthy lifestyle",
     reward: (n, unit) => `${n}${unit}`,
     claim: "Claim",
     claimed: "Done",
     claiming: "Claiming…",
     progressDays: (n) => `${n} day${n === 1 ? "" : "s"} so far`,
     go: "Go",
-    howItWorks: "Complete missions to earn beans, then spend them repairing your broken house. Level up to unlock new items.",
+    howItWorks: "Complete missions to earn beans. Spend beans caring for your egg so it grows and hatches — new missions and care actions unlock as you progress.",
   },
   es: {
     title: "Misiones",
-    subtitle: "Completa misiones, junta guisantes y repara tu casa.",
+    subtitle: "Completa misiones para ganar guisantes y cuida tu huevo hasta que eclosione.",
     beans: " guisantes",
-    levelLabel: (n) => `Nv.${n}`,
-    toNextLevel: (lp) => `${lp} LP para el siguiente nivel`,
-    houseTitle: "Repara el exterior",
-    houseSub: "Arregla la casa rota con nuevos objetos",
-    houseDone: "¡La casa está totalmente reparada! 🎉",
-    repairCta: (cost, unit) => `Reparar · ${cost} ${unit}`,
-    repaired: "Reparado",
+    petTitle: "Cría a tu amigo",
+    petSub: "Cuídalo con guisantes y míralo crecer",
+    hatchTo: (n) => `${n} para eclosionar`,
+    growTo: (n) => `${n} para la siguiente etapa`,
+    maxed: "¡Ya creció del todo! Increíble 🎉",
+    hatchedMsg: "¡Felicidades! Tu huevo eclosionó 🐣",
+    careHeading: "Cuidar",
+    careCta: (cost, unit) => `${cost}${unit}`,
     notEnough: "Guisantes insuficientes",
-    allQuests: "Ver todas las misiones",
-    dailyHeading: "Misiones de hoy",
-    communityHeading: "Tablón de la comunidad",
+    catTraining: "Entrenamiento",
+    catConditioning: "Acondicionamiento",
+    catLifestyle: "Vida saludable",
     reward: (n, unit) => `${n}${unit}`,
     claim: "Reclamar",
     claimed: "Hecho",
     claiming: "Reclamando…",
     progressDays: (n) => `${n} día${n === 1 ? "" : "s"} hasta ahora`,
     go: "Ir",
-    howItWorks: "Completa misiones para ganar guisantes y gástalos reparando tu casa rota. Sube de nivel para desbloquear nuevos objetos.",
+    howItWorks: "Completa misiones para ganar guisantes. Gástalos cuidando tu huevo para que crezca y eclosione — nuevas misiones y cuidados se desbloquean al progresar.",
   },
 };
 

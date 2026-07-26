@@ -2,8 +2,9 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
-import MissionHub, { type MissionItem, type RepairItem } from "@/components/MissionHub";
-import { computeMissions, levelInfo, MISSIONS, REPAIRS } from "@/lib/missions";
+import MissionHub, { type MissionItem, type CareItem } from "@/components/MissionHub";
+import { computeMissions, MISSIONS } from "@/lib/missions";
+import { careActions, petState } from "@/lib/pet";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
@@ -11,11 +12,14 @@ export const dynamic = "force-dynamic";
 
 // In-app page an auto mission links to when its requirement isn't met yet.
 const GO_HREF: Record<string, string | null> = {
-  streak5: null,
   logRecord: "/records",
-  move: "/journal",
-  boardPost: "/board/new",
-  boardComment: "/board",
+  journal0: "/journal",
+  journal2: "/journal",
+  twoSessions: "/journal",
+  post0: "/board/new",
+  comment1: "/board",
+  streak5: null,
+  streak10: null,
 };
 
 export default async function MissionsPage() {
@@ -28,32 +32,25 @@ export default async function MissionsPage() {
   const [user, statuses] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.userId },
-      select: { beans: true, charXp: true, houseRepairs: true },
+      select: { beans: true, petGrowth: true },
     }),
     computeMissions(session.userId),
   ]);
 
   const beans = user?.beans ?? 0;
-  const xp = user?.charXp ?? 0;
-  const repaired = new Set(user?.houseRepairs ?? []);
-  const lvl = levelInfo(xp);
+  const growth = user?.petGrowth ?? 0;
+  const st = petState(growth);
 
-  const missions: MissionItem[] = statuses.map((st) => {
-    const def = MISSIONS.find((m) => m.key === st.key)!;
-    return {
-      ...st,
-      title: def.title[lang],
-      subtitle: def.subtitle[lang],
-      goHref: GO_HREF[st.key] ?? null,
-    };
+  const missions: MissionItem[] = statuses.map((m) => {
+    const def = MISSIONS.find((d) => d.key === m.key)!;
+    return { ...m, title: def.title[lang], goHref: GO_HREF[m.key] ?? null };
   });
 
-  const repairs: RepairItem[] = REPAIRS.map((r) => ({
-    key: r.key,
-    emoji: r.emoji,
-    cost: r.cost,
-    title: r.title[lang],
-    owned: repaired.has(r.key),
+  const care: CareItem[] = careActions(growth).map((c) => ({
+    key: c.key,
+    emoji: c.emoji,
+    cost: c.cost,
+    title: c.label[lang],
   }));
 
   return (
@@ -68,12 +65,18 @@ export default async function MissionsPage() {
         <MissionHub
           lang={lang}
           beans={beans}
-          level={lvl.level}
-          intoLevel={lvl.intoLevel}
-          step={lvl.step}
-          needed={lvl.needed}
+          pet={{
+            growth,
+            stage: st.stage,
+            label: st.label[lang],
+            hatched: st.hatched,
+            hatchPct: st.hatchPct,
+            into: st.into,
+            span: st.span,
+            toNext: st.toNext,
+          }}
+          care={care}
           missions={missions}
-          repairs={repairs}
         />
       </main>
     </>
