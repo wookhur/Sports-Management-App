@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BrandMark from "./BrandMark";
 import { SPORT_LIST } from "@/lib/sports";
 import { SPORT_I18N, t, type Lang } from "@/lib/i18n";
 import { useSidebar } from "./SidebarContext";
@@ -234,8 +235,8 @@ export default function Sidebar({ lang, user }: SidebarProps) {
           href="/"
           className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 transition-colors hover:bg-slate-50"
         >
-          <span className="text-xl" aria-hidden="true">🏅</span>
-          <span className="text-lg font-bold tracking-tight">sideline365</span>
+          <BrandMark className="h-7 w-7" />
+          <span className="text-lg font-bold tracking-tight">Sideline365</span>
         </Link>
         <SidebarNav lang={lang} user={user} onNavigate={() => {}} />
       </aside>
@@ -247,8 +248,8 @@ export default function Sidebar({ lang, user }: SidebarProps) {
           <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
               <Link href="/" onClick={close} className="flex items-center gap-2 font-bold">
-                <span className="text-xl" aria-hidden="true">🏅</span>
-                sideline365
+                <BrandMark className="h-7 w-7" />
+                Sideline365
               </Link>
               <button
                 type="button"

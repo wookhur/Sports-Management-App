@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandMark from "./BrandMark";
 import { t, type Lang } from "@/lib/i18n";
 
 // Public intro/hero for logged-out visitors. Energetic but self-contained:
@@ -19,8 +20,8 @@ export default function Landing({ lang }: { lang: Lang }) {
       {/* Top bar */}
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <div className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden="true">🏅</span>
-          <span className="text-lg font-bold tracking-tight">sideline365</span>
+          <BrandMark className="h-7 w-7" />
+          <span className="text-lg font-bold tracking-tight">Sideline365</span>
         </div>
         <Link href="/login" className="text-sm font-semibold text-slate-200 hover:text-white">
           {s.ctaLogin}

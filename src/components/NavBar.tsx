@@ -6,6 +6,7 @@ import LogoutButton from "./LogoutButton";
 import SearchBox from "./SearchBox";
 import LanguageSwitcher from "./LanguageSwitcher";
 import SidebarToggleButton from "./SidebarToggleButton";
+import BrandMark from "./BrandMark";
 
 export default async function NavBar() {
   const session = await getSession();
@@ -24,8 +25,8 @@ export default async function NavBar() {
           {/* Below lg the sidebar is hidden, so the brand lives here; on lg
               the sidebar header owns it. */}
           <Link href="/" className="flex items-center gap-2 font-bold lg:hidden">
-            <span className="text-xl">🏅</span>
-            <span>sideline365</span>
+            <BrandMark className="h-6 w-6" />
+            <span>Sideline365</span>
           </Link>
         </div>
         <div className="flex items-center gap-1 text-sm">

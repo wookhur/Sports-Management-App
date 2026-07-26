@@ -7,7 +7,7 @@ export interface OnboardingStep {
 const ATHLETE_STEPS: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "sideline365에 오신 걸 환영해요!",
+    title: "Sideline365에 오신 걸 환영해요!",
     body: "기록을 측정하고 코치와 공유해 더 나은 운동 성과를 만드는 앱이에요. 1분이면 둘러볼 수 있어요.",
   },
   {
@@ -35,7 +35,7 @@ const ATHLETE_STEPS: OnboardingStep[] = [
 const COACH_STEPS: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "sideline365에 오신 걸 환영해요!",
+    title: "Sideline365에 오신 걸 환영해요!",
     body: "선수들의 기록을 확인하고 피드백을 남기는 코치용 대시보드를 제공해요. 1분이면 둘러볼 수 있어요.",
   },
   {

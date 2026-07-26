@@ -88,7 +88,7 @@ export default async function BlogPostPage({
             <span className="text-sm text-slate-400">{formatDate(post.createdAt, lang)}</span>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{post.title}</h1>
-          <p className="mt-2 text-slate-500">{post.author?.name ?? "sideline365"}</p>
+          <p className="mt-2 text-slate-500">{post.author?.name ?? "Sideline365"}</p>
         </header>
 
         {post.coverImage && (

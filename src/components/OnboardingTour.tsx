@@ -16,7 +16,7 @@ const L: Record<Lang, { skip: string; prev: string; next: string; start: string 
 const ATHLETE_STEPS_EN: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "Welcome to sideline365!",
+    title: "Welcome to Sideline365!",
     body: "Track your records and share them with your coach to get better results. The tour takes just a minute.",
   },
   {
@@ -44,7 +44,7 @@ const ATHLETE_STEPS_EN: OnboardingStep[] = [
 const COACH_STEPS_EN: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "Welcome to sideline365!",
+    title: "Welcome to Sideline365!",
     body: "A coach dashboard for reviewing your athletes' records and leaving feedback. The tour takes just a minute.",
   },
   {
@@ -67,7 +67,7 @@ const COACH_STEPS_EN: OnboardingStep[] = [
 const ATHLETE_STEPS_ES: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "¡Bienvenido a sideline365!",
+    title: "¡Bienvenido a Sideline365!",
     body: "Registra tus marcas y compártelas con tu entrenador para mejorar tus resultados. El recorrido toma solo un minuto.",
   },
   {
@@ -95,7 +95,7 @@ const ATHLETE_STEPS_ES: OnboardingStep[] = [
 const COACH_STEPS_ES: OnboardingStep[] = [
   {
     emoji: "🏅",
-    title: "¡Bienvenido a sideline365!",
+    title: "¡Bienvenido a Sideline365!",
     body: "Un panel para entrenadores donde revisas las marcas de tus atletas y dejas comentarios. El recorrido toma solo un minuto.",
   },
   {

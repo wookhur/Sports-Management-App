@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import Landing from "@/components/Landing";
+import RoybotAvatar from "@/components/RoybotAvatar";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
@@ -313,8 +314,11 @@ export default async function HomePage({
         </section>
 
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand/15 bg-gradient-to-r from-brand/5 to-indigo-50 px-4 py-3">
-          <span className="text-2xl" aria-hidden="true">{cheer.emoji}</span>
-          <p className="text-sm font-semibold text-slate-700">{cheer.text}</p>
+          <RoybotAvatar tier="intermediate" className="h-10 w-10 shrink-0" />
+          <p className="text-sm font-semibold text-slate-700">
+            <span className="mr-1" aria-hidden="true">{cheer.emoji}</span>
+            {cheer.text}
+          </p>
         </div>
 
         {newFeedback > 0 && (

@@ -93,7 +93,7 @@ export default async function AthleteGuidePage({
             <span className="text-sm text-slate-400">{formatDate(guide.createdAt, lang)}</span>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{guide.title}</h1>
-          <p className="mt-2 text-slate-500">{guide.author?.name ?? "sideline365"}</p>
+          <p className="mt-2 text-slate-500">{guide.author?.name ?? "Sideline365"}</p>
         </header>
 
         {guide.coverImage && (

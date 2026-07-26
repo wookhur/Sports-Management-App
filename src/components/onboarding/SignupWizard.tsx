@@ -6,7 +6,7 @@ import { SPORT_LIST } from "@/lib/sports";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
 import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, GRADE_I18N_ES, type Lang, type SignupDict } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import RoyAvatar from "./RoyAvatar";
+import RoybotAvatar from "../RoybotAvatar";
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -228,12 +228,12 @@ function IntroStep({ s, onOkay }: { s: SignupDict; onOkay: () => void }) {
     <div className="flex flex-1 flex-col">
       <h1 className="text-3xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
         {s.intro.greetingPrefix}
-        <span className="text-teal-400">Roy</span>
+        <span className="text-teal-400">Roybot</span>
         {s.intro.greetingSuffix}
       </h1>
       <p className="mt-3 text-lg text-[#9CB3AE]">{s.intro.sub}</p>
       <div className="flex flex-1 items-center justify-center">
-        <RoyAvatar />
+        <RoybotAvatar tier="beginner" className="h-44 w-44 drop-shadow-[0_0_24px_rgba(45,212,191,0.35)]" />
       </div>
       <div className="mt-auto space-y-4">
         <button

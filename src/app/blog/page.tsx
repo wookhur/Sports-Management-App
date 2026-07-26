@@ -156,7 +156,7 @@ export default async function BlogListPage() {
                   </Link>
                   <div className="mt-2 flex items-center justify-between">
                     <p className="text-xs text-slate-400">
-                      {post.author?.name ?? "sideline365"} · {s.reactions(post._count.likes, post._count.readerComments)}
+                      {post.author?.name ?? "Sideline365"} · {s.reactions(post._count.likes, post._count.readerComments)}
                     </p>
                     {canManage(post.author?.id ?? null) && (
                       <div className="flex items-center gap-3">

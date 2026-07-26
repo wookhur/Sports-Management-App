@@ -116,7 +116,7 @@ export default async function AthleteGuideListPage({
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">{guide.excerpt}</p>
                 </Link>
                 <div className="mt-2 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">{guide.author?.name ?? "sideline365"}</p>
+                  <p className="text-xs text-slate-400">{guide.author?.name ?? "Sideline365"}</p>
                   {isCoach && (
                     <div className="flex items-center gap-3">
                       <Link

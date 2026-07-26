@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
 import JournalForm from "@/components/JournalForm";
 import DeleteSessionButton from "@/components/DeleteSessionButton";
+import RoybotAvatar from "@/components/RoybotAvatar";
 import { ScoreCard } from "@/components/TrainingScoreCard";
 import { journalOverview, VOLUME_TARGET_MIN, type JournalOverview } from "@/lib/trainingScore";
 import { formatDuration } from "@/lib/format";
@@ -69,15 +70,10 @@ export default async function JournalPage() {
             warnings={o.warnings}
           />
 
-          {/* AI coach feedback bubble */}
+          {/* AI coach (Roybot) feedback bubble */}
           {lines.length > 0 && (
             <div className="flex gap-3">
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-lg"
-                aria-hidden="true"
-              >
-                🤖
-              </span>
+              <RoybotAvatar tier="intermediate" className="h-11 w-11 shrink-0" />
               <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3">
                 <p className="mb-1 text-xs font-bold text-slate-500">{s.coachName}</p>
                 <ul className="space-y-1 text-sm leading-relaxed text-slate-700">
