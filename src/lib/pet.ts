@@ -106,3 +106,29 @@ export function getCare(key: string): CareDef | undefined {
 export function isCareAvailable(key: string, growth: number): boolean {
   return careActions(growth).some((c) => c.key === key);
 }
+
+// ---------------------------------------------------------------------------
+// Mood — the companion mirrors the athlete's real training state, so the
+// character is a status readout (and a nudge), not just decoration.
+// ---------------------------------------------------------------------------
+export type PetMood = "celebrating" | "proud" | "happy" | "hungry" | "sleepy" | "waiting";
+
+export interface MoodSignals {
+  streak: number;
+  activeToday: boolean; // logged a record or training session today
+  todayScore: number; // 0–100 training score
+  daysIdle: number; // consecutive days with no activity
+  spendableBeans: number; // beans on hand
+  cheapestCare: number; // cost of the cheapest available care action
+}
+
+/** Pick the companion's mood. Order matters: celebration first, then needs. */
+export function petMood(s: MoodSignals): PetMood {
+  if (s.activeToday && s.todayScore >= 80) return "celebrating";
+  if (s.daysIdle >= 3) return "sleepy";
+  // Beans sitting unspent → the pet is asking to be fed/cared for.
+  if (s.spendableBeans >= s.cheapestCare && s.cheapestCare > 0) return "hungry";
+  if (s.activeToday && s.streak >= 3) return "proud";
+  if (s.activeToday) return "happy";
+  return "waiting";
+}

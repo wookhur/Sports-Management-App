@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getLang } from "@/lib/getLang";
 import { getSession } from "@/lib/auth";
-import Sidebar from "@/components/Sidebar";
+import Sidebar, { type SidebarPet } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/SidebarContext";
+import { prisma } from "@/lib/db";
+import { petState, careActions } from "@/lib/pet";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,13 +16,35 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const lang = await getLang();
   const session = await getSession();
 
+  // The companion rides along in the sidebar on every authenticated page.
+  let pet: SidebarPet | null = null;
+  if (session) {
+    const u = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { beans: true, petGrowth: true },
+    });
+    if (u) {
+      const st = petState(u.petGrowth);
+      const cheapest = careActions(u.petGrowth).reduce(
+        (min, c) => (min === 0 ? c.cost : Math.min(min, c.cost)),
+        0,
+      );
+      pet = {
+        growth: u.petGrowth,
+        label: st.label[lang],
+        pct: st.stage === "egg" ? st.hatchPct : st.toNext == null ? 1 : st.into / st.span,
+        needsCare: cheapest > 0 && u.beans >= cheapest,
+      };
+    }
+  }
+
   return (
     <html lang={lang}>
       <body>
         {session ? (
           <SidebarProvider>
             <div className="lg:flex">
-              <Sidebar lang={lang} user={{ name: session.name, role: session.role }} />
+              <Sidebar lang={lang} user={{ name: session.name, role: session.role }} pet={pet} />
               <div className="min-w-0 flex-1">{children}</div>
             </div>
           </SidebarProvider>

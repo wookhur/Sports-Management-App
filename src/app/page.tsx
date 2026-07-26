@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import Landing from "@/components/Landing";
-import RoybotAvatar from "@/components/RoybotAvatar";
+import CompanionCard from "@/components/CompanionCard";
+import { petMood, careActions } from "@/lib/pet";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
@@ -15,10 +16,9 @@ import { HomeScoreCard } from "@/components/TrainingScoreCard";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { journalOverview } from "@/lib/trainingScore";
 import { homeEncouragement } from "@/lib/encourage";
-import { getRoybotTier } from "@/lib/roybot";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration, seoulDayKey, weekInSeoul } from "@/lib/format";
-import { SPORT_I18N, ROYBOT_TIER_LABEL, metricLabel, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -151,7 +151,7 @@ export default async function HomePage({
   const { tutorial } = await searchParams;
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { onboarded: true, homeHidden: true },
+    select: { onboarded: true, homeHidden: true, beans: true, petGrowth: true },
   });
   const showTour = tutorial === "1" || !user?.onboarded;
   // Home-dashboard personalization: sections the user chose to hide.
@@ -290,18 +290,44 @@ export default async function HomePage({
     ? await prisma.coachAthlete.count({ where: { coachId: session.userId } })
     : 0;
 
-  // Roybot's coach tier auto-advances with the athlete's level/activity.
-  const roybotTier = await getRoybotTier(session.userId);
+  // --- Companion state -----------------------------------------------------
+  // The pet mirrors real training data, so it doubles as a status readout.
+  const activeToday = activeDays.has(todayKey);
+  // Consecutive quiet days, walking back from today through this week.
+  let daysIdle = 0;
+  for (let i = weekDaysRaw.length - 1; i >= 0; i--) {
+    const key = weekDaysRaw[i].key;
+    if (key > todayKey) continue; // future days in the current week
+    if (activeDays.has(key)) break;
+    daysIdle += 1;
+  }
+  const petGrowth = user?.petGrowth ?? 0;
+  const beans = user?.beans ?? 0;
+  const cheapestCare = careActions(petGrowth).reduce(
+    (min, c) => (min === 0 ? c.cost : Math.min(min, c.cost)),
+    0,
+  );
+  const mood = petMood({
+    streak: streak.current,
+    activeToday,
+    todayScore: todayScore?.total ?? 0,
+    daysIdle,
+    spendableBeans: beans,
+    cheapestCare,
+  });
+  const needsCare = cheapestCare > 0 && beans >= cheapestCare;
 
-  // AI-coach encouragement banner (streak-aware, e.g. "오 3일째 오셨네요!").
+  // Milestone/greeting lines (e.g. "오 3일째 오셨네요!") — spoken by the pet
+  // on the first visit of a day so the companion is the single mascot voice.
   const cheer = homeEncouragement({
     lang,
     name: session.name,
     streak: streak.current,
     advancedToday: streak.advancedToday,
     todayScore: todayScore?.total ?? 0,
-    activeToday: activeDays.has(todayKey),
+    activeToday,
   });
+  const sayOverride = streak.advancedToday ? `${cheer.emoji} ${cheer.text}` : null;
 
   return (
     <>
@@ -317,17 +343,17 @@ export default async function HomePage({
           </p>
         </section>
 
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand/15 bg-gradient-to-r from-brand/5 to-indigo-50 px-4 py-3">
-          <RoybotAvatar tier={roybotTier} className="h-10 w-10 shrink-0" />
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand/70">
-              Roybot · {ROYBOT_TIER_LABEL[lang][roybotTier]}
-            </p>
-            <p className="text-sm font-semibold text-slate-700">
-              <span className="mr-1" aria-hidden="true">{cheer.emoji}</span>
-              {cheer.text}
-            </p>
-          </div>
+        <div className="mb-6">
+          <CompanionCard
+            lang={lang}
+            name={session.name}
+            growth={petGrowth}
+            mood={mood}
+            streak={streak.current}
+            daysIdle={daysIdle}
+            needsCare={needsCare}
+            sayOverride={sayOverride}
+          />
         </div>
 
         {newFeedback > 0 && (

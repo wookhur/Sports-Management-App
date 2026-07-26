@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BrandMark from "./BrandMark";
+import PetAvatar from "./PetAvatar";
 import { SPORT_LIST } from "@/lib/sports";
 import { SPORT_I18N, t, type Lang } from "@/lib/i18n";
 import { useSidebar } from "./SidebarContext";
@@ -27,9 +28,17 @@ export interface SidebarUser {
   role: "ATHLETE" | "COACH";
 }
 
+export interface SidebarPet {
+  growth: number;
+  label: string;
+  pct: number; // 0..1 progress within the current stage
+  needsCare: boolean;
+}
+
 interface SidebarProps {
   lang: Lang;
   user: SidebarUser;
+  pet?: SidebarPet | null;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -72,7 +81,7 @@ function NavItem({
   );
 }
 
-function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () => void }) {
+function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate: () => void }) {
   const pathname = usePathname() ?? "";
   const s = t(lang).sidebar;
   const isCoach = user.role === "COACH";
@@ -203,6 +212,28 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
         </div>
       </nav>
 
+      {/* Companion strip — the pet follows the athlete across every page */}
+      {pet && (
+        <Link
+          href="/missions"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 border-t border-slate-200 px-3 py-2.5 transition-colors hover:bg-slate-50"
+        >
+          <span className="relative shrink-0">
+            <PetAvatar growth={pet.growth} className="h-9 w-9" />
+            {pet.needsCare && (
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-white" />
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-slate-700">{pet.label}</p>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-brand" style={{ width: `${Math.round(pet.pct * 100)}%` }} />
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* User card pinned to the bottom — links to the profile page */}
       <div className="border-t border-slate-200 p-3">
         <Link
@@ -223,7 +254,7 @@ function SidebarNav({ lang, user, onNavigate }: SidebarProps & { onNavigate: () 
   );
 }
 
-export default function Sidebar({ lang, user }: SidebarProps) {
+export default function Sidebar({ lang, user, pet }: SidebarProps) {
   const { open, close } = useSidebar();
   const s = t(lang).sidebar;
 
@@ -238,7 +269,7 @@ export default function Sidebar({ lang, user }: SidebarProps) {
           <BrandMark className="h-7 w-7" />
           <span className="text-lg font-bold tracking-tight">Sideline365</span>
         </Link>
-        <SidebarNav lang={lang} user={user} onNavigate={() => {}} />
+        <SidebarNav lang={lang} user={user} pet={pet} onNavigate={() => {}} />
       </aside>
 
       {/* Mobile: slide-in drawer, toggled from NavBar's hamburger button */}
@@ -260,7 +291,7 @@ export default function Sidebar({ lang, user }: SidebarProps) {
                 <CloseIcon className="h-5 w-5" />
               </button>
             </div>
-            <SidebarNav lang={lang} user={user} onNavigate={close} />
+            <SidebarNav lang={lang} user={user} pet={pet} onNavigate={close} />
           </aside>
         </div>
       )}

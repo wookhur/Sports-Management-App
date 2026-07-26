@@ -604,6 +604,63 @@ const missions: Record<Lang, MissionsDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Companion (the pet as an app-wide buddy)
+// ---------------------------------------------------------------------------
+export interface CompanionDict {
+  /** What the pet says, by mood. */
+  say: Record<string, (name: string, n: number) => string>;
+  careCta: string;
+  visitCta: string;
+  growthLabel: string;
+  hatchIn: (n: number) => string;
+}
+
+const companion: Record<Lang, CompanionDict> = {
+  ko: {
+    say: {
+      celebrating: () => "오늘 완전 잘했어요! 최고예요 🎉",
+      proud: (_n, streak) => `${streak}일째 함께하고 있어요. 자랑스러워요!`,
+      happy: () => "오늘도 움직였네요! 기분 좋아요 😊",
+      hungry: () => "완두콩이 있네요! 저 좀 돌봐줄래요?",
+      sleepy: (_n, days) => `${days}일째 조용해요… 같이 다시 시작해요!`,
+      waiting: (name) => `${name}님, 오늘 훈련 기다리고 있어요!`,
+    },
+    careCta: "돌보러 가기",
+    visitCta: "보러 가기",
+    growthLabel: "성장",
+    hatchIn: (n) => `부화까지 ${n}`,
+  },
+  en: {
+    say: {
+      celebrating: () => "You crushed it today! Amazing 🎉",
+      proud: (_n, streak) => `${streak} days together now. So proud!`,
+      happy: () => "You moved today — that makes me happy 😊",
+      hungry: () => "You've got beans! Want to take care of me?",
+      sleepy: (_n, days) => `It's been ${days} quiet days… let's start again!`,
+      waiting: (name) => `${name}, I'm waiting for today's training!`,
+    },
+    careCta: "Take care",
+    visitCta: "Visit",
+    growthLabel: "Growth",
+    hatchIn: (n) => `${n} to hatch`,
+  },
+  es: {
+    say: {
+      celebrating: () => "¡Lo hiciste genial hoy! Increíble 🎉",
+      proud: (_n, streak) => `¡${streak} días juntos ya. Qué orgullo!`,
+      happy: () => "Hoy te moviste, ¡eso me alegra! 😊",
+      hungry: () => "¡Tienes guisantes! ¿Me cuidas un poco?",
+      sleepy: (_n, days) => `Llevamos ${days} días en silencio… ¡empecemos de nuevo!`,
+      waiting: (name) => `${name}, ¡espero tu entrenamiento de hoy!`,
+    },
+    careCta: "Cuidar",
+    visitCta: "Ver",
+    growthLabel: "Crecimiento",
+    hatchIn: (n) => `${n} para eclosionar`,
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Community board (/board)
 // ---------------------------------------------------------------------------
 export interface BoardDict {
@@ -1316,5 +1373,6 @@ export function t(lang: Lang) {
     landing: landing[lang],
     settings: settings[lang],
     games: games[lang],
+    companion: companion[lang],
   };
 }
