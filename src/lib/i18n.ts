@@ -304,6 +304,13 @@ export function metricLabel(metricKey: string, fallback: string, lang: Lang): st
   return METRIC_I18N[metricKey]?.[lang] ?? fallback;
 }
 
+// Roybot coach-tier persona names (shown next to the mascot).
+export const ROYBOT_TIER_LABEL: Record<Lang, Record<"beginner" | "intermediate" | "pro", string>> = {
+  ko: { beginner: "입문 코치", intermediate: "중급 코치", pro: "프로 코치" },
+  en: { beginner: "Beginner Coach", intermediate: "Intermediate Coach", pro: "Pro Coach" },
+  es: { beginner: "Coach Principiante", intermediate: "Coach Intermedio", pro: "Coach Pro" },
+};
+
 export const SPORT_I18N: Record<string, Record<Lang, { name: string; tagline: string }>> = {
   lacrosse: {
     ko: { name: "라크로스", tagline: "스틱 핸들링부터 1대1까지, 단계별 훈련 방식" },

@@ -7,8 +7,9 @@ import DeleteSessionButton from "@/components/DeleteSessionButton";
 import RoybotAvatar from "@/components/RoybotAvatar";
 import { ScoreCard } from "@/components/TrainingScoreCard";
 import { journalOverview, VOLUME_TARGET_MIN, type JournalOverview } from "@/lib/trainingScore";
+import { getRoybotTier } from "@/lib/roybot";
 import { formatDuration } from "@/lib/format";
-import { SPORT_I18N, metricLabel, t, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, ROYBOT_TIER_LABEL, metricLabel, t, type Lang } from "@/lib/i18n";
 import { getSport } from "@/lib/sports";
 import { getLang } from "@/lib/getLang";
 
@@ -52,6 +53,7 @@ export default async function JournalPage() {
   const o = await journalOverview(session.userId);
   const lines = feedbackLines(o, lang);
   const weekAvg = Math.round(o.week.reduce((sum, d) => sum + d.total, 0) / o.week.length);
+  const roybotTier = await getRoybotTier(session.userId);
 
   return (
     <>
@@ -73,9 +75,11 @@ export default async function JournalPage() {
           {/* AI coach (Roybot) feedback bubble */}
           {lines.length > 0 && (
             <div className="flex gap-3">
-              <RoybotAvatar tier="intermediate" className="h-11 w-11 shrink-0" />
+              <RoybotAvatar tier={roybotTier} className="h-11 w-11 shrink-0" />
               <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3">
-                <p className="mb-1 text-xs font-bold text-slate-500">{s.coachName}</p>
+                <p className="mb-1 text-xs font-bold text-slate-500">
+                  {s.coachName} <span className="font-medium text-slate-400">· {ROYBOT_TIER_LABEL[lang][roybotTier]}</span>
+                </p>
                 <ul className="space-y-1 text-sm leading-relaxed text-slate-700">
                   {lines.map((line, i) => (
                     <li key={i}>{line}</li>

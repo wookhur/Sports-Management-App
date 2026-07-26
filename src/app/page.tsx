@@ -15,9 +15,10 @@ import { HomeScoreCard } from "@/components/TrainingScoreCard";
 import { computeBadges, type Badge } from "@/lib/badges";
 import { journalOverview } from "@/lib/trainingScore";
 import { homeEncouragement } from "@/lib/encourage";
+import { getRoybotTier } from "@/lib/roybot";
 import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration, seoulDayKey, weekInSeoul } from "@/lib/format";
-import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, ROYBOT_TIER_LABEL, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -289,6 +290,9 @@ export default async function HomePage({
     ? await prisma.coachAthlete.count({ where: { coachId: session.userId } })
     : 0;
 
+  // Roybot's coach tier auto-advances with the athlete's level/activity.
+  const roybotTier = await getRoybotTier(session.userId);
+
   // AI-coach encouragement banner (streak-aware, e.g. "오 3일째 오셨네요!").
   const cheer = homeEncouragement({
     lang,
@@ -314,11 +318,16 @@ export default async function HomePage({
         </section>
 
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand/15 bg-gradient-to-r from-brand/5 to-indigo-50 px-4 py-3">
-          <RoybotAvatar tier="intermediate" className="h-10 w-10 shrink-0" />
-          <p className="text-sm font-semibold text-slate-700">
-            <span className="mr-1" aria-hidden="true">{cheer.emoji}</span>
-            {cheer.text}
-          </p>
+          <RoybotAvatar tier={roybotTier} className="h-10 w-10 shrink-0" />
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-brand/70">
+              Roybot · {ROYBOT_TIER_LABEL[lang][roybotTier]}
+            </p>
+            <p className="text-sm font-semibold text-slate-700">
+              <span className="mr-1" aria-hidden="true">{cheer.emoji}</span>
+              {cheer.text}
+            </p>
+          </div>
         </div>
 
         {newFeedback > 0 && (
