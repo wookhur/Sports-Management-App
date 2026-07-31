@@ -10,11 +10,28 @@ import { seoulDayKey } from "./format";
 import { squadLoad } from "./loadServer";
 import { dayWindow } from "./load";
 import { shapeRoster, HEATMAP_DAYS, type Roster } from "./roster";
-import { pbSignals, triageSquad, type Triage } from "./triage";
+import { pbSignals, triageSquad, type Triage, type PbInput } from "./triage";
+import { buildReport, type TeamReport } from "./report";
 
 export type { Roster, RosterRow, RosterCell } from "./roster";
 export { HEATMAP_DAYS, cellLevel, shapeRoster } from "./roster";
 export type { Triage, TriageItem, Flag } from "./triage";
+export type { TeamReport } from "./report";
+
+/** Every timed record for these athletes, reduced to Seoul day keys. */
+async function timedRecords(athleteIds: string[]): Promise<PbInput[]> {
+  const rows = await prisma.record.findMany({
+    where: { userId: { in: athleteIds }, durationMs: { not: null } },
+    select: { userId: true, metricKey: true, metricName: true, durationMs: true, createdAt: true },
+  });
+  return rows.map((r) => ({
+    userId: r.userId,
+    metricKey: r.metricKey,
+    metricName: r.metricName,
+    durationMs: r.durationMs!,
+    day: seoulDayKey(r.createdAt),
+  }));
+}
 
 /** Roster + triage in one pass, so the coach page runs the queries only once. */
 export async function buildSquad(coachId: string): Promise<{ roster: Roster; triage: Triage }> {
@@ -25,22 +42,40 @@ export async function buildSquad(coachId: string): Promise<{ roster: Roster; tri
 
   // Personal bests need the full timed history to know what was a PB *at the
   // time*; these are hand-logged rows, so the volume stays small.
-  const records = await prisma.record.findMany({
-    where: { userId: { in: roster.rows.map((r) => r.athleteId) }, durationMs: { not: null } },
-    select: { userId: true, metricKey: true, durationMs: true, createdAt: true },
+  const records = await timedRecords(roster.rows.map((r) => r.athleteId));
+  return { roster, triage: triageSquad(roster.rows, pbSignals(records, seoulDayKey())) };
+}
+
+/** The printable team report for one coach, over the last `weeks` weeks. */
+export async function buildTeamReport(coachId: string, weeks: number): Promise<TeamReport> {
+  const today = seoulDayKey();
+
+  const links = await prisma.coachAthlete.findMany({
+    where: { coachId },
+    select: { athlete: { select: { id: true, name: true } } },
   });
+  const athletes = links.map((l) => l.athlete);
+  if (athletes.length === 0) return buildReport([], [], [], new Map(), today, weeks);
 
-  const signals = pbSignals(
-    records.map((r) => ({
-      userId: r.userId,
-      metricKey: r.metricKey,
-      durationMs: r.durationMs!,
-      day: seoulDayKey(r.createdAt),
-    })),
-    seoulDayKey(),
-  );
+  const ids = athletes.map((a) => a.id);
+  const [sessions, records, latest] = await Promise.all([
+    // Only the reporting period — recency comes from the grouped query below.
+    prisma.trainingSession.findMany({
+      where: { userId: { in: ids }, day: { gte: dayWindow(today, weeks * 7)[0] } },
+      select: { userId: true, day: true, minutes: true, intensity: true },
+    }),
+    timedRecords(ids),
+    prisma.trainingSession.groupBy({
+      by: ["userId"],
+      where: { userId: { in: ids } },
+      _max: { day: true },
+    }),
+  ]);
 
-  return { roster, triage: triageSquad(roster.rows, signals) };
+  const lastActive = new Map<string, string>();
+  for (const l of latest) if (l._max.day) lastActive.set(l.userId, l._max.day);
+
+  return buildReport(athletes, sessions, records, lastActive, today, weeks);
 }
 
 /** The roster for one coach, worst-first. */

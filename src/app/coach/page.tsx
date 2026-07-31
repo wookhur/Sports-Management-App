@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -10,7 +11,7 @@ import ConnectionManager, { type Connection } from "@/components/ConnectionManag
 import AssignmentPanel, { type AssignmentRow } from "@/components/AssignmentPanel";
 import TeamPanel, { type TeamRow } from "@/components/TeamPanel";
 import type { RecordView } from "@/lib/types";
-import type { Lang } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
@@ -146,8 +147,15 @@ export default async function CoachPage() {
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold">{s.title}</h1>
-        <p className="mt-1 text-slate-500">{s.sub}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">{s.title}</h1>
+            <p className="mt-1 text-slate-500">{s.sub}</p>
+          </div>
+          <Link href="/coach/report" className="btn-ghost shrink-0">
+            📄 {t(lang).report.navCta}
+          </Link>
+        </div>
 
         {/* Triage first — it says what to do; the heatmap below shows the shape. */}
         {roster.rows.length > 0 && (

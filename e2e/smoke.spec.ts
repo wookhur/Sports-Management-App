@@ -65,7 +65,7 @@ test("landing page shows for logged-out visitors", async ({ page }) => {
 
 test("coach-only areas load for a coach", async ({ page }) => {
   await login(page, COACH);
-  for (const route of ["/coach", "/admin"]) {
+  for (const route of ["/coach", "/coach/report", "/coach/report?weeks=12", "/admin"]) {
     const res = await page.goto(route, { waitUntil: "domcontentloaded" });
     expect(res?.status(), `${route} status`).toBeLessThan(400);
   }

@@ -35,6 +35,8 @@ export const BREAKTHROUGH_DAYS = 7;
 export interface PbInput {
   userId: string;
   metricKey: string;
+  /** Authored metric name, carried through for display; translated by key. */
+  metricName?: string;
   durationMs: number;
   day: string;
 }
@@ -72,17 +74,28 @@ function daysBetween(from: string, to: string): number {
   return Math.max(0, Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
 }
 
+/** One record that was a personal best at the moment it was set. */
+export interface PbEvent {
+  userId: string;
+  metricKey: string;
+  metricName?: string;
+  durationMs: number;
+  day: string;
+}
+
 /**
  * Walk timed records oldest → newest per athlete, tracking the running best for
  * each metric, so a record knows whether it was a PB at the moment it was set.
  * The first record for a metric counts — a baseline is worth celebrating too.
- * Same rule as the daily training score, so the two never disagree.
+ *
+ * This is the single definition of "personal best" behind the daily training
+ * score, the coach's triage list and the team report, so the three can never
+ * tell an athlete different things about the same swim.
  */
-export function pbSignals(records: PbInput[], today: string): Map<string, PbSignal> {
+export function personalBests(records: PbInput[]): PbEvent[] {
   const sorted = [...records].sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0));
   const bests = new Map<string, number>(); // `${userId}::${metricKey}` → best ms
-  const lastPb = new Map<string, string>();
-  const recent = new Map<string, number>();
+  const events: PbEvent[] = [];
 
   for (const r of sorted) {
     if (!Number.isFinite(r.durationMs) || r.durationMs <= 0) continue;
@@ -90,20 +103,26 @@ export function pbSignals(records: PbInput[], today: string): Map<string, PbSign
     const prev = bests.get(key);
     if (prev != null && r.durationMs >= prev) continue;
     bests.set(key, r.durationMs);
-    lastPb.set(r.userId, r.day);
-    if (daysBetween(r.day, today) < BREAKTHROUGH_DAYS) {
-      recent.set(r.userId, (recent.get(r.userId) ?? 0) + 1);
-    }
-  }
-
-  const out = new Map<string, PbSignal>();
-  for (const userId of new Set(sorted.map((r) => r.userId))) {
-    const day = lastPb.get(userId) ?? null;
-    out.set(userId, {
-      daysSincePb: day ? daysBetween(day, today) : null,
-      recentPbs: recent.get(userId) ?? 0,
-      lastPbDay: day,
+    events.push({
+      userId: r.userId,
+      metricKey: r.metricKey,
+      metricName: r.metricName,
+      durationMs: r.durationMs,
+      day: r.day,
     });
+  }
+  return events;
+}
+
+export function pbSignals(records: PbInput[], today: string): Map<string, PbSignal> {
+  const out = new Map<string, PbSignal>();
+
+  for (const e of personalBests(records)) {
+    const cur = out.get(e.userId) ?? { daysSincePb: null, recentPbs: 0, lastPbDay: null };
+    cur.lastPbDay = e.day; // events arrive oldest-first, so the last write wins
+    cur.daysSincePb = daysBetween(e.day, today);
+    if (daysBetween(e.day, today) < BREAKTHROUGH_DAYS) cur.recentPbs += 1;
+    out.set(e.userId, cur);
   }
   return out;
 }

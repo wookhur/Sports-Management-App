@@ -66,6 +66,20 @@ export function formatDate(input: Date | string, lang: string = "ko"): string {
   return `${month}월 ${day}일 ${period} ${h12}:${mm}`;
 }
 
+/**
+ * A "YYYY-MM-DD" day key rendered as a date, with no time and no timezone
+ * maths — the key is already the Seoul calendar day, so parsing it back into a
+ * Date could only move it. Used by the team report, which is a document about
+ * days rather than moments.
+ */
+export function formatDayKey(dayKey: string, lang: string = "ko"): string {
+  const [y, m, d] = dayKey.split("-").map(Number);
+  if (!y || !m || !d) return dayKey;
+  if (lang === "en") return `${MONTHS_EN[m - 1]} ${d}, ${y}`;
+  if (lang === "es") return `${d} ${MONTHS_ES[m - 1]} ${y}`;
+  return `${y}년 ${m}월 ${d}일`;
+}
+
 /** "YYYY-MM-DD" for a date as seen in Asia/Seoul. Used as the daily-reset key
  *  for missions and the week-calendar day cells. */
 export function seoulDayKey(input: Date | string = new Date()): string {

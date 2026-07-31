@@ -103,3 +103,41 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Print — the team report is meant to leave the app as a PDF, so printing has
+   to produce a clean document rather than a screenshot of the UI: no app
+   chrome, no shadows, and tables that don't get sliced across a page break.
+   --------------------------------------------------------------------------- */
+@media print {
+  /* App chrome (sidebar, buttons, period picker) never belongs on paper. */
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .card {
+    border-color: #e2e8f0;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  .print-break {
+    break-before: page;
+  }
+  tr,
+  li {
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group; /* repeat headers on every page */
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+@page {
+  margin: 14mm;
+}

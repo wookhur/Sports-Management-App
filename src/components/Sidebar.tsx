@@ -261,7 +261,8 @@ export default function Sidebar({ lang, user, pet }: SidebarProps) {
   return (
     <>
       {/* Desktop: permanent left column, sticky for independent scrolling */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+      {/* no-print: app chrome is stripped when the team report is printed. */}
+      <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
         <Link
           href="/"
           className="flex items-center gap-2 border-b border-slate-200 px-5 py-4 transition-colors hover:bg-slate-50"

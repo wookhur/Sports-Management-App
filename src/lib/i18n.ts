@@ -760,6 +760,177 @@ const roster: Record<Lang, RosterDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Squad Intelligence — printable team report
+// ---------------------------------------------------------------------------
+export interface ReportDict {
+  navCta: string;
+  title: string;
+  subtitle: (coach: string) => string;
+  periodLabel: string;
+  periodOption: (weeks: number) => string;
+  generated: (date: string) => string;
+  print: string;
+  back: string;
+  statSquad: string;
+  statActive: (n: number) => string;
+  unitHours: (h: string) => string;
+  statSessions: string;
+  statHours: string;
+  statAttendance: string;
+  statPbs: string;
+  participation: string;
+  participationHint: string;
+  colAthlete: string;
+  colSessions: string;
+  colHours: string;
+  colDays: string;
+  colAttendance: string;
+  colRpe: string;
+  colPbs: string;
+  noSessions: string;
+  highlights: string;
+  highlightsHint: string;
+  noHighlights: string;
+  watch: string;
+  watchHint: string;
+  noWatch: string;
+  watchKind: Record<string, string>;
+  watchReason: {
+    loadJump: (ratio: number) => string;
+    inactive: (days: number | null) => string;
+  };
+  empty: string;
+  footer: string;
+}
+
+const report: Record<Lang, ReportDict> = {
+  ko: {
+    navCta: "팀 리포트",
+    title: "팀 훈련 리포트",
+    subtitle: (coach) => `${coach} 지도`,
+    periodLabel: "기간",
+    periodOption: (w) => `최근 ${w}주`,
+    generated: (d) => `${d} 생성`,
+    print: "인쇄 · PDF 저장",
+    back: "대시보드로",
+    statSquad: "등록 선수",
+    statActive: (n) => `이 중 ${n}명이 기간 내 훈련`,
+    unitHours: (h) => `${h}시간`,
+    statSessions: "총 훈련 횟수",
+    statHours: "총 훈련 시간",
+    statAttendance: "평균 참여율",
+    statPbs: "개인 기록 갱신",
+    participation: "선수별 참여 현황",
+    participationHint: "선수들이 직접 남긴 훈련 일지에서 집계했어요. 순위가 아니라 기록입니다.",
+    colAthlete: "선수",
+    colSessions: "훈련 횟수",
+    colHours: "시간",
+    colDays: "훈련일",
+    colAttendance: "참여율",
+    colRpe: "평균 강도",
+    colPbs: "기록 갱신",
+    noSessions: "기간 내 기록 없음",
+    highlights: "이번 기간의 성취",
+    highlightsHint: "기간 안에 개인 최고 기록을 새로 세운 순간들이에요.",
+    noHighlights: "이번 기간에는 새로 갱신된 개인 기록이 없어요.",
+    watch: "코치 관찰 사항",
+    watchHint: "지도 참고용 관찰 기록이에요. 의학적 판단이 아닙니다.",
+    noWatch: "특별히 언급할 사항이 없어요.",
+    watchKind: { loadJump: "훈련량 증가", inactive: "훈련 공백" },
+    watchReason: {
+      loadJump: (ratio) => `기간 후반 훈련량이 전반의 ${ratio.toFixed(1)}배로 늘었어요.`,
+      inactive: (days) => (days == null ? "기간 내 훈련 기록이 없어요." : `${days}일간 훈련 기록이 없어요.`),
+    },
+    empty: "아직 연결된 선수가 없어 리포트를 만들 수 없어요.",
+    footer:
+      "이 리포트는 선수들이 직접 입력한 훈련 기록으로 자동 생성됐습니다. 참여 지표이며 건강 상태에 대한 진단이 아닙니다.",
+  },
+  en: {
+    navCta: "Team report",
+    title: "Team training report",
+    subtitle: (coach) => `Coached by ${coach}`,
+    periodLabel: "Period",
+    periodOption: (w) => `Last ${w} weeks`,
+    generated: (d) => `Generated ${d}`,
+    print: "Print · Save as PDF",
+    back: "Back to dashboard",
+    statSquad: "Athletes",
+    statActive: (n) => `${n} trained in this period`,
+    unitHours: (h) => `${h} h`,
+    statSessions: "Total sessions",
+    statHours: "Total hours",
+    statAttendance: "Avg. participation",
+    statPbs: "Personal bests",
+    participation: "Participation by athlete",
+    participationHint: "Compiled from the training journals athletes fill in themselves. A record, not a ranking.",
+    colAthlete: "Athlete",
+    colSessions: "Sessions",
+    colHours: "Hours",
+    colDays: "Days",
+    colAttendance: "Participation",
+    colRpe: "Avg. effort",
+    colPbs: "Bests",
+    noSessions: "No sessions in period",
+    highlights: "Highlights this period",
+    highlightsHint: "Moments an athlete beat their own previous best inside the period.",
+    noHighlights: "No new personal bests were set in this period.",
+    watch: "Coach's observations",
+    watchHint: "Coaching notes, not medical judgements.",
+    noWatch: "Nothing in particular to flag.",
+    watchKind: { loadJump: "Training increased", inactive: "Gap in training" },
+    watchReason: {
+      loadJump: (ratio) => `Training in the second half was ${ratio.toFixed(1)}× the first half.`,
+      inactive: (days) => (days == null ? "No sessions logged in this period." : `No sessions logged for ${days} days.`),
+    },
+    empty: "No athletes are connected yet, so there is nothing to report on.",
+    footer:
+      "Generated automatically from training logs the athletes enter themselves. These are participation measures, not a diagnosis of anyone's health.",
+  },
+  es: {
+    navCta: "Informe del equipo",
+    title: "Informe de entrenamiento del equipo",
+    subtitle: (coach) => `Dirigido por ${coach}`,
+    periodLabel: "Periodo",
+    periodOption: (w) => `Últimas ${w} semanas`,
+    generated: (d) => `Generado el ${d}`,
+    print: "Imprimir · Guardar en PDF",
+    back: "Volver al panel",
+    statSquad: "Atletas",
+    statActive: (n) => `${n} entrenaron en el periodo`,
+    unitHours: (h) => `${h} h`,
+    statSessions: "Sesiones totales",
+    statHours: "Horas totales",
+    statAttendance: "Participación media",
+    statPbs: "Marcas personales",
+    participation: "Participación por atleta",
+    participationHint: "Recopilado de los diarios que los propios atletas rellenan. Es un registro, no una clasificación.",
+    colAthlete: "Atleta",
+    colSessions: "Sesiones",
+    colHours: "Horas",
+    colDays: "Días",
+    colAttendance: "Participación",
+    colRpe: "Esfuerzo medio",
+    colPbs: "Marcas",
+    noSessions: "Sin sesiones en el periodo",
+    highlights: "Logros del periodo",
+    highlightsHint: "Momentos en que un atleta superó su propia marca anterior dentro del periodo.",
+    noHighlights: "No se lograron marcas personales nuevas en este periodo.",
+    watch: "Observaciones del entrenador",
+    watchHint: "Notas de entrenamiento, no valoraciones médicas.",
+    noWatch: "Nada en particular que señalar.",
+    watchKind: { loadJump: "Entrenamiento en aumento", inactive: "Pausa en el entrenamiento" },
+    watchReason: {
+      loadJump: (ratio) => `El entrenamiento de la segunda mitad fue ${ratio.toFixed(1)}× el de la primera.`,
+      inactive: (days) =>
+        days == null ? "Sin sesiones registradas en este periodo." : `Sin sesiones registradas desde hace ${days} días.`,
+    },
+    empty: "Aún no hay atletas conectados, así que no hay nada que informar.",
+    footer:
+      "Generado automáticamente a partir de los registros que introducen los propios atletas. Son medidas de participación, no un diagnóstico de la salud de nadie.",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Squad Intelligence — auto-triage list
 // ---------------------------------------------------------------------------
 export interface TriageDict {
@@ -1651,6 +1822,7 @@ export function t(lang: Lang) {
     load: load[lang],
     roster: roster[lang],
     triage: triage[lang],
+    report: report[lang],
   };
 }
 
