@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
+import RosterHeatmap from "@/components/RosterHeatmap";
+import { buildRoster } from "@/lib/squad";
 import RecordList from "@/components/RecordList";
 import ConnectionManager, { type Connection } from "@/components/ConnectionManager";
 import AssignmentPanel, { type AssignmentRow } from "@/components/AssignmentPanel";
@@ -64,6 +66,8 @@ export default async function CoachPage() {
 
   const lang = await getLang();
   const s = L[lang];
+
+  const roster = await buildRoster(session.userId);
 
   const links = await prisma.coachAthlete.findMany({
     where: { coachId: session.userId },
@@ -143,6 +147,10 @@ export default async function CoachPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="text-2xl font-bold">{s.title}</h1>
         <p className="mt-1 text-slate-500">{s.sub}</p>
+
+        <div className="mt-6">
+          <RosterHeatmap lang={lang} roster={roster} />
+        </div>
 
         {/* Summary */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">

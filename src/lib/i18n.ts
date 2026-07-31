@@ -677,6 +677,97 @@ const load: Record<Lang, LoadDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Squad Intelligence — coach roster heatmap
+// ---------------------------------------------------------------------------
+export interface RosterDict {
+  title: string;
+  subtitle: string;
+  empty: string;
+  emptyHint: string;
+  athlete: string;
+  last14: string;
+  status: string;
+  weekLoad: string;
+  legendLess: string;
+  legendMore: string;
+  needsAttention: (n: number) => string;
+  allClear: string;
+  today: string;
+  activeToday: string;
+  daysAgo: (n: number) => string;
+  neverLogged: string;
+  sessionsIn14: (n: number) => string;
+  streak: (n: number) => string;
+  disclaimer: string;
+}
+
+const roster: Record<Lang, RosterDict> = {
+  ko: {
+    title: "스쿼드 현황",
+    subtitle: "선수들이 남긴 기록으로 자동 계산돼요. 살펴볼 선수가 위로 올라옵니다.",
+    empty: "연결된 선수가 없어요.",
+    emptyHint: "아래에서 선수를 연결하면 여기에 현황이 표시돼요.",
+    athlete: "선수",
+    last14: "최근 14일",
+    status: "상태",
+    weekLoad: "주간 부하",
+    legendLess: "적음",
+    legendMore: "많음",
+    needsAttention: (n) => `살펴볼 선수 ${n}명`,
+    allClear: "특별히 걱정할 선수는 없어요 👍",
+    today: "오늘",
+    activeToday: "오늘 훈련",
+    daysAgo: (n) => `${n}일 전`,
+    neverLogged: "기록 없음",
+    sessionsIn14: (n) => `14일 중 ${n}일`,
+    streak: (n) => `연속 ${n}일`,
+    disclaimer: "참고용 지표예요. 통증이나 컨디션은 선수에게 직접 확인해주세요.",
+  },
+  en: {
+    title: "Squad status",
+    subtitle: "Computed from what your athletes log. Whoever needs a look rises to the top.",
+    empty: "No athletes connected yet.",
+    emptyHint: "Connect an athlete below and their status appears here.",
+    athlete: "Athlete",
+    last14: "Last 14 days",
+    status: "Status",
+    weekLoad: "Week load",
+    legendLess: "Less",
+    legendMore: "More",
+    needsAttention: (n) => `${n} to look at`,
+    allClear: "Nobody needs a closer look right now 👍",
+    today: "Today",
+    activeToday: "Trained today",
+    daysAgo: (n) => `${n}d ago`,
+    neverLogged: "No logs",
+    sessionsIn14: (n) => `${n} of 14 days`,
+    streak: (n) => `${n}-day streak`,
+    disclaimer: "A guide, not a diagnosis. Ask your athletes how they actually feel.",
+  },
+  es: {
+    title: "Estado del equipo",
+    subtitle: "Calculado con lo que registran tus atletas. Quien necesita atención sube arriba.",
+    empty: "Aún no hay atletas conectados.",
+    emptyHint: "Conecta a un atleta abajo y su estado aparecerá aquí.",
+    athlete: "Atleta",
+    last14: "Últimos 14 días",
+    status: "Estado",
+    weekLoad: "Carga semanal",
+    legendLess: "Menos",
+    legendMore: "Más",
+    needsAttention: (n) => `${n} para revisar`,
+    allClear: "Nadie necesita revisión ahora mismo 👍",
+    today: "Hoy",
+    activeToday: "Entrenó hoy",
+    daysAgo: (n) => `hace ${n} d`,
+    neverLogged: "Sin registros",
+    sessionsIn14: (n) => `${n} de 14 días`,
+    streak: (n) => `racha de ${n} días`,
+    disclaimer: "Una guía, no un diagnóstico. Pregunta a tus atletas cómo se sienten.",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Companion (the pet as an app-wide buddy)
 // ---------------------------------------------------------------------------
 export interface CompanionDict {
@@ -1448,6 +1539,7 @@ export function t(lang: Lang) {
     games: games[lang],
     companion: companion[lang],
     load: load[lang],
+    roster: roster[lang],
   };
 }
 
