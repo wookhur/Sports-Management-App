@@ -8,6 +8,8 @@ import RoybotAvatar from "@/components/RoybotAvatar";
 import { ScoreCard } from "@/components/TrainingScoreCard";
 import { journalOverview, VOLUME_TARGET_MIN, type JournalOverview } from "@/lib/trainingScore";
 import { getRoybotTier } from "@/lib/roybot";
+import { athleteLoad } from "@/lib/loadServer";
+import LoadCard from "@/components/LoadCard";
 import { formatDuration } from "@/lib/format";
 import { SPORT_I18N, ROYBOT_TIER_LABEL, metricLabel, t, type Lang } from "@/lib/i18n";
 import { getSport } from "@/lib/sports";
@@ -54,6 +56,7 @@ export default async function JournalPage() {
   const lines = feedbackLines(o, lang);
   const weekAvg = Math.round(o.week.reduce((sum, d) => sum + d.total, 0) / o.week.length);
   const roybotTier = await getRoybotTier(session.userId);
+  const load = await athleteLoad(session.userId);
 
   return (
     <>
@@ -71,6 +74,8 @@ export default async function JournalPage() {
             yesterdayTotal={o.yesterdayTotal}
             warnings={o.warnings}
           />
+
+          <LoadCard lang={lang} summary={load} />
 
           {/* AI coach (Roybot) feedback bubble */}
           {lines.length > 0 && (

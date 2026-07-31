@@ -604,6 +604,79 @@ const missions: Record<Lang, MissionsDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Training load (ACWR) — shown to athletes, and later to coaches per squad
+// ---------------------------------------------------------------------------
+export interface LoadDict {
+  title: string;
+  weekLoad: string;
+  vsUsual: string;
+  ratio: string;
+  building: string;
+  buildingHint: string;
+  zone: Record<string, string>;
+  zoneHint: Record<string, string>;
+  disclaimer: string;
+  activeDays: (n: number, total: number) => string;
+}
+
+const load: Record<Lang, LoadDict> = {
+  ko: {
+    title: "훈련 부하",
+    weekLoad: "이번 주 부하",
+    vsUsual: "평소 대비",
+    ratio: "부하 비율",
+    building: "기준 만드는 중",
+    buildingHint: "2주 이상 기록하면 평소 부하와 비교해드려요.",
+    zone: { detraining: "여유", optimal: "안정", caution: "주의", high: "급증", unknown: "—" },
+    zoneHint: {
+      detraining: "평소보다 훈련량이 적어요. 조금 더 쌓아도 좋아요.",
+      optimal: "좋은 구간이에요. 이 흐름을 유지해보세요.",
+      caution: "훈련량이 빠르게 늘었어요. 회복을 챙기세요.",
+      high: "평소보다 훨씬 많이 했어요. 며칠은 강도를 낮춰보세요.",
+      unknown: "",
+    },
+    disclaimer: "참고용 지표예요. 몸에 통증이 있으면 지표와 관계없이 쉬어가세요.",
+    activeDays: (n, total) => `최근 ${total}일 중 ${n}일 훈련`,
+  },
+  en: {
+    title: "Training load",
+    weekLoad: "This week",
+    vsUsual: "vs usual",
+    ratio: "Load ratio",
+    building: "Building baseline",
+    buildingHint: "Log for two weeks and we can compare against your usual load.",
+    zone: { detraining: "Light", optimal: "Steady", caution: "Watch", high: "Spike", unknown: "—" },
+    zoneHint: {
+      detraining: "Lighter than usual — there's room to build.",
+      optimal: "A good place to be. Keep this rhythm.",
+      caution: "Your load climbed quickly. Prioritise recovery.",
+      high: "Well above your usual. Ease off for a few days.",
+      unknown: "",
+    },
+    disclaimer: "A guide, not a diagnosis. If something hurts, rest regardless of the number.",
+    activeDays: (n, total) => `Trained ${n} of the last ${total} days`,
+  },
+  es: {
+    title: "Carga de entrenamiento",
+    weekLoad: "Esta semana",
+    vsUsual: "vs. lo habitual",
+    ratio: "Ratio de carga",
+    building: "Creando tu base",
+    buildingHint: "Registra dos semanas y podremos compararlo con tu carga habitual.",
+    zone: { detraining: "Suave", optimal: "Estable", caution: "Ojo", high: "Pico", unknown: "—" },
+    zoneHint: {
+      detraining: "Más suave de lo habitual: hay margen para subir.",
+      optimal: "Buen punto. Mantén este ritmo.",
+      caution: "Tu carga subió rápido. Prioriza la recuperación.",
+      high: "Muy por encima de lo habitual. Baja el ritmo unos días.",
+      unknown: "",
+    },
+    disclaimer: "Es una guía, no un diagnóstico. Si algo duele, descansa igualmente.",
+    activeDays: (n, total) => `Entrenaste ${n} de los últimos ${total} días`,
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Companion (the pet as an app-wide buddy)
 // ---------------------------------------------------------------------------
 export interface CompanionDict {
@@ -1374,6 +1447,7 @@ export function t(lang: Lang) {
     settings: settings[lang],
     games: games[lang],
     companion: companion[lang],
+    load: load[lang],
   };
 }
 
