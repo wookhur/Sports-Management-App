@@ -10,9 +10,38 @@ import { seoulDayKey } from "./format";
 import { squadLoad } from "./loadServer";
 import { dayWindow } from "./load";
 import { shapeRoster, HEATMAP_DAYS, type Roster } from "./roster";
+import { pbSignals, triageSquad, type Triage } from "./triage";
 
 export type { Roster, RosterRow, RosterCell } from "./roster";
 export { HEATMAP_DAYS, cellLevel, shapeRoster } from "./roster";
+export type { Triage, TriageItem, Flag } from "./triage";
+
+/** Roster + triage in one pass, so the coach page runs the queries only once. */
+export async function buildSquad(coachId: string): Promise<{ roster: Roster; triage: Triage }> {
+  const roster = await buildRoster(coachId);
+  if (roster.rows.length === 0) {
+    return { roster, triage: { items: [], counts: { injuryRisk: 0, disengaged: 0, plateau: 0, breakthrough: 0 }, actionable: 0 } };
+  }
+
+  // Personal bests need the full timed history to know what was a PB *at the
+  // time*; these are hand-logged rows, so the volume stays small.
+  const records = await prisma.record.findMany({
+    where: { userId: { in: roster.rows.map((r) => r.athleteId) }, durationMs: { not: null } },
+    select: { userId: true, metricKey: true, durationMs: true, createdAt: true },
+  });
+
+  const signals = pbSignals(
+    records.map((r) => ({
+      userId: r.userId,
+      metricKey: r.metricKey,
+      durationMs: r.durationMs!,
+      day: seoulDayKey(r.createdAt),
+    })),
+    seoulDayKey(),
+  );
+
+  return { roster, triage: triageSquad(roster.rows, signals) };
+}
 
 /** The roster for one coach, worst-first. */
 export async function buildRoster(coachId: string): Promise<Roster> {

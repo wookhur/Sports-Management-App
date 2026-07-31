@@ -15,11 +15,15 @@ import { PrismaClient } from "@prisma/client";
 const INITIAL_MIGRATION = "0_init";
 const prisma = new PrismaClient();
 
+// pg_class rather than information_schema: the latter only lists tables the
+// connecting role holds privileges on, so a table owned by someone else reads
+// as "absent" and we would wrongly treat a populated database as empty.
 async function tableExists(name: string): Promise<boolean> {
   const rows = await prisma.$queryRaw<{ present: boolean }[]>`
     SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = ${name}
+      SELECT 1 FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = ${name} AND c.relkind IN ('r', 'p')
     ) AS present
   `;
   return rows[0]?.present === true;

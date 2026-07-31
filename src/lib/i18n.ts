@@ -690,8 +690,6 @@ export interface RosterDict {
   weekLoad: string;
   legendLess: string;
   legendMore: string;
-  needsAttention: (n: number) => string;
-  allClear: string;
   today: string;
   activeToday: string;
   daysAgo: (n: number) => string;
@@ -713,8 +711,6 @@ const roster: Record<Lang, RosterDict> = {
     weekLoad: "주간 부하",
     legendLess: "적음",
     legendMore: "많음",
-    needsAttention: (n) => `살펴볼 선수 ${n}명`,
-    allClear: "특별히 걱정할 선수는 없어요 👍",
     today: "오늘",
     activeToday: "오늘 훈련",
     daysAgo: (n) => `${n}일 전`,
@@ -734,8 +730,6 @@ const roster: Record<Lang, RosterDict> = {
     weekLoad: "Week load",
     legendLess: "Less",
     legendMore: "More",
-    needsAttention: (n) => `${n} to look at`,
-    allClear: "Nobody needs a closer look right now 👍",
     today: "Today",
     activeToday: "Trained today",
     daysAgo: (n) => `${n}d ago`,
@@ -755,8 +749,6 @@ const roster: Record<Lang, RosterDict> = {
     weekLoad: "Carga semanal",
     legendLess: "Menos",
     legendMore: "Más",
-    needsAttention: (n) => `${n} para revisar`,
-    allClear: "Nadie necesita revisión ahora mismo 👍",
     today: "Hoy",
     activeToday: "Entrenó hoy",
     daysAgo: (n) => `hace ${n} d`,
@@ -764,6 +756,124 @@ const roster: Record<Lang, RosterDict> = {
     sessionsIn14: (n) => `${n} de 14 días`,
     streak: (n) => `racha de ${n} días`,
     disclaimer: "Una guía, no un diagnóstico. Pregunta a tus atletas cómo se sienten.",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Squad Intelligence — auto-triage list
+// ---------------------------------------------------------------------------
+export interface TriageDict {
+  title: string;
+  subtitle: string;
+  clear: string;
+  clearHint: string;
+  actionable: (n: number) => string;
+  goodNews: (n: number) => string;
+  label: Record<string, string>;
+  /** Why this athlete is in the list. */
+  reason: {
+    injuryRisk: (acwr: number | null) => string;
+    disengaged: (days: number | null) => string;
+    plateau: (days: number, sessions: number) => string;
+    breakthrough: (pbs: number) => string;
+  };
+  /** What the coach might do about it. */
+  action: Record<string, string>;
+  disclaimer: string;
+}
+
+const triage: Record<Lang, TriageDict> = {
+  ko: {
+    title: "오늘 확인할 선수",
+    subtitle: "선수들의 기록에서 자동으로 뽑았어요. 이유와 다음 행동까지 함께 봅니다.",
+    clear: "지금 조치가 필요한 선수는 없어요 ✅",
+    clearHint: "부하가 급증하거나 기록이 끊기면 여기에 바로 뜹니다.",
+    actionable: (n) => `조치 필요 ${n}명`,
+    goodNews: (n) => `좋은 소식 ${n}건`,
+    label: {
+      injuryRisk: "부상 위험",
+      disengaged: "이탈",
+      plateau: "정체",
+      breakthrough: "돌파",
+    },
+    reason: {
+      injuryRisk: (acwr) =>
+        acwr == null
+          ? "최근 훈련량이 평소보다 크게 늘었어요."
+          : `최근 7일 훈련량이 평소의 ${acwr.toFixed(2)}배예요.`,
+      disengaged: (days) => (days == null ? "아직 기록을 남긴 적이 없어요." : `${days}일째 기록이 없어요.`),
+      plateau: (days, sessions) => `14일 중 ${sessions}일 훈련했지만 개인 기록은 ${days}일째 그대로예요.`,
+      breakthrough: (pbs) => `이번 주에 개인 기록을 ${pbs}회 갱신했어요.`,
+    },
+    action: {
+      injuryRisk: "며칠 강도를 낮추고 통증이 있는지 직접 물어보세요.",
+      disengaged: "가볍게 안부를 물어보세요. 부담 없는 과제 하나면 충분해요.",
+      plateau: "훈련 자극을 바꾸거나 타임 트라이얼로 목표를 다시 잡아주세요.",
+      breakthrough: "바로 칭찬해주세요. 지금이 가장 크게 남는 순간이에요.",
+    },
+    disclaimer: "참고용이에요. 진단이 아니며, 컨디션은 선수에게 직접 확인해주세요.",
+  },
+  en: {
+    title: "Who to check on today",
+    subtitle: "Pulled automatically from what your athletes log — with the reason and a next step.",
+    clear: "Nobody needs action right now ✅",
+    clearHint: "A load spike or a run of missed logs shows up here straight away.",
+    actionable: (n) => `${n} need action`,
+    goodNews: (n) => `${n} good news`,
+    label: {
+      injuryRisk: "Injury risk",
+      disengaged: "Dropping off",
+      plateau: "Plateau",
+      breakthrough: "Breakthrough",
+    },
+    reason: {
+      injuryRisk: (acwr) =>
+        acwr == null
+          ? "Their training load climbed well past their usual."
+          : `The last 7 days are ${acwr.toFixed(2)}× their usual load.`,
+      disengaged: (days) => (days == null ? "They have never logged anything." : `No logs for ${days} days.`),
+      plateau: (days, sessions) =>
+        `Trained ${sessions} of the last 14 days, but no personal best in ${days} days.`,
+      breakthrough: (pbs) => `Set ${pbs} personal best${pbs === 1 ? "" : "s"} this week.`,
+    },
+    action: {
+      injuryRisk: "Ease the intensity for a few days and ask them directly about any pain.",
+      disengaged: "Check in. One low-pressure assignment is usually enough.",
+      plateau: "Change the stimulus, or set a time trial to reset the target.",
+      breakthrough: "Say something now — this is when praise lands hardest.",
+    },
+    disclaimer: "A guide, not a diagnosis. Always ask your athletes how they actually feel.",
+  },
+  es: {
+    title: "A quién revisar hoy",
+    subtitle: "Extraído automáticamente de lo que registran tus atletas, con el motivo y el siguiente paso.",
+    clear: "Nadie necesita acción ahora mismo ✅",
+    clearHint: "Un pico de carga o registros que se cortan aparecen aquí al instante.",
+    actionable: (n) => `${n} requieren acción`,
+    goodNews: (n) => `${n} buenas noticias`,
+    label: {
+      injuryRisk: "Riesgo de lesión",
+      disengaged: "Se está alejando",
+      plateau: "Estancamiento",
+      breakthrough: "Avance",
+    },
+    reason: {
+      injuryRisk: (acwr) =>
+        acwr == null
+          ? "Su carga de entrenamiento subió muy por encima de lo habitual."
+          : `Los últimos 7 días son ${acwr.toFixed(2)}× su carga habitual.`,
+      disengaged: (days) => (days == null ? "Nunca ha registrado nada." : `Sin registros desde hace ${days} días.`),
+      plateau: (days, sessions) =>
+        `Entrenó ${sessions} de los últimos 14 días, pero sin marca personal desde hace ${days} días.`,
+      breakthrough: (pbs) => `Logró ${pbs} marca${pbs === 1 ? "" : "s"} personal${pbs === 1 ? "" : "es"} esta semana.`,
+    },
+    action: {
+      injuryRisk: "Baja la intensidad unos días y pregúntale directamente si le duele algo.",
+      disengaged: "Escríbele. Una tarea sencilla suele bastar.",
+      plateau: "Cambia el estímulo o pon una prueba cronometrada para fijar un objetivo nuevo.",
+      breakthrough: "Felicítale ahora: es cuando más cala el reconocimiento.",
+    },
+    disclaimer: "Es una guía, no un diagnóstico. Pregunta siempre cómo se sienten tus atletas.",
   },
 };
 
@@ -1540,6 +1650,7 @@ export function t(lang: Lang) {
     companion: companion[lang],
     load: load[lang],
     roster: roster[lang],
+    triage: triage[lang],
   };
 }
 

@@ -1,5 +1,4 @@
-import Link from "next/link";
-import type { Roster, RosterRow } from "@/lib/roster";
+import type { Roster } from "@/lib/roster";
 import { t, type Lang } from "@/lib/i18n";
 
 // GitHub-contribution-style shading: empty → busiest day in the squad.
@@ -19,15 +18,9 @@ const ZONE_CHIP: Record<string, string> = {
   unknown: "bg-slate-100 text-slate-400",
 };
 
-/** True when this athlete is one the coach should actually look at today. */
-function needsAttention(r: RosterRow): boolean {
-  return r.zone === "high" || r.zone === "caution" || r.daysSinceActive == null || r.daysSinceActive >= 3;
-}
-
 export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Roster }) {
   const s = t(lang).roster;
   const load = t(lang).load;
-  const flagged = roster.rows.filter(needsAttention).length;
 
   if (roster.rows.length === 0) {
     return (
@@ -41,18 +34,11 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
 
   return (
     <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-100 px-5 py-4">
-        <div>
-          <h2 className="text-lg font-bold">📊 {s.title}</h2>
-          <p className="mt-0.5 text-sm text-slate-500">{s.subtitle}</p>
-        </div>
-        <span
-          className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
-            flagged > 0 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"
-          }`}
-        >
-          {flagged > 0 ? s.needsAttention(flagged) : s.allClear}
-        </span>
+      {/* No "needs attention" count here — the triage list above owns that
+          judgement, and two counts on one screen would eventually disagree. */}
+      <div className="border-b border-slate-100 px-5 py-4">
+        <h2 className="text-lg font-bold">📊 {s.title}</h2>
+        <p className="mt-0.5 text-sm text-slate-500">{s.subtitle}</p>
       </div>
 
       {/* Column headings */}
