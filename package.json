@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "netlify:build": "prisma generate && prisma db push --accept-data-loss && tsx prisma/seed.ts && next build",
+    "netlify:build": "prisma generate && tsx prisma/baseline.ts && prisma migrate deploy && tsx prisma/seed.ts && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:baseline": "tsx prisma/baseline.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
