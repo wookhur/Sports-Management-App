@@ -5,7 +5,8 @@ import NavBar from "@/components/NavBar";
 import LacrosseProgramView from "@/components/LacrosseProgramView";
 import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
-import { soccerProgram, PHASE_KO } from "@/lib/soccerProgram";
+import { soccerProgram, PHASE_I18N, SESSION_I18N } from "@/lib/soccerProgram";
+import { L as loc } from "@/lib/localized";
 
 const L: Record<
   Lang,
@@ -91,13 +92,13 @@ export default async function ProgramPage({
           {soccerProgram.sessions.map((session) => (
             <section key={session.title}>
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-lg font-bold">{session.title}</h2>
+                <h2 className="text-lg font-bold">{loc(SESSION_I18N[session.title] ?? session.title, lang)}</h2>
                 <span className="badge bg-slate-100 text-slate-500">{s.sessionPlan}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
                 {session.phases.map((phase, i) => (
                   <div key={phase.name} className={`rounded-2xl border p-4 ${phaseColors[i % phaseColors.length]}`}>
-                    <p className="text-sm font-bold text-slate-800">{PHASE_KO[phase.name] ?? phase.name}</p>
+                    <p className="text-sm font-bold text-slate-800">{loc(PHASE_I18N[phase.name] ?? phase.name, lang)}</p>
                     {phase.time && <p className="text-xs font-medium text-slate-500">{phase.time}</p>}
                     <ul className="mt-2 space-y-1">
                       {phase.items.map((item, j) => (

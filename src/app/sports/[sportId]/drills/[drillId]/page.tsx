@@ -6,6 +6,7 @@ import DrillDiagram from "@/components/DrillDiagram";
 import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
 import { getDrill, ageLabel } from "@/lib/soccerDrills";
+import { L as loc } from "@/lib/localized";
 
 const L: Record<
   Lang,
@@ -83,17 +84,17 @@ export default async function DrillDetailPage({
 
         <header className="mt-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="badge bg-indigo-50 text-indigo-600">{drill.category}</span>
+            <span className="badge bg-indigo-50 text-indigo-600">{loc(drill.category, lang)}</span>
             {drill.ageLevels.map((a) => (
               <span key={a} className="badge bg-slate-100 text-slate-500">
-                {ageLabel(a)}
+                {ageLabel(a, lang)}
               </span>
             ))}
             <span className="badge bg-slate-100 text-slate-500">⏱ {s.minutes(drill.durationMin)}</span>
           </div>
-          <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{drill.title}</h1>
-          <p className="mt-2 text-slate-600">{drill.summary}</p>
-          <p className="mt-1 text-sm text-slate-400">👥 {drill.players}</p>
+          <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{loc(drill.title, lang)}</h1>
+          <p className="mt-2 text-slate-600">{loc(drill.summary, lang)}</p>
+          <p className="mt-1 text-sm text-slate-400">👥 {loc(drill.players, lang)}</p>
         </header>
 
         {/* Diagram */}
@@ -122,7 +123,7 @@ export default async function DrillDetailPage({
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 font-bold text-white">
                   {i + 1}
                 </span>
-                <p className="pt-1 text-sm text-slate-700">{s}</p>
+                <p className="pt-1 text-sm text-slate-700">{loc(s, lang)}</p>
               </li>
             ))}
           </ol>
@@ -136,7 +137,7 @@ export default async function DrillDetailPage({
               {drill.coaching.map((c, i) => (
                 <li key={i} className="flex gap-2">
                   <span>·</span>
-                  <span>{c}</span>
+                  <span>{loc(c, lang)}</span>
                 </li>
               ))}
             </ul>

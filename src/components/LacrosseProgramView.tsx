@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
+import { L as loc, type Localized } from "@/lib/localized";
 import {
   LAX_META,
   LAX_PRINCIPLES,
@@ -187,9 +188,9 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       </Link>
 
       <header className="mt-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-white">
-        <p className="text-sm text-white/80">🥍 {LAX_META.season}</p>
-        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{LAX_META.title}</h1>
-        <p className="mt-1 text-white/85">{LAX_META.subtitle}</p>
+        <p className="text-sm text-white/80">🥍 {loc(LAX_META.season, lang)}</p>
+        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{loc(LAX_META.title, lang)}</h1>
+        <p className="mt-1 text-white/85">{loc(LAX_META.subtitle, lang)}</p>
       </header>
 
       {/* Jump nav */}
@@ -210,23 +211,23 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       {/* 1. Philosophy */}
       <Section id="philosophy" title={s.secPhilosophy}>
         <blockquote className="rounded-xl border-l-4 border-emerald-400 bg-emerald-50 px-4 py-3 text-sm italic text-emerald-900">
-          “{LAX_QUOTE.text}” <span className="not-italic text-emerald-700">— {LAX_QUOTE.by}</span>
+          “{loc(LAX_QUOTE.text, lang)}” <span className="not-italic text-emerald-700">— {loc(LAX_QUOTE.by, lang)}</span>
         </blockquote>
-        <ItemList items={LAX_PRINCIPLES} className="mt-4" />
+        <ItemList items={LAX_PRINCIPLES} lang={lang} className="mt-4" />
       </Section>
 
       {/* 2. Warm-up */}
       <Section id="warmup" title={s.secWarmup}>
         <p className="mb-4 text-sm text-slate-500">{s.rampNote}</p>
         <div className="space-y-4">
-          {LAX_WARMUP.map((ph) => (
-            <div key={ph.title} className="card p-5">
+          {LAX_WARMUP.map((ph, phi) => (
+            <div key={phi} className="card p-5">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold">{ph.title}</h3>
-                <span className="badge bg-emerald-50 text-emerald-600">{ph.time}</span>
+                <h3 className="font-bold">{loc(ph.title, lang)}</h3>
+                <span className="badge bg-emerald-50 text-emerald-600">{loc(ph.time, lang)}</span>
               </div>
-              <ItemList items={ph.items} className="mt-3" />
-              {ph.source && <p className="mt-3 text-xs text-slate-400">{s.source} {ph.source}</p>}
+              <ItemList items={ph.items} lang={lang} className="mt-3" />
+              {ph.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(ph.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -236,11 +237,11 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       <Section id="stick" title={s.secStick}>
         <p className="mb-4 text-sm text-slate-500">{s.stickNote}</p>
         <div className="space-y-4">
-          {LAX_STICK.map((g) => (
-            <div key={g.group} className="card p-5">
-              <h3 className="font-bold">{g.group}</h3>
-              <ItemList items={g.items} className="mt-3" />
-              {g.source && <p className="mt-3 text-xs text-slate-400">{s.source} {g.source}</p>}
+          {LAX_STICK.map((g, gi) => (
+            <div key={gi} className="card p-5">
+              <h3 className="font-bold">{loc(g.group, lang)}</h3>
+              <ItemList items={g.items} lang={lang} className="mt-3" />
+              {g.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(g.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -248,19 +249,19 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
 
       {/* 4. Conditioning */}
       <Section id="conditioning" title={s.secConditioning}>
-        <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{LAX_CONDITIONING_NOTE}</p>
+        <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{loc(LAX_CONDITIONING_NOTE, lang)}</p>
         <div className="card p-5">
-          <ItemList items={LAX_CONDITIONING} />
+          <ItemList items={LAX_CONDITIONING} lang={lang} />
         </div>
       </Section>
 
       {/* 5. Team drills */}
       <Section id="team" title={s.secTeam}>
         <div className="grid gap-4 md:grid-cols-3">
-          {LAX_TEAM.map((g) => (
-            <div key={g.group} className="card p-5">
-              <h3 className="mb-3 font-bold">{g.group}</h3>
-              <ItemList items={g.items} />
+          {LAX_TEAM.map((g, gi) => (
+            <div key={gi} className="card p-5">
+              <h3 className="mb-3 font-bold">{loc(g.group, lang)}</h3>
+              <ItemList items={g.items} lang={lang} />
             </div>
           ))}
         </div>
@@ -269,27 +270,27 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       {/* 6. Practice structures */}
       <Section id="structure" title={s.secStructure}>
         <div className="space-y-6">
-          <PracticeTable title={s.practice90} rows={LAX_PRACTICE_90} head={s.headDefault} />
-          <PracticeTable title={s.practice120} rows={LAX_PRACTICE_120} head={s.headDefault} />
+          <PracticeTable title={s.practice90} rows={LAX_PRACTICE_90} lang={lang} head={s.headDefault} />
+          <PracticeTable title={s.practice120} rows={LAX_PRACTICE_120} lang={lang} head={s.headDefault} />
         </div>
       </Section>
 
       {/* 7. Pregame */}
       <Section id="pregame" title={s.secPregame}>
-        <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{LAX_PREGAME_NOTE}</p>
-        <PracticeTable rows={LAX_PREGAME} head={s.headPregame} />
+        <p className="mb-4 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">{loc(LAX_PREGAME_NOTE, lang)}</p>
+        <PracticeTable rows={LAX_PREGAME} lang={lang} head={s.headPregame} />
       </Section>
 
       {/* 8. Positions */}
       <Section id="position" title={s.secPosition}>
         <div className="grid gap-4 sm:grid-cols-2">
-          {LAX_POSITIONS.map((p) => (
-            <div key={p.name} className="card p-5">
+          {LAX_POSITIONS.map((p, pi) => (
+            <div key={pi} className="card p-5">
               <h3 className="font-bold">
-                {p.emoji} {p.name}
+                {p.emoji} {loc(p.name, lang)}
               </h3>
-              <ItemList items={p.blocks} className="mt-3" />
-              {p.source && <p className="mt-3 text-xs text-slate-400">{s.source} {p.source}</p>}
+              <ItemList items={p.blocks} lang={lang} className="mt-3" />
+              {p.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(p.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -298,12 +299,12 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       {/* 9. Weekly */}
       <Section id="weekly" title={s.secWeekly}>
         <div className="card divide-y divide-slate-100">
-          {LAX_WEEKLY.map(([day, focus]) => (
-            <div key={day} className="flex gap-4 px-5 py-3">
+          {LAX_WEEKLY.map(([day, focus], wi) => (
+            <div key={wi} className="flex gap-4 px-5 py-3">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-                {day}
+                {loc(day, lang)}
               </span>
-              <p className="pt-0.5 text-sm text-slate-700">{focus}</p>
+              <p className="pt-0.5 text-sm text-slate-700">{loc(focus, lang)}</p>
             </div>
           ))}
         </div>
@@ -312,10 +313,10 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       {/* 10. Strength */}
       <Section id="strength" title={s.secStrength}>
         <div className="space-y-4">
-          {LAX_STRENGTH.map((g) => (
-            <div key={g.group} className="card p-5">
-              <h3 className="font-bold">{g.group}</h3>
-              <ItemList items={g.items} className="mt-3" />
+          {LAX_STRENGTH.map((g, gi) => (
+            <div key={gi} className="card p-5">
+              <h3 className="font-bold">{loc(g.group, lang)}</h3>
+              <ItemList items={g.items} lang={lang} className="mt-3" />
             </div>
           ))}
         </div>
@@ -325,9 +326,9 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       <Section id="videos" title={s.secVideos}>
         <p className="mb-4 text-sm text-slate-500">{s.videosNote}</p>
         <div className="space-y-5">
-          {LAX_VIDEOS.map((g) => (
-            <div key={g.group}>
-              <h3 className="mb-2 text-sm font-semibold text-slate-500">{g.group}</h3>
+          {LAX_VIDEOS.map((g, gi) => (
+            <div key={gi}>
+              <h3 className="mb-2 text-sm font-semibold text-slate-500">{loc(g.group, lang)}</h3>
               <div className="card divide-y divide-slate-100">
                 {g.videos.map((v) => (
                   <a
@@ -340,7 +341,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
                     <span className="mt-0.5 text-brand">▶</span>
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-slate-800">{v.title}</span>
-                      <span className="block text-xs text-slate-400">{v.note}</span>
+                      <span className="block text-xs text-slate-400">{loc(v.note, lang)}</span>
                     </span>
                   </a>
                 ))}
@@ -353,7 +354,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
       {/* 12. Habits */}
       <Section id="habits" title={s.secHabits}>
         <div className="card p-5">
-          <ItemList items={LAX_HABITS} />
+          <ItemList items={LAX_HABITS} lang={lang} />
         </div>
       </Section>
     </main>
@@ -369,13 +370,13 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-function ItemList({ items, className = "" }: { items: NamedItem[]; className?: string }) {
+function ItemList({ items, lang, className = "" }: { items: NamedItem[]; lang: Lang; className?: string }) {
   return (
     <ul className={`space-y-2.5 ${className}`}>
       {items.map((it, i) => (
         <li key={i} className="text-sm">
-          <span className="font-semibold text-slate-800">{it.name}</span>
-          <span className="text-slate-600"> — {it.detail}</span>
+          <span className="font-semibold text-slate-800">{loc(it.name, lang)}</span>
+          <span className="text-slate-600"> — {loc(it.detail, lang)}</span>
         </li>
       ))}
     </ul>
@@ -385,11 +386,13 @@ function ItemList({ items, className = "" }: { items: NamedItem[]; className?: s
 function PracticeTable({
   title,
   rows,
-  head = ["시각", "블록", "내용"],
+  lang,
+  head,
 }: {
   title?: string;
-  rows: [string, string, string][];
-  head?: [string, string, string] | string[];
+  rows: [Localized, Localized, Localized][];
+  lang: Lang;
+  head: [string, string, string] | string[];
 }) {
   return (
     <div>
@@ -406,9 +409,9 @@ function PracticeTable({
           <tbody>
             {rows.map((r, i) => (
               <tr key={i} className="border-b border-slate-50 last:border-0">
-                <td className="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-slate-500">{r[0]}</td>
-                <td className="whitespace-nowrap px-4 py-2.5 font-medium text-slate-800">{r[1]}</td>
-                <td className="px-4 py-2.5 text-slate-600">{r[2]}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-slate-500">{loc(r[0], lang)}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 font-medium text-slate-800">{loc(r[1], lang)}</td>
+                <td className="px-4 py-2.5 text-slate-600">{loc(r[2], lang)}</td>
               </tr>
             ))}
           </tbody>

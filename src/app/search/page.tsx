@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import SearchBox from "@/components/SearchBox";
 import { searchWorkouts, strokeLabel, levelLabel } from "@/lib/swimming";
 import { searchDrills } from "@/lib/soccerDrills";
+import { L as loc, searchText } from "@/lib/localized";
 import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
 import { searchGuides } from "@/lib/sports";
 import { getLang } from "@/lib/getLang";
@@ -86,7 +87,9 @@ export default async function SearchPage({
   const guides = query ? searchGuides(query) : [];
   const laxVideos = query
     ? lacrosseSearchItems()
-        .filter((v) => `${v.title} ${v.note} ${v.group}`.toLowerCase().includes(query.toLowerCase()))
+        .filter((v) =>
+          `${v.title} ${searchText(v.note)} ${searchText(v.group)}`.toLowerCase().includes(query.toLowerCase()),
+        )
         .slice(0, 6)
     : [];
   const stars = query
@@ -179,8 +182,8 @@ export default async function SearchPage({
               <ResultRow
                 key={d.id}
                 href={`/sports/soccer/drills/${d.id}`}
-                title={d.title}
-                meta={`${d.category} · ${d.summary}`}
+                title={loc(d.title, lang)}
+                meta={`${loc(d.category, lang)} · ${loc(d.summary, lang)}`}
               />
             ))}
           </Group>
@@ -215,7 +218,7 @@ export default async function SearchPage({
                 >
                   <p className="font-medium text-slate-800">▶ {v.title}</p>
                   <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">
-                    {v.group} · {v.note}
+                    {loc(v.group, lang)} · {loc(v.note, lang)}
                   </p>
                 </a>
               ))}

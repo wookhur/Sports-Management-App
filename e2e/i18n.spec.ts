@@ -8,7 +8,9 @@ import { login } from "./helpers";
 const HANGUL = /[가-힣]/;
 
 // NOTE: /board and /blog are excluded — they show user-authored posts, which
-// stay in whatever language the author wrote them in.
+// stay in whatever language the author wrote them in. So are /records and
+// /stars: the first shows athletes' own notes, the second deliberately prints
+// each athlete's name in their native script.
 const ROUTES = [
   "/",
   "/journal",
@@ -16,9 +18,17 @@ const ROUTES = [
   "/games/bullseye",
   "/leaderboard",
   "/profile",
+  "/training",
   "/sports/lacrosse",
   "/sports/soccer",
   "/sports/lacrosse/guides/cradling-basics",
+  // Reference content — the bulk of it, and the part that silently shipped
+  // Korean-only for months because nothing checked these pages.
+  "/sports/lacrosse/program",
+  "/sports/soccer/program",
+  "/sports/soccer/drills",
+  "/sports/soccer/drills/dribble-gates",
+  "/sports/swimming/workouts",
 ];
 
 async function setLang(ctx: BrowserContext, page: Page, lang: string) {

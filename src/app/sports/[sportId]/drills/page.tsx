@@ -6,6 +6,7 @@ import DrillDiagram from "@/components/DrillDiagram";
 import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
 import { AGE_LEVELS, drillsForAge } from "@/lib/soccerDrills";
+import { L as loc } from "@/lib/localized";
 
 type SP = { age?: string };
 
@@ -79,8 +80,8 @@ export default async function DrillsPage({
           </Chip>
           {AGE_LEVELS.map((a) => (
             <Chip key={a.key} href={`${basePath}?age=${a.key}`} on={activeAge === a.key}>
-              {a.label}
-              <span className="ml-1 text-xs opacity-70">· {a.note}</span>
+              {loc(a.label, lang)}
+              <span className="ml-1 text-xs opacity-70">· {loc(a.note, lang)}</span>
             </Chip>
           ))}
         </div>
@@ -98,11 +99,11 @@ export default async function DrillsPage({
               </div>
               <div className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="badge bg-indigo-50 text-indigo-600">{d.category}</span>
+                  <span className="badge bg-indigo-50 text-indigo-600">{loc(d.category, lang)}</span>
                   <span className="text-xs text-slate-400">⏱ {s.minutes(d.durationMin)}</span>
                 </div>
-                <h3 className="mt-2 font-bold group-hover:text-brand">{d.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-500">{d.summary}</p>
+                <h3 className="mt-2 font-bold group-hover:text-brand">{loc(d.title, lang)}</h3>
+                <p className="mt-1 line-clamp-2 text-sm text-slate-500">{loc(d.summary, lang)}</p>
               </div>
             </Link>
           ))}
