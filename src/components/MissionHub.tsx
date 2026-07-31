@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PetAvatar from "./PetAvatar";
@@ -49,16 +49,18 @@ interface Props {
   missions: MissionItem[];
 }
 
-export default function MissionHub({ lang, beans: initialBeans, pet: initialPet, care: initialCare, missions: initialMissions }: Props) {
+export default function MissionHub({ lang, beans, pet, care, missions }: Props) {
   const s = t(lang).missions;
   const router = useRouter();
-  const [beans, setBeans] = useState(initialBeans);
-  const [pet, setPet] = useState(initialPet);
-  const [care, setCare] = useState(initialCare);
-  const [missions, setMissions] = useState(initialMissions);
+  // Server data is read straight from props — never mirrored into state. The
+  // available care actions and mission tier change as the pet grows, so a
+  // useState copy would go stale after the first action and send requests the
+  // server rejects.
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hatchMsg, setHatchMsg] = useState(false);
+  // Tracks the server re-render so buttons stay disabled until fresh data lands.
+  const [refreshing, startRefresh] = useTransition();
 
   async function claim(key: string) {
     setError(null);
@@ -71,11 +73,7 @@ export default function MissionHub({ lang, beans: initialBeans, pet: initialPet,
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) setError(data?.error ?? "오류가 발생했어요");
-      else {
-        setBeans(data.beans);
-        setMissions((prev) => prev.map((m) => (m.key === key ? { ...m, claimed: true } : m)));
-        router.refresh();
-      }
+      else startRefresh(() => router.refresh());
     } catch {
       setError("서버에 연결할 수 없어요");
     } finally {
@@ -95,10 +93,9 @@ export default function MissionHub({ lang, beans: initialBeans, pet: initialPet,
       const data = await res.json().catch(() => null);
       if (!res.ok) setError(data?.error ?? "오류가 발생했어요");
       else {
-        setBeans(data.beans);
         if (data.justHatched) setHatchMsg(true);
         // Let the server recompute the pet state + available care/missions.
-        router.refresh();
+        startRefresh(() => router.refresh());
       }
     } catch {
       setError("서버에 연결할 수 없어요");
@@ -162,7 +159,7 @@ export default function MissionHub({ lang, beans: initialBeans, pet: initialPet,
           <div className="grid grid-cols-3 gap-2">
             {care.map((c) => {
               const affordable = beans >= c.cost;
-              const busy = pending === `c:${c.key}`;
+              const busy = pending === `c:${c.key}` || refreshing;
               return (
                 <button
                   key={c.key}

@@ -103,7 +103,8 @@ async function main() {
         "As the tournament nears its finale, France stands out as the strongest candidate to lift the trophy. Having gone 6-0 so far, here's why they're the team to beat.",
       emoji: "🇫🇷",
       tag: "World Cup",
-      coverImage: "/blog/france-2026-mbappe.jpg",
+      // No cover image: nothing is committed under public/, so a path here
+      // would 404. The list/detail pages fall back to the emoji.
       authorId: ericPark.id,
       body: [
         "As the tournament nears its finale, France stands out as the strongest candidate to lift the trophy. Having gone 6-0 so far, here's why they're the team to beat.",
@@ -117,6 +118,14 @@ async function main() {
         "What elevates him further is sheer experience. He recently became the first manager in history to reach 20 World Cup wins. As a player, he captained France to the 1998 World Cup and Euro 2000 titles; as a manager, he has led them to the 2014 World Cup quarterfinals, the Euro 2016 final, the 2018 World Cup title, and the 2022 World Cup final. Add it all up, and it's clear why France enters this final stretch as the strongest team left standing.",
       ].join("\n\n"),
     },
+  });
+
+  // Clear cover images that point at files not committed under public/ — the
+  // upsert above only applies on create, so already-seeded rows keep the stale
+  // (404-ing) path until this runs. Idempotent.
+  await prisma.blogPost.updateMany({
+    where: { coverImage: { startsWith: "/blog/" } },
+    data: { coverImage: null },
   });
 
   const royHyun = await prisma.user.upsert({
