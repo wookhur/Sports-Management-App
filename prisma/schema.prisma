@@ -59,6 +59,16 @@ model User {
   // Empty = show every default section.
   homeHidden String[] @default([])
 
+  // Preferred language, mirrored from the "lang" cookie when it is changed.
+  // The cookie still drives every request; this exists for the weekly digest,
+  // which is sent by a scheduler with no request and therefore no cookie to
+  // read. Null = never chose one, so the digest falls back to Korean.
+  lang String?
+
+  // Weekly digest opt-out. Default on, because a coach who never opens the
+  // app is exactly who the digest is for.
+  digestOptOut Boolean @default(false)
+
   records          Record[]
   comments         Comment[]
   posts            BlogPost[]

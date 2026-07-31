@@ -18,6 +18,15 @@ export default function LanguageSwitcher({ lang, dark = false }: { lang: Lang; d
   function setLang(next: Lang) {
     if (next === lang) return;
     document.cookie = `${LANG_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
+    // Mirror the choice onto the account, fire-and-forget. The cookie above
+    // already did the visible work, so a failure here (offline, signed out)
+    // must not block the switch — it only costs the weekly digest its
+    // language preference until the next time they toggle.
+    void fetch("/api/settings/lang", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang: next }),
+    }).catch(() => {});
     router.refresh();
   }
 

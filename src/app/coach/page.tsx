@@ -152,9 +152,14 @@ export default async function CoachPage() {
             <h1 className="text-2xl font-bold">{s.title}</h1>
             <p className="mt-1 text-slate-500">{s.sub}</p>
           </div>
-          <Link href="/coach/report" className="btn-ghost shrink-0">
-            📄 {t(lang).report.navCta}
-          </Link>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Link href="/coach/digest" className="btn-ghost">
+              📬 {t(lang).digest.navCta}
+            </Link>
+            <Link href="/coach/report" className="btn-ghost">
+              📄 {t(lang).report.navCta}
+            </Link>
+          </div>
         </div>
 
         {/* Triage first — it says what to do; the heatmap below shows the shape. */}

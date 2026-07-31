@@ -760,6 +760,129 @@ const roster: Record<Lang, RosterDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Squad Intelligence — weekly digest email
+// ---------------------------------------------------------------------------
+export interface DigestDict {
+  subject: (from: string, to: string) => string;
+  preheader: (attention: number, highlights: number) => string;
+  greeting: (name: string) => string;
+  intro: (from: string, to: string) => string;
+  statActive: string;
+  statSessions: string;
+  statHours: string;
+  deltaUp: (n: number) => string;
+  deltaDown: (n: number) => string;
+  deltaFlat: string;
+  attentionHeading: string;
+  attentionEmpty: string;
+  attentionMore: (n: number) => string;
+  highlightsHeading: string;
+  highlightsEmpty: string;
+  highlightsMore: (n: number) => string;
+  cta: string;
+  footer: string;
+  unsubscribe: string;
+  /** In-app preview page. */
+  previewTitle: string;
+  previewSubtitle: string;
+  previewNothing: string;
+  previewNothingHint: string;
+  previewSendingOn: string;
+  previewSendingOff: string;
+  navCta: string;
+}
+
+const digest: Record<Lang, DigestDict> = {
+  ko: {
+    subject: (from, to) => `[Sideline365] 주간 스쿼드 요약 (${from} – ${to})`,
+    preheader: (a, h) =>
+      a > 0 ? `확인이 필요한 선수 ${a}명, 좋은 소식 ${h}건` : `이번 주 좋은 소식 ${h}건`,
+    greeting: (name) => `${name} 코치님,`,
+    intro: (from, to) => `${from}부터 ${to}까지 스쿼드에 있었던 일이에요.`,
+    statActive: "훈련한 선수",
+    statSessions: "훈련 횟수",
+    statHours: "훈련 시간",
+    deltaUp: (n) => `지난주보다 ${n}회 많아요`,
+    deltaDown: (n) => `지난주보다 ${n}회 적어요`,
+    deltaFlat: "지난주와 같아요",
+    attentionHeading: "확인이 필요한 선수",
+    attentionEmpty: "이번 주에는 조치가 필요한 선수가 없었어요 👍",
+    attentionMore: (n) => `외 ${n}명 — 대시보드에서 전체를 확인하세요.`,
+    highlightsHeading: "이번 주의 좋은 소식",
+    highlightsEmpty: "이번 주에는 새로 갱신된 개인 기록이 없었어요.",
+    highlightsMore: (n) => `외 ${n}건 더 있어요.`,
+    cta: "대시보드 열기",
+    footer: "선수들이 직접 남긴 훈련 기록으로 자동 생성됐어요. 참고용이며 진단이 아닙니다.",
+    unsubscribe: "설정에서 주간 요약 받기를 끌 수 있어요.",
+    previewTitle: "주간 요약 미리보기",
+    previewSubtitle: "매주 월요일 아침에 이 내용이 메일로 도착해요. 지금 모습 그대로입니다.",
+    previewNothing: "이번 주는 보낼 내용이 없어요",
+    previewNothingHint: "훈련 기록도, 확인할 선수도 없으면 메일을 보내지 않아요. 빈 메일은 다음 메일까지 안 읽히게 만드니까요.",
+    previewSendingOn: "주간 요약 받는 중",
+    previewSendingOff: "주간 요약 꺼짐",
+    navCta: "주간 요약",
+  },
+  en: {
+    subject: (from, to) => `[Sideline365] Weekly squad digest (${from} – ${to})`,
+    preheader: (a, h) => (a > 0 ? `${a} to check on, ${h} good news` : `${h} good news this week`),
+    greeting: (name) => `Hi ${name},`,
+    intro: (from, to) => `Here's what happened with your squad from ${from} to ${to}.`,
+    statActive: "Athletes trained",
+    statSessions: "Sessions",
+    statHours: "Hours",
+    deltaUp: (n) => `${n} more than last week`,
+    deltaDown: (n) => `${n} fewer than last week`,
+    deltaFlat: "Same as last week",
+    attentionHeading: "Who to check on",
+    attentionEmpty: "Nobody needed action this week 👍",
+    attentionMore: (n) => `And ${n} more — see them all on the dashboard.`,
+    highlightsHeading: "Good news this week",
+    highlightsEmpty: "No new personal bests this week.",
+    highlightsMore: (n) => `And ${n} more.`,
+    cta: "Open the dashboard",
+    footer: "Generated automatically from the training your athletes log. A guide, not a diagnosis.",
+    unsubscribe: "You can turn the weekly digest off in settings.",
+    previewTitle: "Weekly digest preview",
+    previewSubtitle: "This is what lands in your inbox on Monday morning — exactly as it looks right now.",
+    previewNothing: "Nothing to send this week",
+    previewNothingHint:
+      "With no training logged and nobody to check on, no email goes out. An empty digest is what teaches people to ignore the next one.",
+    previewSendingOn: "Weekly digest on",
+    previewSendingOff: "Weekly digest off",
+    navCta: "Weekly digest",
+  },
+  es: {
+    subject: (from, to) => `[Sideline365] Resumen semanal del equipo (${from} – ${to})`,
+    preheader: (a, h) => (a > 0 ? `${a} por revisar, ${h} buenas noticias` : `${h} buenas noticias esta semana`),
+    greeting: (name) => `Hola ${name}:`,
+    intro: (from, to) => `Esto es lo que pasó con tu equipo del ${from} al ${to}.`,
+    statActive: "Atletas que entrenaron",
+    statSessions: "Sesiones",
+    statHours: "Horas",
+    deltaUp: (n) => `${n} más que la semana pasada`,
+    deltaDown: (n) => `${n} menos que la semana pasada`,
+    deltaFlat: "Igual que la semana pasada",
+    attentionHeading: "A quién revisar",
+    attentionEmpty: "Nadie necesitó atención esta semana 👍",
+    attentionMore: (n) => `Y ${n} más: puedes verlos todos en el panel.`,
+    highlightsHeading: "Buenas noticias de la semana",
+    highlightsEmpty: "No hubo marcas personales nuevas esta semana.",
+    highlightsMore: (n) => `Y ${n} más.`,
+    cta: "Abrir el panel",
+    footer: "Generado automáticamente con lo que registran tus atletas. Es una guía, no un diagnóstico.",
+    unsubscribe: "Puedes desactivar el resumen semanal en los ajustes.",
+    previewTitle: "Vista previa del resumen semanal",
+    previewSubtitle: "Esto es lo que llega a tu correo el lunes por la mañana, tal y como se ve ahora.",
+    previewNothing: "Esta semana no hay nada que enviar",
+    previewNothingHint:
+      "Sin entrenamientos registrados y sin nadie a quien revisar, no sale ningún correo. Un resumen vacío es lo que enseña a ignorar el siguiente.",
+    previewSendingOn: "Resumen semanal activado",
+    previewSendingOff: "Resumen semanal desactivado",
+    navCta: "Resumen semanal",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Squad Intelligence — printable team report
 // ---------------------------------------------------------------------------
 export interface ReportDict {
@@ -1823,6 +1946,7 @@ export function t(lang: Lang) {
     roster: roster[lang],
     triage: triage[lang],
     report: report[lang],
+    digest: digest[lang],
   };
 }
 
