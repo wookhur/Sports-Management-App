@@ -1376,3 +1376,284 @@ export function t(lang: Lang) {
     companion: companion[lang],
   };
 }
+
+// ---------------------------------------------------------------------------
+// Training-guide cards (src/lib/sports.ts). The guide data is authored in
+// Korean; display translates by stable guide id with the authored string as
+// the fallback — same pattern as METRIC_I18N.
+// ---------------------------------------------------------------------------
+export const GUIDE_LEVEL_I18N: Record<string, Record<Lang, string>> = {
+  입문: { ko: "입문", en: "Beginner", es: "Principiante" },
+  중급: { ko: "중급", en: "Intermediate", es: "Intermedio" },
+  고급: { ko: "고급", en: "Advanced", es: "Avanzado" },
+};
+
+export function guideLevelLabel(level: string, lang: Lang): string {
+  return GUIDE_LEVEL_I18N[level]?.[lang] ?? level;
+}
+
+interface GuideCopy {
+  title: string;
+  focus: string;
+  summary: string;
+}
+
+export const GUIDE_I18N: Record<string, Record<Lang, GuideCopy>> = {
+  // 🥍 Lacrosse
+  "cradling-basics": {
+    ko: { title: "크레들링 기본기", focus: "볼 컨트롤 · 스틱 감각", summary: "달리면서도 볼을 흘리지 않는 크레들링의 기본 리듬을 익힙니다." },
+    en: { title: "Cradling Basics", focus: "Ball control · Stick feel", summary: "Build the cradling rhythm that keeps the ball secure even at a run." },
+    es: { title: "Fundamentos del cradle", focus: "Control · Tacto del stick", summary: "Aprende el ritmo del cradle que mantiene la bola segura incluso corriendo." },
+  },
+  "passing-catching": {
+    ko: { title: "패스 & 캐치", focus: "정확도 · 캐치 안정성", summary: "짝을 이뤄 정확한 패스와 안정적인 캐치를 반복 훈련합니다." },
+    en: { title: "Passing & Catching", focus: "Accuracy · Clean catches", summary: "Drill accurate passes and dependable catches with a partner." },
+    es: { title: "Pase y recepción", focus: "Precisión · Recepción limpia", summary: "Entrena pases precisos y recepciones seguras con un compañero." },
+  },
+  "ground-ball": {
+    ko: { title: "그라운드 볼 장악", focus: "루즈볼 · 몸싸움", summary: "바닥에 떨어진 볼을 안정적으로 걷어 올려 소유권을 가져옵니다." },
+    en: { title: "Winning Ground Balls", focus: "Loose balls · Body position", summary: "Scoop loose balls cleanly and come away with possession." },
+    es: { title: "Ganar bolas al suelo", focus: "Bolas sueltas · Cuerpo", summary: "Recoge bolas sueltas con limpieza y hazte con la posesión." },
+  },
+  "shooting-accuracy": {
+    ko: { title: "슈팅 정확도", focus: "코스 · 파워", summary: "골 네 모서리를 겨냥해 코스와 파워를 함께 끌어올립니다." },
+    en: { title: "Shooting Accuracy", focus: "Placement · Power", summary: "Target the four corners to raise placement and power together." },
+    es: { title: "Precisión de tiro", focus: "Colocación · Potencia", summary: "Apunta a las cuatro esquinas para ganar colocación y potencia." },
+  },
+  "dodging-1v1": {
+    ko: { title: "도징 & 1대1", focus: "돌파 · 페인트", summary: "수비를 흔드는 도징 무브로 슈팅 각도를 만들어냅니다." },
+    en: { title: "Dodging & 1-on-1", focus: "Beating your man · Feints", summary: "Use dodges that unbalance the defender and open a shooting lane." },
+    es: { title: "Regate y 1 contra 1", focus: "Superar al rival · Fintas", summary: "Usa regates que desequilibren al defensor y abran el ángulo de tiro." },
+  },
+  // ⚽ Soccer
+  "first-touch": {
+    ko: { title: "볼 컨트롤 & 퍼스트 터치", focus: "트래핑 · 방향 전환", summary: "받는 즉시 원하는 방향으로 볼을 놓는 퍼스트 터치를 만듭니다." },
+    en: { title: "Control & First Touch", focus: "Trapping · Changing direction", summary: "Take your first touch into the direction you actually want to go." },
+    es: { title: "Control y primer toque", focus: "Recepción · Cambio de dirección", summary: "Orienta tu primer toque hacia donde de verdad quieres ir." },
+  },
+  "passing-move": {
+    ko: { title: "패스 & 무브", focus: "정확도 · 오프더볼", summary: "패스 후 곧바로 움직이는 pass-and-move 습관을 몸에 익힙니다." },
+    en: { title: "Pass & Move", focus: "Accuracy · Off-the-ball", summary: "Make passing and immediately moving an automatic habit." },
+    es: { title: "Pasar y moverse", focus: "Precisión · Sin balón", summary: "Convierte el pasar y moverse enseguida en un hábito automático." },
+  },
+  "dribbling-cones": {
+    ko: { title: "드리블 & 콘 워크", focus: "볼 다루기 · 민첩성", summary: "좁은 간격의 콘을 빠르게 통과하며 볼 터치 빈도를 높입니다." },
+    en: { title: "Dribbling & Cone Work", focus: "Ball handling · Agility", summary: "Move through tight cones quickly to raise your touch frequency." },
+    es: { title: "Regate y conos", focus: "Manejo · Agilidad", summary: "Pasa entre conos estrechos con rapidez para aumentar los toques." },
+  },
+  finishing: {
+    ko: { title: "슈팅 & 마무리", focus: "결정력 · 코스", summary: "다양한 상황에서 골로 마무리하는 결정력을 훈련합니다." },
+    en: { title: "Shooting & Finishing", focus: "Composure · Placement", summary: "Train the composure to finish chances from varied situations." },
+    es: { title: "Tiro y definición", focus: "Definición · Colocación", summary: "Entrena la calma para definir desde situaciones variadas." },
+  },
+  defending: {
+    ko: { title: "수비 포지셔닝", focus: "예측 · 태클 타이밍", summary: "무리한 태클 대신 각도와 타이밍으로 볼을 끊어냅니다." },
+    en: { title: "Defensive Positioning", focus: "Reading play · Tackle timing", summary: "Win the ball with angles and timing instead of rash tackles." },
+    es: { title: "Posicionamiento defensivo", focus: "Lectura · Timing de entrada", summary: "Roba con ángulos y timing en vez de entradas precipitadas." },
+  },
+};
+
+/** Translated card copy for a guide, falling back to the authored Korean. */
+export function guideCopy(
+  id: string,
+  lang: Lang,
+  fallback: { title: string; focus: string; summary: string },
+): GuideCopy {
+  return GUIDE_I18N[id]?.[lang] ?? fallback;
+}
+
+// Step-by-step body of each training guide (titles, details, tips).
+interface GuideBody {
+  steps: { title: string; detail: string }[];
+  tips: string[];
+}
+
+const GUIDE_BODY_I18N: Record<string, Partial<Record<Lang, GuideBody>>> = {
+  "cradling-basics": {
+    en: {
+      steps: [
+        { title: "Find your grip", detail: "Top hand on the throat of the stick, bottom hand loosely round the end. Keep the wrists soft." },
+        { title: "Cradle standing still", detail: "Roll the wrist in a half-circle and feel the ball rock inside the pocket. 30 sec × 3." },
+        { title: "Cradle walking", detail: "Walk slowly and hold the rhythm. Eyes forward, not on the ball." },
+        { title: "Cradle running", detail: "Build to a jog and mix in left/right hand switches. 20m × 6." },
+      ],
+      tips: ["Train yourself to look ahead instead of down at the ball.", "Rock from the wrist — swinging the whole arm loses the ball."],
+    },
+    es: {
+      steps: [
+        { title: "La empuñadura", detail: "Mano superior en el cuello del stick, la inferior rodeando el extremo sin apretar. Muñecas sueltas." },
+        { title: "Cradle parado", detail: "Gira la muñeca en semicírculo y siente la bola mecerse en la red. 30 s × 3." },
+        { title: "Cradle caminando", detail: "Camina despacio manteniendo el ritmo. Mirada al frente, no a la bola." },
+        { title: "Cradle corriendo", detail: "Sube al trote y alterna mano izquierda y derecha. 20 m × 6." },
+      ],
+      tips: ["Acostúmbrate a mirar al frente en vez de a la bola.", "Mece desde la muñeca — mover todo el brazo hace perder la bola."],
+    },
+  },
+  "passing-catching": {
+    en: {
+      steps: [
+        { title: "Box target", detail: "Pick a square target on a wall and throw 20 overhand passes from 5m." },
+        { title: "Partner catches", detail: "Face a partner 10m apart and trade 15 reps with each hand." },
+        { title: "Passing on the move", detail: "Move laterally and lead each other to build game-like angles." },
+      ],
+      tips: ["Give with the ball — pull the stick back slightly as you catch.", "Throw from beside your ear for accuracy."],
+    },
+    es: {
+      steps: [
+        { title: "Objetivo en la pared", detail: "Marca un cuadro en la pared y lanza 20 pases por encima del hombro desde 5 m." },
+        { title: "Recepciones con pareja", detail: "Frente a frente a 10 m, 15 repeticiones con cada mano." },
+        { title: "Pase en movimiento", detail: "Desplázate lateralmente y pasa por delante del compañero para crear ángulos reales." },
+      ],
+      tips: ["Acompaña la bola: retrasa un poco el stick al recibir.", "Lanza desde al lado de la oreja para ganar precisión."],
+    },
+  },
+  "ground-ball": {
+    en: {
+      steps: [
+        { title: "Low scoop", detail: "Bend the knees, get low and drive the stick through parallel to the ground." },
+        { title: "Scoop and cradle", detail: "Go straight into a cradle the moment you pick it up to protect the ball. 15 reps." },
+        { title: "Contested ground balls", detail: "Start level with a partner and fight for it, using your body to seal the angle." },
+      ],
+      tips: ["Scoop through the ball — never stop and stab at it.", "Break away in the opposite direction right after you pick it up."],
+    },
+    es: {
+      steps: [
+        { title: "Recogida baja", detail: "Flexiona las rodillas, baja el cuerpo y pasa el stick paralelo al suelo." },
+        { title: "Recoger y proteger", detail: "Pasa al cradle en cuanto la levantes para proteger la bola. 15 repeticiones." },
+        { title: "Bola disputada", detail: "Salid a la vez y disputadla usando el cuerpo para cerrar el ángulo." },
+      ],
+      tips: ["Recoge atravesando la bola — nunca te pares a picarla.", "Sal hacia el lado contrario justo después de recogerla."],
+    },
+  },
+  "shooting-accuracy": {
+    en: {
+      steps: [
+        { title: "Set shots", detail: "From a standstill, 10 reps into each corner: top left/right, bottom left/right." },
+        { title: "Crank shot", detail: "Shift your weight onto the front foot and add power by rotating the torso." },
+        { title: "Shooting on the run", detail: "Cradle → step → shoot as one continuous game action. 15 reps." },
+      ],
+      tips: ["Hip and shoulder rotation is where the power comes from.", "Favour the bottom corners — they're hardest for a keeper to reach."],
+    },
+    es: {
+      steps: [
+        { title: "Tiro parado", detail: "Desde parado, 10 repeticiones a cada esquina: arriba izq/der, abajo izq/der." },
+        { title: "Tiro potente", detail: "Pasa el peso al pie adelantado y suma potencia rotando el tronco." },
+        { title: "Tiro en carrera", detail: "Cradle → paso → tiro como una sola acción de juego. 15 repeticiones." },
+      ],
+      tips: ["La potencia sale de la rotación de cadera y hombros.", "Prioriza las esquinas bajas: son las más difíciles para el portero."],
+    },
+  },
+  "dodging-1v1": {
+    en: {
+      steps: [
+        { title: "Split dodge", detail: "Sharp left-right change of direction to break the defender's balance. 10 reps." },
+        { title: "Roll dodge", detail: "Turn away shielding the stick with your body. 8 reps each way." },
+        { title: "Live 1-on-1", detail: "Add a defender and finish dodge → shot. 6 sets." },
+      ],
+      tips: ["An explosive first step decides whether the dodge works.", "Sell the fake with your eyes and shoulders first."],
+    },
+    es: {
+      steps: [
+        { title: "Split dodge", detail: "Cambio brusco izquierda-derecha para romper el equilibrio del defensor. 10 repeticiones." },
+        { title: "Roll dodge", detail: "Gira protegiendo el stick con el cuerpo. 8 repeticiones por lado." },
+        { title: "1 contra 1 real", detail: "Con defensor, enlaza regate → tiro. 6 series." },
+      ],
+      tips: ["Un primer paso explosivo decide si el regate funciona.", "Vende la finta primero con la mirada y los hombros."],
+    },
+  },
+  "first-touch": {
+    en: {
+      steps: [
+        { title: "Wall pass control", detail: "Pass against a wall and take it away with the inside of the foot. 20 reps." },
+        { title: "Cushioning", detail: "Kill a dropping ball softly with the laces, thigh and chest." },
+        { title: "Touch and sprint", detail: "Push the first touch into space ahead and sprint 3m onto it." },
+      ],
+      tips: ["Relax the foot on contact so it absorbs the ball.", "Check over your shoulder before the ball arrives."],
+    },
+    es: {
+      steps: [
+        { title: "Control contra la pared", detail: "Pasa contra la pared y sácala con el interior del pie. 20 repeticiones." },
+        { title: "Amortiguar", detail: "Mata la bola que cae con el empeine, el muslo y el pecho." },
+        { title: "Control y sprint", detail: "Empuja el primer toque al espacio y esprinta 3 m a por ella." },
+      ],
+      tips: ["Relaja el pie al contacto para amortiguar la bola.", "Mira por encima del hombro antes de que llegue el balón."],
+    },
+  },
+  "passing-move": {
+    en: {
+      steps: [
+        { title: "Inside-foot passing", detail: "30 accurate ground passes with a partner 10m away." },
+        { title: "Wall pass (2v1)", detail: "Use a wall or partner for a one-two to beat a defender." },
+        { title: "Triangle passing", detail: "Three players in a triangle: pass, then move to the next position." },
+      ],
+      tips: ["Plant foot beside the ball, toes pointing where you're passing.", "Don't admire the pass — move into the next space immediately."],
+    },
+    es: {
+      steps: [
+        { title: "Pase con el interior", detail: "30 pases rasos precisos con un compañero a 10 m." },
+        { title: "Pared (2 contra 1)", detail: "Usa la pared o un compañero para un uno-dos y superar al defensor." },
+        { title: "Pases en triángulo", detail: "Tres jugadores en triángulo: pasa y muévete a la siguiente posición." },
+      ],
+      tips: ["Pie de apoyo junto al balón y punta hacia donde pasas.", "No te quedes mirando el pase: muévete al siguiente espacio."],
+    },
+  },
+  "dribbling-cones": {
+    en: {
+      steps: [
+        { title: "Zig-zag dribble", detail: "Six cones 1m apart, weaving with inside and outside of the foot × 5." },
+        { title: "Change of pace", detail: "Slow down then accelerate between cones to break the rhythm." },
+        { title: "Beat your man", detail: "Set a cone as the defender, feint, then explode past it." },
+      ],
+      tips: ["Short frequent touches keep the ball close to your body.", "Head up — read the next cone before you get there."],
+    },
+    es: {
+      steps: [
+        { title: "Regate en zigzag", detail: "Seis conos a 1 m, alternando interior y exterior del pie × 5." },
+        { title: "Cambio de ritmo", detail: "Frena y acelera entre conos para romper el ritmo." },
+        { title: "Superar al rival", detail: "Pon un cono como defensor, finta y sal explosivo." },
+      ],
+      tips: ["Toques cortos y frecuentes mantienen el balón cerca del cuerpo.", "Cabeza alta: lee el siguiente cono antes de llegar."],
+    },
+  },
+  finishing: {
+    en: {
+      steps: [
+        { title: "Set shooting", detail: "Instep shots from the edge of the box, 10 into each corner." },
+        { title: "One-touch finishing", detail: "Finish crosses and cutbacks first time. 15 reps." },
+        { title: "1-on-1 vs keeper", detail: "Run through and finish calmly against the keeper. 8 reps." },
+      ],
+      tips: ["Plant firmly beside the ball and get your body over it.", "Placement before power — go away from the keeper."],
+    },
+    es: {
+      steps: [
+        { title: "Tiro parado", detail: "Disparos de empeine desde la frontal, 10 a cada esquina." },
+        { title: "Definición al primer toque", detail: "Remata centros y pases atrás al primer toque. 15 repeticiones." },
+        { title: "1 contra 1 con el portero", detail: "Encara y define con calma ante el portero. 8 repeticiones." },
+      ],
+      tips: ["Apoya firme junto al balón y cubre con el cuerpo.", "Colocación antes que potencia: al lado contrario del portero."],
+    },
+  },
+  defending: {
+    en: {
+      steps: [
+        { title: "Delay", detail: "Don't dive in — sidestep and slow the attacker's progress." },
+        { title: "Cut the angle", detail: "Use your body shape to close the passing lane and force them one way." },
+        { title: "Intercepting", detail: "Read the moment of the pass and step in front to win it." },
+      ],
+      tips: ["Time it off their plant foot, not the ball.", "Stay low and never stand square with your legs apart."],
+    },
+    es: {
+      steps: [
+        { title: "Retrasar", detail: "No te lances: desplázate de lado y frena el avance del atacante." },
+        { title: "Cerrar el ángulo", detail: "Orienta el cuerpo para tapar la línea de pase y llevarlo a un lado." },
+        { title: "Interceptar", detail: "Lee el momento del pase y sal por delante para robarla." },
+      ],
+      tips: ["Calcula el tiempo por su pie de apoyo, no por el balón.", "Mantente bajo y nunca de frente con las piernas abiertas."],
+    },
+  },
+};
+
+/** Translated steps/tips for a guide, falling back to the authored Korean. */
+export function guideBody(id: string, lang: Lang, fallback: GuideBody): GuideBody {
+  return GUIDE_BODY_I18N[id]?.[lang] ?? fallback;
+}

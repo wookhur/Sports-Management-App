@@ -13,13 +13,17 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:baseline": "tsx prisma/baseline.ts"
+    "db:baseline": "tsx prisma/baseline.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "db:fixture": "tsx prisma/e2e-fixture.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
+    "@sentry/nextjs": "^8.55.2",
     "@tiptap/extension-text-style": "^3.27.3",
     "@tiptap/pm": "^3.27.3",
     "@tiptap/react": "^3.27.3",
@@ -33,6 +37,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",

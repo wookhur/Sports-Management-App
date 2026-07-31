@@ -36,3 +36,9 @@ next-env.d.ts
 # python (skill scripts, e.g. .claude/skills/ui-ux-pro-max)
 __pycache__/
 *.pyc
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

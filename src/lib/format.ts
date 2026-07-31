@@ -24,19 +24,46 @@ export function formatPace(distanceM: number, ms: number): string | null {
   return `${minutes}:${seconds.toString().padStart(2, "0")}/100m`;
 }
 
-const DATE_LOCALE: Record<string, string> = { ko: "ko-KR", en: "en-US", es: "es-ES" };
+// Month names and the AM/PM wording are spelled out here rather than left to
+// Intl. Node and the browser resolve the same locale slightly differently (Node
+// renders ko-KR's day period as "AM", Chrome as "오전"), and formatDate runs in
+// both server and client components — the mismatch broke hydration on /records.
+// Composing from numeric parts keeps every runtime in agreement.
+const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/** Numeric date parts as seen in Asia/Seoul — identical in Node and browsers. */
+function seoulParts(d: Date) {
+  const p = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (t: string) => Number(p.find((x) => x.type === t)?.value ?? 0);
+  // hour12:false yields 24 for midnight in some runtimes; normalize to 0.
+  return { month: get("month"), day: get("day"), hour: get("hour") % 24, minute: get("minute") };
+}
 
 export function formatDate(input: Date | string, lang: string = "ko"): string {
   const d = typeof input === "string" ? new Date(input) : input;
-  // Dates are stored in UTC; the serverless runtime's local timezone isn't
-  // guaranteed to be Korea, so pin display explicitly to KST.
-  return new Intl.DateTimeFormat(DATE_LOCALE[lang] ?? "ko-KR", {
-    timeZone: "Asia/Seoul",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
+  const { month, day, hour, minute } = seoulParts(d);
+  const mm = String(minute).padStart(2, "0");
+
+  if (lang === "en") {
+    const period = hour < 12 ? "AM" : "PM";
+    const h12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${MONTHS_EN[month - 1]} ${day}, ${h12}:${mm} ${period}`;
+  }
+  if (lang === "es") {
+    return `${day} ${MONTHS_ES[month - 1]}, ${String(hour).padStart(2, "0")}:${mm}`;
+  }
+  const period = hour < 12 ? "오전" : "오후";
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${month}월 ${day}일 ${period} ${h12}:${mm}`;
 }
 
 /** "YYYY-MM-DD" for a date as seen in Asia/Seoul. Used as the daily-reset key

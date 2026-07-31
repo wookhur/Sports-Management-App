@@ -6,7 +6,7 @@ import { getSport } from "@/lib/sports";
 import NavBar from "@/components/NavBar";
 import Stopwatch from "@/components/Stopwatch";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
-import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
+import { SPORT_I18N, metricLabel, guideCopy, guideLevelLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 
 const levelColors: Record<string, string> = {
@@ -269,12 +269,12 @@ export default async function SportPage({
                   className="card group p-5 transition hover:border-slate-300 hover:shadow-md"
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`badge ${levelColors[guide.level]}`}>{guide.level}</span>
+                    <span className={`badge ${levelColors[guide.level]}`}>{guideLevelLabel(guide.level, lang)}</span>
                     <span className="text-xs text-slate-400">⏱ {t.minutes(guide.durationMin)}</span>
                   </div>
-                  <h3 className="mt-3 text-lg font-bold group-hover:text-brand">{guide.title}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{guide.summary}</p>
-                  <p className="mt-3 text-xs font-medium text-slate-400">🎯 {guide.focus}</p>
+                  <h3 className="mt-3 text-lg font-bold group-hover:text-brand">{guideCopy(guide.id, lang, guide).title}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{guideCopy(guide.id, lang, guide).summary}</p>
+                  <p className="mt-3 text-xs font-medium text-slate-400">🎯 {guideCopy(guide.id, lang, guide).focus}</p>
                 </Link>
               ))}
             </div>

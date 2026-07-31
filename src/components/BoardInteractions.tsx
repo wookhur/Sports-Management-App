@@ -135,7 +135,12 @@ export default function BoardInteractions({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">
                     <span className="font-semibold">{c.authorName}</span>{" "}
-                    <span className="text-xs text-slate-400">{formatRelative(c.createdAt, lang)}</span>
+                    {/* Relative time depends on "now", so the server render and
+                        the hydration render disagree whenever a minute ticks
+                        over between them. The client value is the correct one. */}
+                    <span suppressHydrationWarning className="text-xs text-slate-400">
+                      {formatRelative(c.createdAt, lang)}
+                    </span>
                   </p>
                   <p className="whitespace-pre-wrap text-sm text-slate-600">{c.body}</p>
                 </div>
