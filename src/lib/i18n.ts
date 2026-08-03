@@ -764,6 +764,59 @@ const roster: Record<Lang, RosterDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// First-run checklist
+// ---------------------------------------------------------------------------
+export interface FirstRunDict {
+  title: string;
+  subtitle: string;
+  progress: (done: number, total: number) => string;
+  go: string;
+  step: Record<string, { title: string; body: string }>;
+}
+
+const firstRun: Record<Lang, FirstRunDict> = {
+  ko: {
+    title: "시작하기",
+    subtitle: "세 가지만 해보면 앱이 제대로 돌아가기 시작해요.",
+    progress: (d, t) => `${d}/${t} 완료`,
+    go: "하러 가기",
+    step: {
+      logTraining: { title: "첫 훈련 기록하기", body: "오늘 한 훈련을 남기면 바로 점수가 나와요." },
+      measure: { title: "기록 측정하기", body: "타이머로 재거나 직접 입력하면 개인 기록이 쌓여요." },
+      connectCoach: { title: "코치와 연결하기", body: "코치가 수락하면 기록을 보고 피드백을 남길 수 있어요." },
+      connectAthlete: { title: "선수와 연결하기", body: "선수가 수락하면 스쿼드 현황이 채워져요." },
+      feedback: { title: "첫 피드백 남기기", body: "공유된 기록에 한마디만 남겨보세요." },
+    },
+  },
+  en: {
+    title: "Get started",
+    subtitle: "Three things and the app starts working for you.",
+    progress: (d, t) => `${d} of ${t} done`,
+    go: "Do it",
+    step: {
+      logTraining: { title: "Log your first session", body: "Write down today's training and get a score straight away." },
+      measure: { title: "Measure something", body: "Time it or type it in — either way you start building personal bests." },
+      connectCoach: { title: "Connect with your coach", body: "Once they accept, they can see your records and leave feedback." },
+      connectAthlete: { title: "Connect with an athlete", body: "Once they accept, your squad view fills in." },
+      feedback: { title: "Leave your first feedback", body: "One line on a shared record is enough." },
+    },
+  },
+  es: {
+    title: "Empieza aquí",
+    subtitle: "Con tres cosas la app empieza a funcionar para ti.",
+    progress: (d, t) => `${d} de ${t} hechas`,
+    go: "Hacerlo",
+    step: {
+      logTraining: { title: "Registra tu primera sesión", body: "Apunta el entrenamiento de hoy y recibe una puntuación al instante." },
+      measure: { title: "Mide algo", body: "Cronométralo o escríbelo: así empiezas a acumular marcas personales." },
+      connectCoach: { title: "Conecta con tu entrenador", body: "Cuando acepte, podrá ver tus marcas y comentarlas." },
+      connectAthlete: { title: "Conecta con un atleta", body: "Cuando acepte, se llenará la vista de tu equipo." },
+      feedback: { title: "Deja tu primer comentario", body: "Con una línea en una marca compartida basta." },
+    },
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Connections (consent) + in-app notifications
 // ---------------------------------------------------------------------------
 export interface ConnectDict {
@@ -2234,6 +2287,7 @@ export function t(lang: Lang) {
     report: report[lang],
     digest: digest[lang],
     reset: reset[lang],
+    firstRun: firstRun[lang],
     connect: connect[lang],
     notifications: notifications[lang],
   };

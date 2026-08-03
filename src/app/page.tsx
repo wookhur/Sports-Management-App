@@ -20,6 +20,8 @@ import { touchStreak, topStreaks } from "@/lib/streak";
 import { formatDate, formatDuration, seoulDayKey, weekInSeoul } from "@/lib/format";
 import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { firstRunState } from "@/lib/firstRun";
+import FirstRunCard from "@/components/FirstRunCard";
 
 export const dynamic = "force-dynamic";
 
@@ -290,6 +292,27 @@ export default async function HomePage({
     ? await prisma.coachAthlete.count({ where: { coachId: session.userId, status: "ACCEPTED" } })
     : 0;
 
+  // --- First-run checklist -------------------------------------------------
+  // Four cheap existence checks; they stop mattering once the card is done,
+  // and the card is the only consumer.
+  const [firstRunSessions, firstRunRecords, firstRunLinks, firstRunFeedback] = await Promise.all([
+    prisma.trainingSession.count({ where: { userId: session.userId }, take: 1 }),
+    prisma.record.count({ where: { userId: session.userId }, take: 1 }),
+    prisma.coachAthlete.count({
+      where: isCoach
+        ? { coachId: session.userId, status: "ACCEPTED" }
+        : { athleteId: session.userId, status: "ACCEPTED" },
+      take: 1,
+    }),
+    isCoach ? prisma.comment.count({ where: { authorId: session.userId }, take: 1 }) : Promise.resolve(0),
+  ]);
+  const firstRun = firstRunState(session.role, {
+    hasTrainingSession: firstRunSessions > 0,
+    hasRecord: firstRunRecords > 0,
+    hasAcceptedLink: firstRunLinks > 0,
+    hasLeftFeedback: firstRunFeedback > 0,
+  });
+
   // --- Companion state -----------------------------------------------------
   // The pet mirrors real training data, so it doubles as a status readout.
   const activeToday = activeDays.has(todayKey);
@@ -342,6 +365,14 @@ export default async function HomePage({
             {isCoach ? s.subCoach : s.subAthlete}
           </p>
         </section>
+
+        {/* Above everything: a brand-new account has nothing else worth
+            looking at, and this is the shortest path to it having something. */}
+        {firstRun.show && (
+          <div className="mb-6">
+            <FirstRunCard lang={lang} state={firstRun} />
+          </div>
+        )}
 
         <div className="mb-6">
           <CompanionCard
