@@ -47,7 +47,7 @@ export default function HomeSettings({
     <div className="card p-5">
       <div className="mb-1 flex items-center justify-between">
         <h2 className="text-base font-bold">⚙️ {s.homeTitle}</h2>
-        {status === "saved" && <span className="text-xs font-medium text-emerald-600">✓ {s.saved}</span>}
+        {status === "saved" && <span className="text-xs font-medium text-emerald-700">✓ {s.saved}</span>}
         {status === "error" && <span className="text-xs font-medium text-red-500">{s.saveErr}</span>}
       </div>
       <p className="mb-3 text-sm text-slate-500">{s.homeSub}</p>

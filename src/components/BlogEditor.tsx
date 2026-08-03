@@ -216,7 +216,7 @@ export default function BlogEditor({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={coverImage} alt="" className="h-20 w-28 shrink-0 rounded-lg border border-slate-200 object-cover" />
           ) : (
-            <div className="flex h-20 w-28 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-400">
+            <div className="flex h-20 w-28 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-500">
               {s.preview}
             </div>
           )}

@@ -43,7 +43,7 @@ export default async function ResetPage({ params }: { params: Promise<{ token: s
                 {state === "expired" ? s.errExpired : state === "used" ? s.errUsed : s.errUnknown}
               </p>
               <Link href="/forgot" className="btn-primary mt-6 w-full">{s.submit}</Link>
-              <Link href="/login" className="mt-4 block text-sm text-slate-400 hover:text-slate-600">
+              <Link href="/login" className="mt-4 block text-sm text-slate-500 hover:text-slate-600">
                 {s.backToLogin}
               </Link>
             </div>

@@ -99,7 +99,7 @@ export default async function BlogListPage() {
 
         {popular.length > 0 && (
           <section className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{s.popular}</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{s.popular}</h2>
             <div className="grid gap-3 sm:grid-cols-3">
               {popular.map((post, i) => (
                 <Link
@@ -116,7 +116,7 @@ export default async function BlogListPage() {
                   <h3 className="mt-2 line-clamp-2 flex-1 font-bold leading-snug group-hover:text-brand">
                     {post.title}
                   </h3>
-                  <p className="mt-2 text-xs text-slate-400">{s.reactions(post._count.likes, post._count.readerComments)}</p>
+                  <p className="mt-2 text-xs text-slate-500">{s.reactions(post._count.likes, post._count.readerComments)}</p>
                 </Link>
               ))}
             </div>
@@ -125,7 +125,7 @@ export default async function BlogListPage() {
 
         <section className="mt-8">
           {popular.length > 0 && (
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{s.all}</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{s.all}</h2>
           )}
           <div className="space-y-4">
             {posts.length === 0 && (
@@ -148,21 +148,21 @@ export default async function BlogListPage() {
                 <div className="min-w-0 flex-1">
                   <Link href={`/blog/${post.slug}`}>
                     <div className="flex items-center gap-2">
-                      {post.tag && <span className="badge bg-brand/10 text-brand">{post.tag}</span>}
-                      <span className="text-xs text-slate-400">{formatDate(post.createdAt, lang)}</span>
+                      {post.tag && <span className="badge bg-brand/10 text-brand-dark">{post.tag}</span>}
+                      <span className="text-xs text-slate-500">{formatDate(post.createdAt, lang)}</span>
                     </div>
                     <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{post.title}</h2>
                     <p className="mt-1 line-clamp-2 text-sm text-slate-500">{post.excerpt}</p>
                   </Link>
                   <div className="mt-2 flex items-center justify-between">
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">
                       {post.author?.name ?? "Sideline365"} · {s.reactions(post._count.likes, post._count.readerComments)}
                     </p>
                     {canManage(post.author?.id ?? null) && (
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/blog/${post.slug}/edit`}
-                          className="text-xs font-medium text-slate-400 hover:text-brand"
+                          className="text-xs font-medium text-slate-500 hover:text-brand"
                         >
                           {s.edit}
                         </Link>

@@ -235,7 +235,7 @@ export default async function TrainingLibraryPage() {
           className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 transition hover:shadow-md"
         >
           <div className="flex items-center gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
               <StarIcon className="h-6 w-6" />
             </span>
             <div>
@@ -263,7 +263,7 @@ export default async function TrainingLibraryPage() {
                 </h2>
                 <Link
                   href={`/sports/${sportId}`}
-                  className="text-sm font-medium text-slate-400 transition-colors hover:text-brand"
+                  className="text-sm font-medium text-slate-500 transition-colors hover:text-brand"
                 >
                   {s.sportHome}
                 </Link>
@@ -276,14 +276,14 @@ export default async function TrainingLibraryPage() {
                     className="card group flex flex-col p-5 transition hover:border-slate-300 hover:shadow-md"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold" style={{ color: sport.accent }}>
+                      <span className="text-xs font-semibold" style={{ color: sport.accentText }}>
                         {r.category}
                       </span>
-                      {r.count && <span className="badge bg-slate-100 text-slate-500">{r.count}</span>}
+                      {r.count && <span className="badge bg-slate-100 text-slate-600">{r.count}</span>}
                     </div>
                     <h3 className="mt-2 font-bold text-slate-800 group-hover:text-brand">{r.title}</h3>
                     <p className="mt-1 flex-1 text-sm text-slate-500">{r.description}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-400 group-hover:text-brand">
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-500 group-hover:text-brand">
                       {s.go} <ChevronRightIcon className="h-3.5 w-3.5" />
                     </span>
                   </Link>

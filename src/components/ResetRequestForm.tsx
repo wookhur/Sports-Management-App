@@ -31,7 +31,7 @@ export default function ResetRequestForm({ lang }: { lang: Lang }) {
         <p className="text-4xl">📬</p>
         <h1 className="mt-3 text-xl font-bold">{s.sentTitle}</h1>
         <p className="mt-2 text-sm text-slate-600">{s.sentBody(email)}</p>
-        <p className="mt-1 text-xs text-slate-400">{s.sentHint(RESET_TTL_MINUTES)}</p>
+        <p className="mt-1 text-xs text-slate-500">{s.sentHint(RESET_TTL_MINUTES)}</p>
         <Link href="/login" className="mt-6 inline-block text-sm font-semibold text-brand hover:underline">
           {s.backToLogin}
         </Link>
@@ -59,7 +59,7 @@ export default function ResetRequestForm({ lang }: { lang: Lang }) {
       <button type="submit" disabled={busy} className="btn-primary mt-4 w-full">
         {busy ? s.submitting : s.submit}
       </button>
-      <Link href="/login" className="mt-4 block text-center text-sm text-slate-400 hover:text-slate-600">
+      <Link href="/login" className="mt-4 block text-center text-sm text-slate-500 hover:text-slate-600">
         {s.backToLogin}
       </Link>
     </form>

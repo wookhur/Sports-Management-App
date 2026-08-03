@@ -10,8 +10,8 @@ import { SPORT_I18N, metricLabel, guideCopy, guideLevelLabel, type Lang } from "
 import { getLang } from "@/lib/getLang";
 
 const levelColors: Record<string, string> = {
-  입문: "bg-emerald-50 text-emerald-600",
-  중급: "bg-amber-50 text-amber-600",
+  입문: "bg-emerald-50 text-emerald-700",
+  중급: "bg-amber-50 text-amber-700",
   고급: "bg-rose-50 text-rose-600",
 };
 
@@ -163,7 +163,7 @@ export default async function SportPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href="/" className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href="/" className="text-sm text-slate-500 hover:text-slate-600">
           ← {t.home}
         </Link>
 
@@ -235,7 +235,7 @@ export default async function SportPage({
                 {t.laxProgramDesc}
               </p>
             </div>
-            <span className="text-2xl text-emerald-600">→</span>
+            <span className="text-2xl text-emerald-700">→</span>
           </Link>
         )}
 
@@ -249,7 +249,7 @@ export default async function SportPage({
             <p className="mt-0.5 text-lg font-bold text-slate-800">{t.athletesTitle}</p>
             <p className="mt-1 text-sm text-slate-500">{t.athletesDesc}</p>
           </div>
-          <span className="text-2xl text-amber-600">→</span>
+          <span className="text-2xl text-amber-700">→</span>
         </Link>
 
         {/* Guides (lacrosse / soccer) */}
@@ -270,11 +270,11 @@ export default async function SportPage({
                 >
                   <div className="flex items-center justify-between">
                     <span className={`badge ${levelColors[guide.level]}`}>{guideLevelLabel(guide.level, lang)}</span>
-                    <span className="text-xs text-slate-400">⏱ {t.minutes(guide.durationMin)}</span>
+                    <span className="text-xs text-slate-500">⏱ {t.minutes(guide.durationMin)}</span>
                   </div>
                   <h3 className="mt-3 text-lg font-bold group-hover:text-brand">{guideCopy(guide.id, lang, guide).title}</h3>
                   <p className="mt-1 text-sm text-slate-500">{guideCopy(guide.id, lang, guide).summary}</p>
-                  <p className="mt-3 text-xs font-medium text-slate-400">🎯 {guideCopy(guide.id, lang, guide).focus}</p>
+                  <p className="mt-3 text-xs font-medium text-slate-500">🎯 {guideCopy(guide.id, lang, guide).focus}</p>
                 </Link>
               ))}
             </div>
@@ -303,17 +303,17 @@ export default async function SportPage({
                             <p className="flex items-center gap-1.5 font-medium">
                               {metricLabel(r.metricKey, r.metricName, lang)}
                               {isBest && (
-                                <span className="badge bg-yellow-50 text-yellow-600">{t.best}</span>
+                                <span className="badge bg-yellow-50 text-yellow-700">{t.best}</span>
                               )}
                             </p>
-                            <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
+                            <p className="text-xs text-slate-500">{formatDate(r.createdAt, lang)}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-mono text-lg font-semibold tabular-nums">
                               {r.durationMs != null ? formatDuration(r.durationMs) : "—"}
                             </p>
                             {r.distanceM && r.durationMs != null && (
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-slate-500">
                                 {formatPace(r.distanceM, r.durationMs)}
                               </p>
                             )}

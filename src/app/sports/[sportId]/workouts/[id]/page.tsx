@@ -95,7 +95,7 @@ export default async function WorkoutDetailPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <Link href={`/sports/${sportId}/workouts`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}/workouts`} className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
 
@@ -134,7 +134,7 @@ export default async function WorkoutDetailPage({
                   </div>
                   {howTo && <p className="mt-2 text-sm leading-relaxed text-slate-600">{howTo}</p>}
                   {skills && (
-                    <p className="mt-2 text-xs text-slate-400">
+                    <p className="mt-2 text-xs text-slate-500">
                       <span className="font-medium">{s.skillsLabel}</span> · {skills}
                     </p>
                   )}
@@ -146,7 +146,7 @@ export default async function WorkoutDetailPage({
                       className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
                     >
                       ▶ {video.name}
-                      <span className="text-xs text-slate-400">({source})</span>
+                      <span className="text-xs text-slate-500">({source})</span>
                     </a>
                   )}
                 </div>

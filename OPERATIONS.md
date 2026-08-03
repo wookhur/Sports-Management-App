@@ -19,6 +19,25 @@
 Nothing is sent to Sentry until a DSN is set, and `sendDefaultPii` is off so
 request bodies and headers are never transmitted.
 
+## Accessibility
+
+`e2e/a11y.spec.ts` runs axe-core against every route an athlete or coach uses,
+in CI, on every push. It fails on two things:
+
+- **Controls with no accessible name** — a select, input, button or link that a
+  screen reader announces as nothing.
+- **Text below WCAG AA contrast** (4.5:1).
+
+Both are currently at zero. The contrast rule is the one that regresses
+quietly, because Tailwind's `text-slate-400` reads as "muted" but is 2.85:1 on
+white. For secondary text on a light surface, `text-slate-500` is the lightest
+token that passes; on a *tinted* surface (a `bg-brand/5` row, a `bg-slate-100`
+pill) it needs `text-slate-600`. On dark surfaces the direction reverses —
+muted text there has to get *lighter*, not darker.
+
+Sport accents carry two tokens for this reason: `accent` for background tints
+and `accentText` for when the same identity has to be read as words.
+
 ## Weekly digest
 
 Coaches get a Monday-morning summary of their squad: who to check on, what

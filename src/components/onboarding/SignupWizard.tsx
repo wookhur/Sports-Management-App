@@ -158,7 +158,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
             {t(lang).login.tagline}
           </p>
         </div>
-        <p className="relative text-sm text-[#5f746f]">Sideline365 · Student Sports</p>
+        <p className="relative text-sm text-[#8FA8A2]">Sideline365 · Student Sports</p>
       </aside>
 
       {/* Right column: the wizard flow */}

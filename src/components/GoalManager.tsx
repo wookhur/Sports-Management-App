@@ -160,7 +160,7 @@ export default function GoalManager({
   return (
     <div className="card p-5">
       <h2 className="font-bold">{s.heading}</h2>
-      <p className="mt-0.5 text-xs text-slate-400">{s.sub}</p>
+      <p className="mt-0.5 text-xs text-slate-500">{s.sub}</p>
 
       <div className="mt-4 space-y-3">
         {goals.length === 0 && (
@@ -182,7 +182,7 @@ export default function GoalManager({
                   {s.targetAfter}
                 </p>
                 <div className="flex items-center gap-2">
-                  {g.achieved && <span className="badge bg-emerald-50 text-emerald-600">{s.achievedBadge}</span>}
+                  {g.achieved && <span className="badge bg-emerald-50 text-emerald-700">{s.achievedBadge}</span>}
                   <button
                     type="button"
                     onClick={() => remove(g.id)}
@@ -199,7 +199,7 @@ export default function GoalManager({
                   style={{ width: `${g.achieved ? 100 : pct}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-slate-400">
+              <p className="mt-1.5 text-xs text-slate-500">
                 {g.bestMs == null
                   ? s.noRecordYet
                   : g.achieved
@@ -233,7 +233,7 @@ export default function GoalManager({
             onChange={(e) => setMinutes(e.target.value)}
             aria-label={s.minutesAria}
           />
-          <span className="text-sm text-slate-400">{s.minutes}</span>
+          <span className="text-sm text-slate-500">{s.minutes}</span>
           <input
             className="input"
             inputMode="decimal"
@@ -242,7 +242,7 @@ export default function GoalManager({
             placeholder="32.5"
             aria-label={s.secondsAria}
           />
-          <span className="text-sm text-slate-400">{s.seconds}</span>
+          <span className="text-sm text-slate-500">{s.seconds}</span>
         </div>
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{error}</p>}
         <button type="submit" disabled={busy} className="btn-primary w-full text-sm">

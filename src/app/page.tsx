@@ -424,22 +424,22 @@ export default async function HomePage({
 
         {weekly && show("weekly") && (
           <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-              {s.weeklyTitle} <span className="font-normal normal-case text-slate-300">{s.weeklySub}</span>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+              {s.weeklyTitle} <span className="font-normal normal-case text-slate-500">{s.weeklySub}</span>
             </h2>
             <div className="grid grid-cols-3 gap-3">
               <div className="card p-4">
-                <p className="text-xs text-slate-400">{s.measureCountLabel}</p>
+                <p className="text-xs text-slate-500">{s.measureCountLabel}</p>
                 <p className="mt-1 text-xl font-bold tabular-nums">{s.measureCount(weekly.count)}</p>
               </div>
               <div className="card p-4">
-                <p className="text-xs text-slate-400">{s.pbLabel}</p>
+                <p className="text-xs text-slate-500">{s.pbLabel}</p>
                 <p className="mt-1 text-xl font-bold tabular-nums">
                   {s.pbCount(weekly.pbCount)}
                 </p>
               </div>
               <div className="card p-4">
-                <p className="text-xs text-slate-400">{s.metricLabel}</p>
+                <p className="text-xs text-slate-500">{s.metricLabel}</p>
                 <p className="mt-1 text-xl font-bold tabular-nums">{s.metricCount(weekly.metricCount)}</p>
               </div>
             </div>
@@ -460,8 +460,8 @@ export default async function HomePage({
 
         {!isCoach && badges.length > 0 && show("badges") && (
           <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-              {s.badgesTitle} <span className="font-normal normal-case text-slate-300">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+              {s.badgesTitle} <span className="font-normal normal-case text-slate-500">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
             </h2>
             <BadgeRow badges={badges} />
           </section>
@@ -473,7 +473,7 @@ export default async function HomePage({
             className="mb-8 flex items-center justify-between rounded-2xl bg-slate-900 p-5 text-white transition hover:bg-slate-800"
           >
             <div>
-              <p className="text-sm text-slate-300">{s.coachDashboard}</p>
+              <p className="text-sm text-slate-500">{s.coachDashboard}</p>
               <p className="text-lg font-semibold">
                 {s.coachDashboardLine(athleteCount)}
               </p>
@@ -484,7 +484,7 @@ export default async function HomePage({
 
         {show("sports") && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
             {s.sportsTitle}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -518,7 +518,7 @@ export default async function HomePage({
         {!isCoach && show("recent") && (
           <section className="mt-10">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                 {s.recentTitle}
               </h2>
               <Link href="/records" className="text-sm font-medium text-brand">
@@ -535,7 +535,7 @@ export default async function HomePage({
                   <div key={r.id} className="flex items-center justify-between px-5 py-3.5">
                     <div>
                       <p className="font-medium">{metricLabel(r.metricKey, r.metricName, lang)}</p>
-                      <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
+                      <p className="text-xs text-slate-500">{formatDate(r.createdAt, lang)}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {r.durationMs != null && (
@@ -544,7 +544,7 @@ export default async function HomePage({
                         </span>
                       )}
                       {r.shared && (
-                        <span className="badge bg-emerald-50 text-emerald-600">{s.shared}</span>
+                        <span className="badge bg-emerald-50 text-emerald-700">{s.shared}</span>
                       )}
                     </div>
                   </div>

@@ -56,13 +56,13 @@ export default async function BullseyePage() {
           <span className="text-sm font-semibold text-slate-600">{s.myBest}</span>
           <span className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold tabular-nums text-brand">{mine?.best ?? 0}</span>
-            {myRank && mine && <span className="text-xs text-slate-400">{s.yourRank(myRank)}</span>}
+            {myRank && mine && <span className="text-xs text-slate-500">{s.yourRank(myRank)}</span>}
           </span>
         </div>
 
         {/* Leaderboard */}
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{s.leaderboard}</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{s.leaderboard}</h2>
           {top.length === 0 ? (
             <div className="card p-8 text-center text-sm text-slate-500">{s.noScores}</div>
           ) : (
@@ -74,7 +74,7 @@ export default async function BullseyePage() {
                     key={row.userId}
                     className={`flex items-center gap-3 px-4 py-3 ${isMe ? "bg-brand/5" : ""}`}
                   >
-                    <span className="w-6 text-center text-sm font-bold tabular-nums text-slate-400">
+                    <span className="w-6 text-center text-sm font-bold tabular-nums text-slate-500">
                       {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                     </span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand">
@@ -85,7 +85,7 @@ export default async function BullseyePage() {
                         {row.user.name}
                         {isMe && <span className="ml-1 text-xs text-brand">({s.you})</span>}
                       </p>
-                      <p className="text-xs text-slate-400">{s.plays(row.plays)}</p>
+                      <p className="text-xs text-slate-500">{s.plays(row.plays)}</p>
                     </div>
                     <span className="text-lg font-extrabold tabular-nums">{row.best}</span>
                   </div>

@@ -50,7 +50,7 @@ export default function AttentionList({ lang, triage }: { lang: Lang; triage: Tr
       {triage.items.length === 0 ? (
         <div className="px-5 py-8 text-center">
           <p className="text-sm font-semibold text-slate-600">{s.clear}</p>
-          <p className="mt-1 text-xs text-slate-400">{s.clearHint}</p>
+          <p className="mt-1 text-xs text-slate-500">{s.clearHint}</p>
         </div>
       ) : (
         <ul className="grid gap-3 p-5 sm:grid-cols-2">
@@ -77,7 +77,7 @@ export default function AttentionList({ lang, triage }: { lang: Lang; triage: Tr
         </ul>
       )}
 
-      <p className="border-t border-slate-100 px-5 py-3 text-[11px] text-slate-400">ⓘ {s.disclaimer}</p>
+      <p className="border-t border-slate-100 px-5 py-3 text-[11px] text-slate-500">ⓘ {s.disclaimer}</p>
     </section>
   );
 }

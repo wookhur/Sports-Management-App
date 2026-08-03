@@ -183,7 +183,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
   const s = L[lang];
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
-      <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+      <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
         {s.back}
       </Link>
 
@@ -224,10 +224,10 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
             <div key={phi} className="card p-5">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold">{loc(ph.title, lang)}</h3>
-                <span className="badge bg-emerald-50 text-emerald-600">{loc(ph.time, lang)}</span>
+                <span className="badge bg-emerald-50 text-emerald-700">{loc(ph.time, lang)}</span>
               </div>
               <ItemList items={ph.items} lang={lang} className="mt-3" />
-              {ph.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(ph.source, lang)}</p>}
+              {ph.source && <p className="mt-3 text-xs text-slate-500">{s.source} {loc(ph.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -241,7 +241,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
             <div key={gi} className="card p-5">
               <h3 className="font-bold">{loc(g.group, lang)}</h3>
               <ItemList items={g.items} lang={lang} className="mt-3" />
-              {g.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(g.source, lang)}</p>}
+              {g.source && <p className="mt-3 text-xs text-slate-500">{s.source} {loc(g.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -290,7 +290,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
                 {p.emoji} {loc(p.name, lang)}
               </h3>
               <ItemList items={p.blocks} lang={lang} className="mt-3" />
-              {p.source && <p className="mt-3 text-xs text-slate-400">{s.source} {loc(p.source, lang)}</p>}
+              {p.source && <p className="mt-3 text-xs text-slate-500">{s.source} {loc(p.source, lang)}</p>}
             </div>
           ))}
         </div>
@@ -341,7 +341,7 @@ export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId:
                     <span className="mt-0.5 text-brand">▶</span>
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-slate-800">{v.title}</span>
-                      <span className="block text-xs text-slate-400">{loc(v.note, lang)}</span>
+                      <span className="block text-xs text-slate-500">{loc(v.note, lang)}</span>
                     </span>
                   </a>
                 ))}
@@ -400,7 +400,7 @@ function PracticeTable({
       <div className="card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-100 text-left text-xs text-slate-400">
+            <tr className="border-b border-slate-100 text-left text-xs text-slate-500">
               <th className="px-4 py-2.5 font-medium">{head[0]}</th>
               <th className="px-4 py-2.5 font-medium">{head[1]}</th>
               <th className="px-4 py-2.5 font-medium">{head[2]}</th>

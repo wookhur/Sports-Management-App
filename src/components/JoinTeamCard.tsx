@@ -102,7 +102,7 @@ export default function JoinTeamCard({
               >
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{team.name}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500">
                     {s.teamMeta(team.coachName, team.memberCount)}
                   </p>
                 </div>

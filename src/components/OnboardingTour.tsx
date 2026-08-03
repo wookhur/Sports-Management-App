@@ -167,7 +167,7 @@ export default function OnboardingTour({
         <div className="flex justify-end">
           <button
             onClick={close}
-            className="text-xs font-medium text-slate-400 hover:text-slate-600"
+            className="text-xs font-medium text-slate-500 hover:text-slate-600"
           >
             {s.skip}
           </button>

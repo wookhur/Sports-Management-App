@@ -38,7 +38,7 @@ export default function DigestOptOut({
       disabled={saving || pending}
       aria-pressed={on}
       className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition disabled:opacity-50 ${
-        on ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+        on ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
       }`}
     >
       {on ? `✓ ${onLabel}` : offLabel}

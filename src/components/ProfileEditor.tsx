@@ -203,7 +203,7 @@ export default function ProfileEditor({
                 onClick={() => toggleSport(s.id)}
                 aria-pressed={on}
                 className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                  on ? "border-brand bg-brand/10 text-brand" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                  on ? "border-brand bg-brand/10 text-brand-dark" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
                 }`}
               >
                 {s.emoji} {s.name}
@@ -214,7 +214,7 @@ export default function ProfileEditor({
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
-      {saved && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">{t.saved}</p>}
+      {saved && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{t.saved}</p>}
 
       <button type="submit" disabled={busy} className="btn-primary">
         {busy ? t.saving : t.save}

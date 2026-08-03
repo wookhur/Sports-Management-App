@@ -116,11 +116,11 @@ export default function RecordTrendChart({
     <div className="card p-5">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="font-bold text-slate-800">{name}</h3>
-        <span className={`text-xs font-medium ${improvedMs > 0 ? "text-emerald-600" : "text-slate-400"}`}>
+        <span className={`text-xs font-medium ${improvedMs > 0 ? "text-emerald-700" : "text-slate-500"}`}>
           {improvedMs > 0 ? s.improved(formatDuration(improvedMs)) : s.trend}
         </span>
       </div>
-      <p className="mt-0.5 text-xs text-slate-400">{s.caption}</p>
+      <p className="mt-0.5 text-xs text-slate-500">{s.caption}</p>
 
       <svg
         viewBox={`0 0 ${W} ${H}`}

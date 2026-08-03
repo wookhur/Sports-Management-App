@@ -335,7 +335,7 @@ export default function BullseyeGame({ lang }: { lang: Lang }) {
           {phase === "idle" || phase === "done" ? s.title.replace("🎯 ", "") : s.shotOf(shotIdx + 1, SHOTS)}
         </span>
         <span className="flex items-center gap-1.5 text-sm">
-          <span className="text-slate-400">{s.total}</span>
+          <span className="text-slate-500">{s.total}</span>
           <span className="text-lg font-extrabold tabular-nums text-brand">{total}</span>
         </span>
       </div>
@@ -392,11 +392,11 @@ export default function BullseyeGame({ lang }: { lang: Lang }) {
             <p className="text-sm text-slate-500">{s.finalScore}</p>
             <p className="text-4xl font-extrabold tabular-nums">{total}</p>
             {submitting ? (
-              <p className="mt-1 text-xs text-slate-400">{s.submitting}</p>
+              <p className="mt-1 text-xs text-slate-500">{s.submitting}</p>
             ) : (
               result && (
                 <p className="mt-1 text-sm font-semibold">
-                  {result.isRecord && <span className="text-amber-600">{s.newRecord} </span>}
+                  {result.isRecord && <span className="text-amber-700">{s.newRecord} </span>}
                   <span className="text-slate-500">{s.yourRank(result.rank)}</span>
                 </p>
               )

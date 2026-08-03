@@ -108,12 +108,12 @@ export default function BoardInteractions({
           <span>{liked ? "❤️" : "🤍"}</span>
           <span className="tabular-nums">{likes}</span>
         </button>
-        <span className="text-sm text-slate-400">💬 {comments.length}</span>
+        <span className="text-sm text-slate-500">💬 {comments.length}</span>
         {canDelete && (
           <button
             type="button"
             onClick={del}
-            className="ml-auto rounded-full px-3 py-1.5 text-sm font-medium text-slate-400 hover:bg-red-50 hover:text-red-500"
+            className="ml-auto rounded-full px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-500"
           >
             {s.deletePost}
           </button>
@@ -124,7 +124,7 @@ export default function BoardInteractions({
         <h2 className="mb-3 text-sm font-semibold text-slate-500">{s.commentsHeading(comments.length)}</h2>
 
         {comments.length === 0 ? (
-          <p className="mb-4 text-sm text-slate-400">{s.noComments}</p>
+          <p className="mb-4 text-sm text-slate-500">{s.noComments}</p>
         ) : (
           <ul className="mb-4 space-y-3">
             {comments.map((c) => (
@@ -138,7 +138,7 @@ export default function BoardInteractions({
                     {/* Relative time depends on "now", so the server render and
                         the hydration render disagree whenever a minute ticks
                         over between them. The client value is the correct one. */}
-                    <span suppressHydrationWarning className="text-xs text-slate-400">
+                    <span suppressHydrationWarning className="text-xs text-slate-500">
                       {formatRelative(c.createdAt, lang)}
                     </span>
                   </p>

@@ -40,7 +40,14 @@ export interface SportDef {
   emoji: string;
   /** Tailwind gradient classes for the sport card. */
   gradient: string;
-  accent: string; // hex, for small accents
+  accent: string; // hex, for small accents and background tints
+  /**
+   * The same identity, dark enough to be read as text.
+   *
+   * Several accents are around 3.6:1 on white — fine as a 10% tint behind an
+   * emoji, below AA the moment they carry words.
+   */
+  accentText: string;
   tagline: string;
   features: SportFeature[];
   guides?: Guide[];
@@ -56,6 +63,7 @@ const lacrosse: SportDef = {
   emoji: "🥍",
   gradient: "from-emerald-500 to-teal-600",
   accent: "#0d9488",
+  accentText: "#0f766e",
   tagline: "스틱 핸들링부터 1대1까지, 단계별 훈련 방식",
   features: ["guide"],
   guides: [
@@ -142,6 +150,7 @@ const soccer: SportDef = {
   emoji: "⚽",
   gradient: "from-sky-500 to-indigo-600",
   accent: "#4f46e5",
+  accentText: "#4f46e5",
   tagline: "터치, 패스, 드리블, 마무리까지 포지션 불문 기본 연습",
   features: ["guide"],
   guides: [
@@ -227,6 +236,7 @@ const swimming: SportDef = {
   emoji: "🏊",
   gradient: "from-cyan-500 to-blue-600",
   accent: "#0891b2",
+  accentText: "#0e7490",
   tagline: "영법·거리별 랩 타임을 측정하고 기록으로 남기세요",
   features: ["measure"],
   metrics: [
@@ -248,6 +258,7 @@ const track: SportDef = {
   emoji: "🏃",
   gradient: "from-orange-500 to-amber-600",
   accent: "#ea580c",
+  accentText: "#c2410c",
   tagline: "세계 최고 스프린터들의 훈련법을 만나보세요",
   features: [],
 };
@@ -261,6 +272,7 @@ const basketball: SportDef = {
   emoji: "🏀",
   gradient: "from-red-500 to-rose-600",
   accent: "#dc2626",
+  accentText: "#b91c1c",
   tagline: "세계적인 농구 선수들의 훈련법을 만나보세요",
   features: [],
 };

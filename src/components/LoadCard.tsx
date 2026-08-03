@@ -3,10 +3,10 @@ import { t, type Lang } from "@/lib/i18n";
 
 const ZONE_STYLE: Record<string, { chip: string; bar: string }> = {
   detraining: { chip: "bg-sky-50 text-sky-600", bar: "bg-sky-400" },
-  optimal: { chip: "bg-emerald-50 text-emerald-600", bar: "bg-emerald-500" },
-  caution: { chip: "bg-amber-50 text-amber-600", bar: "bg-amber-500" },
+  optimal: { chip: "bg-emerald-50 text-emerald-700", bar: "bg-emerald-500" },
+  caution: { chip: "bg-amber-50 text-amber-700", bar: "bg-amber-500" },
   high: { chip: "bg-red-50 text-red-600", bar: "bg-red-500" },
-  unknown: { chip: "bg-slate-100 text-slate-400", bar: "bg-slate-300" },
+  unknown: { chip: "bg-slate-100 text-slate-600", bar: "bg-slate-300" },
 };
 
 /** Athlete-facing view of the training-load engine. */
@@ -27,9 +27,9 @@ export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadS
           <p className="text-sm text-slate-500">{s.title}</p>
           <p className="mt-1 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold tabular-nums">{Math.round(summary.weekTotal)}</span>
-            <span className="text-xs text-slate-400">{s.weekLoad}</span>
+            <span className="text-xs text-slate-500">{s.weekLoad}</span>
             {trend != null && trend !== 0 && (
-              <span className={`text-sm font-bold ${trend > 0 ? "text-amber-600" : "text-sky-500"}`}>
+              <span className={`text-sm font-bold ${trend > 0 ? "text-amber-700" : "text-sky-500"}`}>
                 {trend > 0 ? "▲" : "▼"}
                 {Math.abs(trend)}%
               </span>
@@ -53,7 +53,7 @@ export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadS
         ))}
       </div>
 
-      <p className="mt-2 text-xs text-slate-400">
+      <p className="mt-2 text-xs text-slate-500">
         {s.activeDays(summary.activeDays, CHRONIC_DAYS)}
       </p>
 
@@ -61,7 +61,7 @@ export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadS
         {summary.acwr == null ? s.buildingHint : s.zoneHint[summary.zone]}
       </p>
 
-      <p className="mt-3 border-t border-slate-100 pt-3 text-[11px] leading-relaxed text-slate-400">
+      <p className="mt-3 border-t border-slate-100 pt-3 text-[11px] leading-relaxed text-slate-500">
         ⓘ {s.disclaimer}
       </p>
     </section>

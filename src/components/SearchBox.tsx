@@ -31,7 +31,7 @@ export default function SearchBox({
 
   return (
     <form onSubmit={submit} className="relative">
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth={2} strokeLinecap="round">
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-3.5-3.5" />

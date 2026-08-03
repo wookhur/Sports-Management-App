@@ -19,7 +19,7 @@ export default async function NewBoardPostPage() {
     <>
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <Link href="/board" className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href="/board" className="text-sm text-slate-500 hover:text-slate-600">
           {s.backToBoard}
         </Link>
         <h1 className="mb-6 mt-3 text-2xl font-bold">{s.writeTitle}</h1>

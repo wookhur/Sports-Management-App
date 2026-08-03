@@ -53,7 +53,7 @@ export default function CompanionCard({
         </div>
 
         <div className="mt-2 flex items-center gap-2">
-          <span className="shrink-0 rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-bold text-slate-500">
+          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600">
             {st.label[lang]}
           </span>
           <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/70">
@@ -64,7 +64,7 @@ export default function CompanionCard({
           </span>
         </div>
         {st.stage === "egg" && (
-          <p className="mt-1 text-[11px] text-slate-400">
+          <p className="mt-1 text-[11px] text-slate-500">
             {c.hatchIn(Math.max(0, HATCH - growth))}
           </p>
         )}

@@ -3,7 +3,7 @@ import { getLang } from "@/lib/getLang";
 import { getSession } from "@/lib/auth";
 import Sidebar, { type SidebarPet } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/SidebarContext";
-import { prisma } from "@/lib/db";
+import { getShellData } from "@/lib/shell";
 import { petState, careActions } from "@/lib/pet";
 import "./globals.css";
 
@@ -19,11 +19,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // The companion rides along in the sidebar on every authenticated page.
   let pet: SidebarPet | null = null;
   if (session) {
-    const u = await prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { beans: true, petGrowth: true },
-    });
-    if (u) {
+    const u = await getShellData(session.userId);
+    {
       const st = petState(u.petGrowth);
       const cheapest = careActions(u.petGrowth).reduce(
         (min, c) => (min === 0 ? c.cost : Math.min(min, c.cost)),

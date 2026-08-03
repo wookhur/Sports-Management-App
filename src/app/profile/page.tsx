@@ -116,7 +116,7 @@ export default async function ProfilePage() {
             <h1 className="text-2xl font-bold">{user.name}</h1>
             <p className="text-sm text-slate-500">
               {user.email} ·{" "}
-              <span className={`badge ${isCoach ? "bg-brand/10 text-brand" : "bg-emerald-50 text-emerald-600"}`}>
+              <span className={`badge ${isCoach ? "bg-brand/10 text-brand-dark" : "bg-emerald-50 text-emerald-700"}`}>
                 {isCoach ? t.roleCoach : t.roleAthlete}
               </span>
             </p>
@@ -125,22 +125,22 @@ export default async function ProfilePage() {
 
         <div className="mt-6 grid grid-cols-3 gap-3">
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">{t.statRecords}</p>
+            <p className="text-xs text-slate-500">{t.statRecords}</p>
             <p className="mt-1 text-xl font-bold tabular-nums">{t.nRecords(user._count.records)}</p>
           </div>
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">{t.statStreak}</p>
+            <p className="text-xs text-slate-500">{t.statStreak}</p>
             <p className="mt-1 text-xl font-bold tabular-nums">🔥 {t.nDays(user.currentStreak)}</p>
           </div>
           <div className="card p-4 text-center">
-            <p className="text-xs text-slate-400">{t.statLongest}</p>
+            <p className="text-xs text-slate-500">{t.statLongest}</p>
             <p className="mt-1 text-xl font-bold tabular-nums">{t.nDays(user.longestStreak)}</p>
           </div>
         </div>
 
         <section className="mt-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-            {t.badges} <span className="font-normal normal-case text-slate-300">{t.earned(badges.filter((b) => b.earned).length, badges.length)}</span>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {t.badges} <span className="font-normal normal-case text-slate-500">{t.earned(badges.filter((b) => b.earned).length, badges.length)}</span>
           </h2>
           <BadgeRow badges={badges} />
         </section>

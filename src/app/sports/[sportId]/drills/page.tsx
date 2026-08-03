@@ -64,7 +64,7 @@ export default async function DrillsPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
 
@@ -100,7 +100,7 @@ export default async function DrillsPage({
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="badge bg-indigo-50 text-indigo-600">{loc(d.category, lang)}</span>
-                  <span className="text-xs text-slate-400">⏱ {s.minutes(d.durationMin)}</span>
+                  <span className="text-xs text-slate-500">⏱ {s.minutes(d.durationMin)}</span>
                 </div>
                 <h3 className="mt-2 font-bold group-hover:text-brand">{loc(d.title, lang)}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">{loc(d.summary, lang)}</p>

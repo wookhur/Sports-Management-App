@@ -124,6 +124,9 @@ export default async function AdminPage() {
 
   const [users, recordCount, postCount, guideCount, teamCount] = await Promise.all([
     prisma.user.findMany({
+      // The newest accounts are the useful ones here; listing every user in
+      // the system does not stay a page-sized answer.
+      take: 100,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -161,7 +164,7 @@ export default async function AdminPage() {
           <div className="card overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-400">
+                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-5 py-3 font-semibold">{s.thName}</th>
                   <th className="px-5 py-3 font-semibold">{s.thEmail}</th>
                   <th className="px-5 py-3 font-semibold">{s.thRole}</th>
@@ -176,7 +179,7 @@ export default async function AdminPage() {
                     <td className="px-5 py-3 font-medium">{u.name}</td>
                     <td className="px-5 py-3 text-slate-500">{u.email}</td>
                     <td className="px-5 py-3">
-                      <span className={`badge ${u.role === "COACH" ? "bg-brand/10 text-brand" : "bg-emerald-50 text-emerald-600"}`}>
+                      <span className={`badge ${u.role === "COACH" ? "bg-brand/10 text-brand-dark" : "bg-emerald-50 text-emerald-700"}`}>
                         {u.role === "COACH" ? s.roleCoach : s.roleAthlete}
                       </span>
                     </td>
@@ -184,7 +187,7 @@ export default async function AdminPage() {
                     <td className="px-5 py-3 text-right tabular-nums">
                       {u.currentStreak > 0 ? s.streakDays(u.currentStreak) : "—"}
                     </td>
-                    <td className="px-5 py-3 text-right text-xs text-slate-400">{formatDate(u.createdAt, lang)}</td>
+                    <td className="px-5 py-3 text-right text-xs text-slate-500">{formatDate(u.createdAt, lang)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -192,7 +195,7 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        <p className="mt-4 text-xs text-slate-400">
+        <p className="mt-4 text-xs text-slate-500">
           {s.footerNote}{" "}
           <Link href="/blog" className="text-brand hover:underline">{s.footerLink}</Link>
         </p>
@@ -204,7 +207,7 @@ export default async function AdminPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-4">
-      <p className="text-xs text-slate-400">{label}</p>
+      <p className="text-xs text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-bold tabular-nums">{value}</p>
     </div>
   );

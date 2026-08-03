@@ -91,7 +91,7 @@ export default async function BoardPage({
                       {p.author.name.slice(0, 1)}
                     </span>
                     <span className="text-sm font-semibold">{p.author.name}</span>
-                    <span className="text-xs text-slate-400">· {formatRelative(p.createdAt, lang)}</span>
+                    <span className="text-xs text-slate-500">· {formatRelative(p.createdAt, lang)}</span>
                     {CAT_BADGE[p.category] && (
                       <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
                         {p.category === "tips" ? s.catTips : s.catGameplay}
@@ -111,7 +111,7 @@ export default async function BoardPage({
                       ))}
                     </div>
                   )}
-                  <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
+                  <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
                     <span>❤️ {p._count.likes}</span>
                     <span>💬 {p._count.comments}</span>
                     <span>👁 {p.views}</span>

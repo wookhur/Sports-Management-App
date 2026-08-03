@@ -22,17 +22,17 @@ export function tierEmoji(total: number): string {
 }
 
 const PART_COLORS = {
-  volume: "#8b5cf6", // violet — like the 탄 chip
-  intensity: "#3b82f6", // blue — 단
-  measurement: "#2dd4bf", // teal — 지
-  consistency: "#f59e0b", // amber
+  volume: "#7c3aed", // violet — like the 탄 chip
+  intensity: "#2563eb", // blue — 단
+  measurement: "#0f766e", // teal — 지 (dark enough to carry white text)
+  consistency: "#b45309", // amber
 } as const;
 
 function Delta({ diff }: { diff: number }) {
   if (diff === 0) return null;
   const up = diff > 0;
   return (
-    <span className={`text-base font-bold ${up ? "text-blue-500" : "text-red-400"}`}>
+    <span className={`text-base font-bold ${up ? "text-blue-600" : "text-red-600"}`}>
       {up ? "▲" : "▼"}
       {Math.abs(diff)}
     </span>
@@ -90,7 +90,7 @@ export function ScoreCard({
             <span className="text-slate-500">{p.label}</span>
             <span className="font-bold tabular-nums">
               {p.val}
-              <span className="font-normal text-slate-400">/{p.max}</span>
+              <span className="font-normal text-slate-500">/{p.max}</span>
             </span>
           </span>
         ))}
@@ -116,14 +116,14 @@ export function ScoreCard({
       <div className="mt-3 flex flex-wrap gap-2">
         <span
           className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-            warnings.overtraining ? "bg-orange-50 text-orange-600" : "bg-slate-50 text-slate-300"
+            warnings.overtraining ? "bg-orange-50 text-orange-700" : "bg-slate-50 text-slate-500"
           }`}
         >
           ⚠️ {s.warnOver}
         </span>
         <span
           className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-            warnings.needRest ? "bg-orange-50 text-orange-600" : "bg-slate-50 text-slate-300"
+            warnings.needRest ? "bg-orange-50 text-orange-700" : "bg-slate-50 text-slate-500"
           }`}
         >
           😴 {s.warnRest}
@@ -161,7 +161,7 @@ export function HomeScoreCard({
             <p className="flex items-baseline gap-2">
               <span className="text-2xl font-extrabold tabular-nums">{s.pts(total)}</span>
               <Delta diff={total - yesterdayTotal} />
-              <span className="text-xs text-slate-400">{s.minutesVal(minutes)}</span>
+              <span className="text-xs text-slate-500">{s.minutesVal(minutes)}</span>
             </p>
           ) : (
             <p className="text-sm font-semibold text-slate-600">{s.homeEmpty}</p>

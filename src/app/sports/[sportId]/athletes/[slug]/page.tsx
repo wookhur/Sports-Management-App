@@ -65,14 +65,14 @@ export default async function AthleteGuidePage({
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between">
-          <Link href={`/sports/${sportId}/athletes`} className="text-sm text-slate-400 hover:text-slate-600">
+          <Link href={`/sports/${sportId}/athletes`} className="text-sm text-slate-500 hover:text-slate-600">
             ← {t.back(sportName)}
           </Link>
           {isCoach && (
             <div className="flex items-center gap-3">
               <Link
                 href={`/sports/${sportId}/athletes/${guide.slug}/edit`}
-                className="text-xs font-medium text-slate-400 hover:text-brand"
+                className="text-xs font-medium text-slate-500 hover:text-brand"
               >
                 {t.edit}
               </Link>
@@ -89,8 +89,8 @@ export default async function AthleteGuidePage({
         <header className="mt-4">
           {!guide.coverImage && <div className="text-5xl">{sport.emoji}</div>}
           <div className="mt-3 flex items-center gap-2">
-            <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
-            <span className="text-sm text-slate-400">{formatDate(guide.createdAt, lang)}</span>
+            <span className="badge bg-brand/10 text-brand-dark">{guide.athleteName}</span>
+            <span className="text-sm text-slate-500">{formatDate(guide.createdAt, lang)}</span>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{guide.title}</h1>
           <p className="mt-2 text-slate-500">{guide.author?.name ?? "Sideline365"}</p>

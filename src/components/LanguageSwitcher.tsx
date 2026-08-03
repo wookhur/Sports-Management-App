@@ -31,7 +31,7 @@ export default function LanguageSwitcher({ lang, dark = false }: { lang: Lang; d
   }
 
   const track = dark ? "bg-white/5" : "bg-slate-100";
-  const idleText = dark ? "text-[#9CB3AE] hover:text-[#EAFBF6]" : "text-slate-400 hover:text-slate-700";
+  const idleText = dark ? "text-[#9CB3AE] hover:text-[#EAFBF6]" : "text-slate-600 hover:text-slate-900";
   const activePill = dark ? "bg-white/10 text-teal-300" : "bg-white text-brand shadow-sm";
 
   return (

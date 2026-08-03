@@ -16,9 +16,9 @@ function pct(ratio: number): string {
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-xl border border-slate-200 px-4 py-3">
-      <p className="text-[11px] uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-bold tabular-nums">{value}</p>
-      {hint && <p className="text-[11px] text-slate-400">{hint}</p>}
+      {hint && <p className="text-[11px] text-slate-500">{hint}</p>}
     </div>
   );
 }
@@ -44,7 +44,7 @@ export default function TeamReportView({
           ← {s.back}
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-400">{s.periodLabel}</span>
+          <span className="text-xs text-slate-500">{s.periodLabel}</span>
           {REPORT_WEEK_OPTIONS.map((w) => (
             <Link
               key={w}
@@ -115,7 +115,7 @@ export default function TeamReportView({
                       <td className="py-2 pr-3 font-medium">
                         {r.name}
                         {r.sessions === 0 && (
-                          <span className="ml-2 text-[11px] font-normal text-slate-400">{s.noSessions}</span>
+                          <span className="ml-2 text-[11px] font-normal text-slate-500">{s.noSessions}</span>
                         )}
                       </td>
                       <td className="py-2 pr-3 text-right tabular-nums">{r.sessions}</td>
@@ -138,7 +138,7 @@ export default function TeamReportView({
             <h2 className="text-lg font-bold">🏅 {s.highlights}</h2>
             <p className="mt-0.5 text-xs text-slate-500">{s.highlightsHint}</p>
             {report.highlights.length === 0 ? (
-              <p className="mt-3 text-sm text-slate-400">{s.noHighlights}</p>
+              <p className="mt-3 text-sm text-slate-500">{s.noHighlights}</p>
             ) : (
               <ul className="mt-3 divide-y divide-slate-100">
                 {report.highlights.map((h, i) => (
@@ -149,7 +149,7 @@ export default function TeamReportView({
                     </span>
                     <span className="shrink-0 text-sm tabular-nums">
                       <span className="font-bold">{formatDuration(h.durationMs)}</span>
-                      <span className="ml-2 text-xs text-slate-400">{formatDayKey(h.day, lang)}</span>
+                      <span className="ml-2 text-xs text-slate-500">{formatDayKey(h.day, lang)}</span>
                     </span>
                   </li>
                 ))}
@@ -162,7 +162,7 @@ export default function TeamReportView({
             <h2 className="text-lg font-bold">{s.watch}</h2>
             <p className="mt-0.5 text-xs text-slate-500">{s.watchHint}</p>
             {report.watch.length === 0 ? (
-              <p className="mt-3 text-sm text-slate-400">{s.noWatch}</p>
+              <p className="mt-3 text-sm text-slate-500">{s.noWatch}</p>
             ) : (
               <ul className="mt-3 space-y-2">
                 {report.watch.map((w) => (
@@ -184,7 +184,7 @@ export default function TeamReportView({
             )}
           </section>
 
-          <footer className="mt-8 border-t border-slate-200 pt-4 text-[11px] leading-relaxed text-slate-400">
+          <footer className="mt-8 border-t border-slate-200 pt-4 text-[11px] leading-relaxed text-slate-500">
             {s.footer}
           </footer>
         </article>

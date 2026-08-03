@@ -82,8 +82,8 @@ export default async function JournalPage() {
             <div className="flex gap-3">
               <RoybotAvatar tier={roybotTier} className="h-11 w-11 shrink-0" />
               <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3">
-                <p className="mb-1 text-xs font-bold text-slate-500">
-                  {s.coachName} <span className="font-medium text-slate-400">· {ROYBOT_TIER_LABEL[lang][roybotTier]}</span>
+                <p className="mb-1 text-xs font-bold text-slate-600">
+                  {s.coachName} <span className="font-medium text-slate-600">· {ROYBOT_TIER_LABEL[lang][roybotTier]}</span>
                 </p>
                 <ul className="space-y-1 text-sm leading-relaxed text-slate-700">
                   {lines.map((line, i) => (
@@ -98,7 +98,7 @@ export default async function JournalPage() {
 
           {/* Today's journal entries */}
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
               {s.todaySessions}
             </h2>
             {o.sessionsToday.length === 0 ? (
@@ -120,7 +120,7 @@ export default async function JournalPage() {
                         <p className="text-sm font-semibold">
                           {sport?.emoji} {sportName} · {s.kinds[e.kind]}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-500">
                           {s.minutesVal(e.minutes)} · RPE {e.intensity}
                           {e.notes ? ` · ${e.notes}` : ""}
                         </p>
@@ -135,7 +135,7 @@ export default async function JournalPage() {
 
           {/* Today's timed records (from the existing stopwatch/manual entry) */}
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
               {s.todayRecords}
             </h2>
             {o.recordsToday.length === 0 ? (
@@ -152,7 +152,7 @@ export default async function JournalPage() {
                     <p className="text-sm font-medium">
                       {metricLabel(r.metricKey, r.metricName, lang)}
                       {r.isPb && (
-                        <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-600">
+                        <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
                           🏆 {s.pbBadge}
                         </span>
                       )}
@@ -168,16 +168,16 @@ export default async function JournalPage() {
 
           {/* Trailing 7-day score strip */}
           <section>
-            <h2 className="mb-2 flex items-baseline justify-between text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="mb-2 flex items-baseline justify-between text-sm font-semibold uppercase tracking-wide text-slate-500">
               <span>{s.weekTitle}</span>
-              <span className="font-normal normal-case text-slate-400">{s.weekAvg(weekAvg)}</span>
+              <span className="font-normal normal-case text-slate-500">{s.weekAvg(weekAvg)}</span>
             </h2>
             <div className="card flex items-end justify-between gap-2 p-5">
               {o.week.map((d, i) => {
                 const isToday = i === o.week.length - 1;
                 return (
                   <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
-                    <span className="text-[11px] font-semibold tabular-nums text-slate-400">
+                    <span className="text-[11px] font-semibold tabular-nums text-slate-500">
                       {d.total > 0 ? d.total : ""}
                     </span>
                     <div className="flex h-24 w-full max-w-[36px] items-end rounded-lg bg-slate-100">
@@ -188,7 +188,7 @@ export default async function JournalPage() {
                     </div>
                     <span
                       className={`text-xs tabular-nums ${
-                        isToday ? "font-bold text-brand" : "text-slate-400"
+                        isToday ? "font-bold text-brand" : "text-slate-500"
                       }`}
                     >
                       {d.dayNum}

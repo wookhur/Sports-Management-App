@@ -70,7 +70,7 @@ export default function AuthForm({ lang }: { lang: Lang }) {
       </button>
 
       <p className="text-center text-sm">
-        <Link href="/forgot" className="text-slate-400 hover:text-slate-600">
+        <Link href="/forgot" className="text-slate-500 hover:text-slate-600">
           {t(lang).reset.forgotLink}
         </Link>
       </p>

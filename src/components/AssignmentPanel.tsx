@@ -131,7 +131,7 @@ export default function AssignmentPanel({
   return (
     <div className="card p-5">
       <h2 className="font-bold">{s.heading}</h2>
-      <p className="mt-0.5 text-xs text-slate-400">{s.sub}</p>
+      <p className="mt-0.5 text-xs text-slate-500">{s.sub}</p>
 
       {athletes.length === 0 ? (
         <p className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-500">
@@ -178,10 +178,10 @@ export default function AssignmentPanel({
           {assignments.map((a) => (
             <li key={a.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3.5 py-2.5">
               <div className="min-w-0">
-                <p className={`truncate text-sm font-medium ${a.completedAt ? "text-slate-400 line-through" : "text-slate-800"}`}>
+                <p className={`truncate text-sm font-medium ${a.completedAt ? "text-slate-500 line-through" : "text-slate-800"}`}>
                   {a.title}
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   {a.athleteName} · {a.completedAt ? s.done : s.inProgress}
                 </p>
               </div>

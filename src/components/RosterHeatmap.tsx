@@ -12,10 +12,10 @@ const LEVEL_BG = [
 
 const ZONE_CHIP: Record<string, string> = {
   high: "bg-red-50 text-red-600",
-  caution: "bg-amber-50 text-amber-600",
-  optimal: "bg-emerald-50 text-emerald-600",
+  caution: "bg-amber-50 text-amber-700",
+  optimal: "bg-emerald-50 text-emerald-700",
   detraining: "bg-sky-50 text-sky-600",
-  unknown: "bg-slate-100 text-slate-400",
+  unknown: "bg-slate-100 text-slate-600",
 };
 
 export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Roster }) {
@@ -27,7 +27,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
       <section className="card p-8 text-center">
         <h2 className="text-lg font-bold">📊 {s.title}</h2>
         <p className="mt-2 text-sm text-slate-500">{s.empty}</p>
-        <p className="mt-1 text-xs text-slate-400">{s.emptyHint}</p>
+        <p className="mt-1 text-xs text-slate-500">{s.emptyHint}</p>
       </section>
     );
   }
@@ -42,7 +42,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
       </div>
 
       {/* Column headings */}
-      <div className="hidden items-center gap-3 px-5 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 sm:flex">
+      <div className="hidden items-center gap-3 px-5 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:flex">
         <span className="w-32 shrink-0">{s.athlete}</span>
         <span className="flex-1">{s.last14}</span>
         <span className="w-24 shrink-0 text-right">{s.weekLoad}</span>
@@ -55,7 +55,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
             {/* Name + recency */}
             <div className="w-32 shrink-0">
               <p className="truncate text-sm font-semibold">{r.name}</p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 {r.daysSinceActive == null
                   ? s.neverLogged
                   : r.daysSinceActive === 0
@@ -80,7 +80,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
             {/* Weekly load */}
             <div className="w-24 shrink-0 text-right">
               <p className="text-sm font-bold tabular-nums">{r.weekLoad}</p>
-              <p className="text-[11px] text-slate-400">{s.sessionsIn14(r.sessions14)}</p>
+              <p className="text-[11px] text-slate-500">{s.sessionsIn14(r.sessions14)}</p>
             </div>
 
             {/* Zone */}
@@ -95,14 +95,14 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
 
       {/* Legend + honest framing */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-3">
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
           <span>{s.legendLess}</span>
           {LEVEL_BG.map((bg, i) => (
             <span key={i} className={`h-3 w-3 rounded-sm ${bg}`} />
           ))}
           <span>{s.legendMore}</span>
         </div>
-        <p className="text-[11px] text-slate-400">ⓘ {s.disclaimer}</p>
+        <p className="text-[11px] text-slate-500">ⓘ {s.disclaimer}</p>
       </div>
     </section>
   );

@@ -85,7 +85,7 @@ export default function AssignmentCard({
     <div className="card p-5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold">{s.title}</h2>
-        <span className="badge bg-brand/10 text-brand">{s.remaining(pending.length)}</span>
+        <span className="badge bg-brand/10 text-brand-dark">{s.remaining(pending.length)}</span>
       </div>
 
       {assignments.length === 0 ? (
@@ -102,18 +102,18 @@ export default function AssignmentCard({
                 aria-pressed={Boolean(a.completedAt)}
                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs transition-colors ${
                   a.completedAt
-                    ? "border-emerald-500 bg-emerald-500 text-white"
+                    ? "border-emerald-500 bg-emerald-700 text-white"
                     : "border-slate-300 bg-white text-transparent hover:border-brand"
                 }`}
               >
                 ✓
               </button>
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-medium ${a.completedAt ? "text-slate-400 line-through" : "text-slate-800"}`}>
+                <p className={`text-sm font-medium ${a.completedAt ? "text-slate-500 line-through" : "text-slate-800"}`}>
                   {a.title}
                 </p>
                 {a.note && <p className="mt-0.5 text-xs text-slate-500">{a.note}</p>}
-                <p className="mt-0.5 text-xs text-slate-400">
+                <p className="mt-0.5 text-xs text-slate-500">
                   {s.coachAttr(a.coachName)}
                   {a.linkHref && (
                     <>

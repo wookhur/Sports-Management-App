@@ -40,7 +40,9 @@ export default async function RecordsPage() {
   // Coaches manage their roster from the coach dashboard instead.
   if (session.role === "COACH") redirect("/coach");
 
+  // Capped: a season of daily records would otherwise render in one page.
   const records = await prisma.record.findMany({
+    take: 200,
     where: { userId: session.userId },
     orderBy: { createdAt: "desc" },
     include: {
@@ -131,7 +133,7 @@ export default async function RecordsPage() {
 
         {chartMetrics.length > 0 && (
           <section className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
               {s.trendHeading}
             </h2>
             <div className="grid gap-4 lg:grid-cols-2">

@@ -8,7 +8,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import SidebarToggleButton from "./SidebarToggleButton";
 import BrandMark from "./BrandMark";
 import NotificationBell from "./NotificationBell";
-import { unreadCount } from "@/lib/notifyServer";
+import { getShellData } from "@/lib/shell";
 
 export default async function NavBar() {
   const session = await getSession();
@@ -18,7 +18,8 @@ export default async function NavBar() {
   const lang = await getLang();
   const s = t(lang).nav;
   const sb = t(lang).sidebar;
-  const unread = await unreadCount(session.userId);
+  // Shared with the layout via a per-request cache, so this costs no extra trip.
+  const { unread } = await getShellData(session.userId);
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">

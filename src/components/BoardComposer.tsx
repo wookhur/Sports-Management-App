@@ -113,7 +113,7 @@ export default function BoardComposer({ lang }: { lang: Lang }) {
             onChange={(e) => setVideoUrl(e.target.value)}
             placeholder={s.videoPlaceholder}
           />
-          <p className="mt-1 text-xs text-slate-400">{s.videoHint}</p>
+          <p className="mt-1 text-xs text-slate-500">{s.videoHint}</p>
         </div>
       )}
 

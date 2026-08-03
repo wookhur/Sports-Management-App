@@ -72,7 +72,7 @@ export default async function AthleteGuideListPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
           ← {sportName}
         </Link>
 
@@ -109,19 +109,19 @@ export default async function AthleteGuideListPage({
               <div className="min-w-0 flex-1">
                 <Link href={`/sports/${sportId}/athletes/${guide.slug}`}>
                   <div className="flex items-center gap-2">
-                    <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
-                    <span className="text-xs text-slate-400">{formatDate(guide.createdAt, lang)}</span>
+                    <span className="badge bg-brand/10 text-brand-dark">{guide.athleteName}</span>
+                    <span className="text-xs text-slate-500">{formatDate(guide.createdAt, lang)}</span>
                   </div>
                   <h2 className="mt-1 text-lg font-bold group-hover:text-brand">{guide.title}</h2>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">{guide.excerpt}</p>
                 </Link>
                 <div className="mt-2 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">{guide.author?.name ?? "Sideline365"}</p>
+                  <p className="text-xs text-slate-500">{guide.author?.name ?? "Sideline365"}</p>
                   {isCoach && (
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/sports/${sportId}/athletes/${guide.slug}/edit`}
-                        className="text-xs font-medium text-slate-400 hover:text-brand"
+                        className="text-xs font-medium text-slate-500 hover:text-brand"
                       >
                         {t.edit}
                       </Link>

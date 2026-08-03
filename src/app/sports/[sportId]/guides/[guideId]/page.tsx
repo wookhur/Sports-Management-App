@@ -7,8 +7,8 @@ import { getLang } from "@/lib/getLang";
 import { SPORT_I18N, guideCopy, guideLevelLabel, guideBody, type Lang } from "@/lib/i18n";
 
 const levelColors: Record<string, string> = {
-  입문: "bg-emerald-50 text-emerald-600",
-  중급: "bg-amber-50 text-amber-600",
+  입문: "bg-emerald-50 text-emerald-700",
+  중급: "bg-amber-50 text-amber-700",
   고급: "bg-rose-50 text-rose-600",
 };
 
@@ -56,15 +56,15 @@ export default async function GuidePage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
           ← {SPORT_I18N[sport.id]?.[lang]?.name ?? sport.name}
         </Link>
 
         <header className="mt-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`badge ${levelColors[guide.level]}`}>{guideLevelLabel(guide.level, lang)}</span>
-            <span className="badge bg-slate-100 text-slate-500">⏱ {s.minutes(guide.durationMin)}</span>
-            <span className="badge bg-slate-100 text-slate-500">🎯 {guideCopy(guide.id, lang, guide).focus}</span>
+            <span className="badge bg-slate-100 text-slate-600">⏱ {s.minutes(guide.durationMin)}</span>
+            <span className="badge bg-slate-100 text-slate-600">🎯 {guideCopy(guide.id, lang, guide).focus}</span>
           </div>
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">
             {sport.emoji} {guideCopy(guide.id, lang, guide).title}
@@ -74,7 +74,7 @@ export default async function GuidePage({
 
         {/* Steps */}
         <section className="mt-8">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
             {s.steps}
           </h2>
           <ol className="space-y-3">

@@ -78,7 +78,7 @@ export default async function DrillDetailPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <Link href={`/sports/${sportId}/drills`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}/drills`} className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
 
@@ -86,15 +86,15 @@ export default async function DrillDetailPage({
           <div className="flex flex-wrap items-center gap-2">
             <span className="badge bg-indigo-50 text-indigo-600">{loc(drill.category, lang)}</span>
             {drill.ageLevels.map((a) => (
-              <span key={a} className="badge bg-slate-100 text-slate-500">
+              <span key={a} className="badge bg-slate-100 text-slate-600">
                 {ageLabel(a, lang)}
               </span>
             ))}
-            <span className="badge bg-slate-100 text-slate-500">⏱ {s.minutes(drill.durationMin)}</span>
+            <span className="badge bg-slate-100 text-slate-600">⏱ {s.minutes(drill.durationMin)}</span>
           </div>
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{loc(drill.title, lang)}</h1>
           <p className="mt-2 text-slate-600">{loc(drill.summary, lang)}</p>
-          <p className="mt-1 text-sm text-slate-400">👥 {loc(drill.players, lang)}</p>
+          <p className="mt-1 text-sm text-slate-500">👥 {loc(drill.players, lang)}</p>
         </header>
 
         {/* Diagram */}
@@ -116,7 +116,7 @@ export default async function DrillDetailPage({
 
         {/* Steps */}
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{s.steps}</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{s.steps}</h2>
           <ol className="space-y-3">
             {drill.steps.map((s, i) => (
               <li key={i} className="card flex gap-4 p-4">

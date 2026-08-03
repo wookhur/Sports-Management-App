@@ -156,17 +156,17 @@ export default async function StarRoutinesPage({
                     <div className="flex items-center gap-2">
                       <span
                         className="badge"
-                        style={{ backgroundColor: `${s?.accent ?? "#64748b"}1a`, color: s?.accent ?? "#334155" }}
+                        style={{ backgroundColor: `${s?.accent ?? "#64748b"}1a`, color: s?.accentText ?? "#334155" }}
                       >
                         {SPORT_I18N[guide.sport]?.[lang]?.name ?? s?.name ?? guide.sport}
                       </span>
-                      <span className="badge bg-brand/10 text-brand">{guide.athleteName}</span>
+                      <span className="badge bg-brand/10 text-brand-dark">{guide.athleteName}</span>
                     </div>
                     <h2 className="mt-2 font-bold leading-snug text-slate-800 group-hover:text-brand">
                       {guide.title}
                     </h2>
                     <p className="mt-1 line-clamp-2 flex-1 text-sm text-slate-500">{guide.excerpt}</p>
-                    <p className="mt-3 text-xs text-slate-400">
+                    <p className="mt-3 text-xs text-slate-500">
                       {guide.author?.name ?? "Sideline365"} · {formatDate(guide.createdAt, lang)}
                     </p>
                   </div>

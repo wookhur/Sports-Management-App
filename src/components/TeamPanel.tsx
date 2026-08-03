@@ -83,7 +83,7 @@ export default function TeamPanel({ teams, lang = "ko" }: { teams: TeamRow[]; la
   return (
     <div className="card p-5">
       <h2 className="font-bold">{s.heading}</h2>
-      <p className="mt-0.5 text-xs text-slate-400">{s.sub}</p>
+      <p className="mt-0.5 text-xs text-slate-500">{s.sub}</p>
 
       {teams.length > 0 && (
         <ul className="mt-4 space-y-2">
@@ -95,7 +95,7 @@ export default function TeamPanel({ teams, lang = "ko" }: { teams: TeamRow[]; la
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-slate-800">{team.name}</p>
-                  <p className="text-xs text-slate-400">{s.memberCount(team.memberCount)}</p>
+                  <p className="text-xs text-slate-500">{s.memberCount(team.memberCount)}</p>
                 </div>
                 <span className="shrink-0 rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs font-bold tracking-widest text-slate-600">
                   {team.code}

@@ -47,7 +47,7 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
     <>
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <Link href="/board" className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href="/board" className="text-sm text-slate-500 hover:text-slate-600">
           {s.backToBoard}
         </Link>
 
@@ -58,7 +58,7 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
             </span>
             <div>
               <p className="text-sm font-semibold">{post.author.name}</p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 {formatRelative(post.createdAt, lang)} · {post.views + 1} {s.views}
               </p>
             </div>

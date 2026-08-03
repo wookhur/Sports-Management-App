@@ -16,6 +16,9 @@ import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
 
+/** How many shared records the dashboard renders at once. */
+const SHARED_RECORD_LIMIT = 30;
+
 const L: Record<
   Lang,
   {
@@ -27,6 +30,7 @@ const L: Record<
     athleteCount: (n: number) => string;
     recordCount: (n: number) => string;
     sharedRecordsHeading: string;
+    showingRecent: (shown: number, total: number) => string;
   }
 > = {
   ko: {
@@ -38,6 +42,7 @@ const L: Record<
     athleteCount: (n) => `${n}명`,
     recordCount: (n) => `${n}건`,
     sharedRecordsHeading: "공유된 기록",
+    showingRecent: (shown, total) => `전체 ${total}건 중 최근 ${shown}건`,
   },
   en: {
     title: "Coach dashboard",
@@ -48,6 +53,7 @@ const L: Record<
     athleteCount: (n) => `${n}`,
     recordCount: (n) => `${n}`,
     sharedRecordsHeading: "Shared records",
+    showingRecent: (shown, total) => `Showing the ${shown} most recent of ${total}`,
   },
   es: {
     title: "Panel del entrenador",
@@ -58,6 +64,7 @@ const L: Record<
     athleteCount: (n) => `${n}`,
     recordCount: (n) => `${n}`,
     sharedRecordsHeading: "Marcas compartidas",
+    showingRecent: (shown, total) => `Mostrando las ${shown} más recientes de ${total}`,
   },
 };
 
@@ -80,19 +87,27 @@ export default async function CoachPage() {
   const connections: Connection[] = athletes;
   const athleteIds = athletes.map((a) => a.id);
 
-  const records = athleteIds.length
-    ? await prisma.record.findMany({
-        where: { userId: { in: athleteIds }, shared: true },
-        orderBy: { createdAt: "desc" },
-        include: {
-          user: { select: { name: true } },
-          comments: {
-            orderBy: { createdAt: "asc" },
-            include: { author: { select: { name: true, role: true } } },
+  // Bounded deliberately. This list was unbounded, so it grew with athletes ×
+  // records × season length: a 40-athlete squad already rendered 240 records
+  // with every comment inline, a 456 KB page, and it only ever got bigger.
+  // A coach reads the newest feedback-worthy records, not all of them.
+  const [records, sharedTotal] = athleteIds.length
+    ? await Promise.all([
+        prisma.record.findMany({
+          where: { userId: { in: athleteIds }, shared: true },
+          orderBy: { createdAt: "desc" },
+          take: SHARED_RECORD_LIMIT,
+          include: {
+            user: { select: { name: true } },
+            comments: {
+              orderBy: { createdAt: "asc" },
+              include: { author: { select: { name: true, role: true } } },
+            },
           },
-        },
-      })
-    : [];
+        }),
+        prisma.record.count({ where: { userId: { in: athleteIds }, shared: true } }),
+      ])
+    : [[], 0];
 
   const assignments = await prisma.assignment.findMany({
     where: { coachId: session.userId },
@@ -176,7 +191,7 @@ export default async function CoachPage() {
         {/* Summary */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard label={s.statAthletes} value={s.athleteCount(athletes.length)} />
-          <StatCard label={s.statSharedRecords} value={s.recordCount(records.length)} />
+          <StatCard label={s.statSharedRecords} value={s.recordCount(sharedTotal)} />
           <StatCard
             label={s.statFeedback}
             value={s.recordCount(records.reduce((n, r) => n + r.comments.filter((c) => c.author.role === "COACH").length, 0))}
@@ -194,7 +209,12 @@ export default async function CoachPage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div>
-            <h2 className="mb-3 text-lg font-bold">{s.sharedRecordsHeading}</h2>
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-lg font-bold">{s.sharedRecordsHeading}</h2>
+              {sharedTotal > records.length && (
+                <p className="text-xs text-slate-500">{s.showingRecent(records.length, sharedTotal)}</p>
+              )}
+            </div>
             <RecordList records={view} mode="coach" lang={lang} />
           </div>
           <aside className="lg:order-last">
@@ -209,7 +229,7 @@ export default async function CoachPage() {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-4">
-      <p className="text-xs text-slate-400">{label}</p>
+      <p className="text-xs text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-bold">{value}</p>
     </div>
   );

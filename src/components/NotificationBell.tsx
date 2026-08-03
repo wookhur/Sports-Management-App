@@ -73,11 +73,11 @@ export default function NotificationBell({ lang, initialUnread }: { lang: Lang; 
           </div>
 
           {items === null ? (
-            <p className="px-4 py-6 text-center text-sm text-slate-400">…</p>
+            <p className="px-4 py-6 text-center text-sm text-slate-500">…</p>
           ) : items.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <p className="text-sm font-medium text-slate-500">{s.empty}</p>
-              <p className="mt-1 text-xs text-slate-400">{s.emptyHint}</p>
+              <p className="mt-1 text-xs text-slate-500">{s.emptyHint}</p>
             </div>
           ) : (
             <ul className="max-h-96 divide-y divide-slate-100 overflow-y-auto">
@@ -91,7 +91,7 @@ export default function NotificationBell({ lang, initialUnread }: { lang: Lang; 
                     <p className={`text-sm ${n.read ? "text-slate-500" : "font-semibold text-slate-800"}`}>
                       {render(actorName(n.data))}
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-400">{formatRelative(n.createdAt, lang)}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">{formatRelative(n.createdAt, lang)}</p>
                   </>
                 );
                 return (

@@ -86,8 +86,8 @@ const L: Record<
 };
 
 const levelBadge: Record<string, string> = {
-  Beginner: "bg-emerald-50 text-emerald-600",
-  Intermediate: "bg-amber-50 text-amber-600",
+  Beginner: "bg-emerald-50 text-emerald-700",
+  Intermediate: "bg-amber-50 text-amber-700",
   Advanced: "bg-rose-50 text-rose-600",
 };
 
@@ -134,7 +134,7 @@ export default async function SwimWorkoutsPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
 
@@ -189,7 +189,7 @@ export default async function SwimWorkoutsPage({
               className="card group p-4 transition hover:border-slate-300 hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs text-slate-400">{w.id}</span>
+                <span className="font-mono text-xs text-slate-500">{w.id}</span>
                 <span className={`badge ${levelBadge[w.level]}`}>{levelLabel(w.level, lang)}</span>
               </div>
               <p className="mt-2 font-bold group-hover:text-brand">
@@ -246,7 +246,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="min-w-10 shrink-0 text-sm font-medium text-slate-400">{label}</span>
+      <span className="min-w-10 shrink-0 text-sm font-medium text-slate-500">{label}</span>
       <Chip href={`${basePath}${buildQuery(activeSP, { [param]: undefined, page: undefined })}`} on={!active}>
         {allLabel}
       </Chip>

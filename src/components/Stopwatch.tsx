@@ -242,7 +242,7 @@ export default function Stopwatch({
             type="button"
             onClick={() => switchMode("timer")}
             className={`rounded-md px-3 py-1.5 font-medium transition ${
-              mode === "timer" ? "bg-white shadow-sm text-slate-900" : "text-slate-500"
+              mode === "timer" ? "bg-white shadow-sm text-slate-900" : "text-slate-600"
             }`}
           >
             {s.timerTab}
@@ -251,7 +251,7 @@ export default function Stopwatch({
             type="button"
             onClick={() => switchMode("manual")}
             className={`rounded-md px-3 py-1.5 font-medium transition ${
-              mode === "manual" ? "bg-white shadow-sm text-slate-900" : "text-slate-500"
+              mode === "manual" ? "bg-white shadow-sm text-slate-900" : "text-slate-600"
             }`}
           >
             {s.manualTab}
@@ -262,8 +262,9 @@ export default function Stopwatch({
       {/* Metric selector */}
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="label">{s.metricLabel}</label>
+          <label className="label" htmlFor="stopwatch-metric">{s.metricLabel}</label>
           <select
+            id="stopwatch-metric"
             className="input"
             value={metricKey}
             onChange={(e) => setMetricKey(e.target.value)}
@@ -296,7 +297,7 @@ export default function Stopwatch({
             <div className="font-mono text-5xl font-bold tabular-nums text-white sm:text-6xl">
               {formatDuration(elapsed)}
             </div>
-            <div className="mt-2 text-sm text-slate-400">
+            <div className="mt-2 text-sm text-slate-300">
               {distanceM ? `${distanceM}m` : s.pickDistance}
               {pace && elapsed > 0 ? ` · ${pace}` : ""}
             </div>
@@ -305,7 +306,7 @@ export default function Stopwatch({
           {/* Controls */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             {!running ? (
-              <button onClick={start} className="btn bg-emerald-500 text-white hover:bg-emerald-600">
+              <button onClick={start} className="btn bg-emerald-700 text-white hover:bg-emerald-600">
                 ▶ {elapsed > 0 ? s.resume : s.start}
               </button>
             ) : (
@@ -325,7 +326,7 @@ export default function Stopwatch({
         <>
           {/* Manual entry */}
           <div className="mt-5 rounded-2xl bg-slate-900 p-6">
-            <p className="mb-3 text-center text-xs text-slate-400">{s.manualTitle}</p>
+            <p className="mb-3 text-center text-xs text-slate-500">{s.manualTitle}</p>
             <div className="flex items-end justify-center gap-2">
               <ManualField label={s.minutes} value={manualMin} onChange={setManualMin} max={999} />
               <span className="pb-2.5 text-2xl font-bold text-slate-500">:</span>
@@ -333,7 +334,7 @@ export default function Stopwatch({
               <span className="pb-2.5 text-2xl font-bold text-slate-500">.</span>
               <ManualField label={s.millis} value={manualMs} onChange={setManualMs} max={999} wide />
             </div>
-            <div className="mt-3 text-center text-sm text-slate-400">
+            <div className="mt-3 text-center text-sm text-slate-500">
               {formatDuration(manualDurationMs)}
               {distanceM ? ` · ${distanceM}m` : ""}
               {pace && manualDurationMs > 0 ? ` · ${pace}` : ""}
@@ -370,7 +371,7 @@ export default function Stopwatch({
 
       {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
       {savedFlash && (
-        <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
+        <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {s.savedFlash}
         </p>
       )}

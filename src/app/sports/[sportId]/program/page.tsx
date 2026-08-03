@@ -78,7 +78,7 @@ export default async function ProgramPage({
     <>
       <NavBar />
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <Link href={`/sports/${sportId}`} className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href={`/sports/${sportId}`} className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
 
@@ -93,7 +93,7 @@ export default async function ProgramPage({
             <section key={session.title}>
               <div className="mb-3 flex items-center gap-2">
                 <h2 className="text-lg font-bold">{loc(SESSION_I18N[session.title] ?? session.title, lang)}</h2>
-                <span className="badge bg-slate-100 text-slate-500">{s.sessionPlan}</span>
+                <span className="badge bg-slate-100 text-slate-600">{s.sessionPlan}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
                 {session.phases.map((phase, i) => (
@@ -116,8 +116,8 @@ export default async function ProgramPage({
 
         {/* Warm-up + cool-down routines */}
         <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <StretchCard title={s.warmupTitle} subtitle="Warm-up / Dynamic" items={soccerProgram.warmup} accent="text-amber-600" />
-          <StretchCard title={s.cooldownTitle} subtitle="Cool-down" items={soccerProgram.cooldown} accent="text-emerald-600" />
+          <StretchCard title={s.warmupTitle} subtitle="Warm-up / Dynamic" items={soccerProgram.warmup} accent="text-amber-700" />
+          <StretchCard title={s.cooldownTitle} subtitle="Cool-down" items={soccerProgram.cooldown} accent="text-emerald-700" />
         </div>
       </main>
     </>
@@ -147,7 +147,7 @@ function StretchCard({
             <span className="w-5 shrink-0 text-right font-mono text-xs text-slate-300">{i + 1}</span>
             <span className="text-slate-700">
               {it.name}
-              {it.variations.length > 0 && <span className="text-slate-400"> · {it.variations.join(", ")}</span>}
+              {it.variations.length > 0 && <span className="text-slate-500"> · {it.variations.join(", ")}</span>}
             </span>
           </li>
         ))}

@@ -78,7 +78,7 @@ export default function StreakCard({
       <div className="card p-5">
         <p className="mb-2 text-sm font-semibold text-slate-500">{s.leaderboardTitle}</p>
         <ol className="space-y-1.5">
-          {leaders.length === 0 && <li className="text-sm text-slate-400">{s.leaderboardEmpty}</li>}
+          {leaders.length === 0 && <li className="text-sm text-slate-500">{s.leaderboardEmpty}</li>}
           {leaders.map((l, i) => {
             const isMe = l.name === myName;
             return (
@@ -92,7 +92,7 @@ export default function StreakCard({
                         ? "bg-slate-200 text-slate-600"
                         : i === 2
                         ? "bg-orange-100 text-orange-700"
-                        : "bg-slate-100 text-slate-400"
+                        : "bg-slate-100 text-slate-600"
                     }`}
                   >
                     {i + 1}

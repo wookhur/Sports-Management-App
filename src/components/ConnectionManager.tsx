@@ -140,13 +140,13 @@ export default function ConnectionManager({
       {notice && (
         <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {notice}
-          <span className="mt-0.5 block text-xs text-emerald-600">{c.requestSentHint}</span>
+          <span className="mt-0.5 block text-xs text-emerald-700">{c.requestSentHint}</span>
         </p>
       )}
 
       <ul className={`mt-4 space-y-2 ${hideList ? "hidden" : ""}`}>
         {connections.length === 0 && (
-          <li className="text-sm text-slate-400">{role === "COACH" ? s.emptyAthlete : s.emptyCoach}</li>
+          <li className="text-sm text-slate-500">{role === "COACH" ? s.emptyAthlete : s.emptyCoach}</li>
         )}
         {connections.map((c) => (
           <li
@@ -155,9 +155,9 @@ export default function ConnectionManager({
           >
             <div>
               <p className="text-sm font-medium">{c.name}</p>
-              <p className="text-xs text-slate-400">{c.email}</p>
+              <p className="text-xs text-slate-500">{c.email}</p>
             </div>
-            <button onClick={() => remove(c.id)} className="text-xs text-slate-400 hover:text-red-500">
+            <button onClick={() => remove(c.id)} className="text-xs text-slate-500 hover:text-red-500">
               {s.disconnect}
             </button>
           </li>

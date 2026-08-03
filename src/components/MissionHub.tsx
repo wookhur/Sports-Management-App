@@ -142,7 +142,7 @@ export default function MissionHub({ lang, beans, pet, care, missions }: Props) 
           <p className="text-center text-xs font-medium text-sky-900/70">{s.petSub}</p>
         </div>
         <div className="px-5 py-4">
-          <div className="mb-1 flex items-center justify-between text-xs text-slate-400">
+          <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
             <span>
               {pet.stage === "egg"
                 ? s.hatchTo(Math.max(0, Math.ceil((1 - pet.hatchPct) * 100)))
@@ -171,7 +171,7 @@ export default function MissionHub({ lang, beans, pet, care, missions }: Props) 
                 >
                   <span className="text-2xl" aria-hidden="true">{c.emoji}</span>
                   <span className="text-center text-[11px] font-medium leading-tight text-slate-600">{c.title}</span>
-                  <span className="flex items-center gap-0.5 text-[11px] font-bold text-emerald-600">
+                  <span className="flex items-center gap-0.5 text-[11px] font-bold text-emerald-700">
                     🌱 {s.careCta(c.cost, "")}
                   </span>
                 </button>
@@ -215,7 +215,7 @@ function MissionSection({
   if (items.length === 0) return null;
   return (
     <section>
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{heading}</h2>
+      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{heading}</h2>
       <div className="card divide-y divide-slate-100">
         {items.map((m) => {
           const busy = pending === `m:${m.key}`;
@@ -229,7 +229,7 @@ function MissionSection({
                 <p className="truncate text-sm font-semibold">
                   {m.title}
                   {showProgress && !m.claimed && (
-                    <span className="ml-1 font-normal text-slate-400">
+                    <span className="ml-1 font-normal text-slate-500">
                       {m.progress}/{m.goal}
                     </span>
                   )}
@@ -241,9 +241,9 @@ function MissionSection({
                 )}
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600">🌱 {m.reward}</span>
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-700">🌱 {m.reward}</span>
                 {m.claimed ? (
-                  <span className="flex items-center gap-1 text-xs font-semibold text-slate-400">
+                  <span className="flex items-center gap-1 text-xs font-semibold text-slate-500">
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[11px] text-white">✓</span>
                     {s.claimed}
                   </span>

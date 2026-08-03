@@ -155,10 +155,10 @@ function RecordItem({
             <span>{sport?.emoji}</span>
             {metricLabel(record.metricKey, record.metricName, lang)}
             {mode === "coach" && record.ownerName && (
-              <span className="badge bg-slate-100 text-slate-500">{record.ownerName}</span>
+              <span className="badge bg-slate-100 text-slate-600">{record.ownerName}</span>
             )}
           </p>
-          <p className="text-xs text-slate-400">{formatDate(record.createdAt, lang)}</p>
+          <p className="text-xs text-slate-500">{formatDate(record.createdAt, lang)}</p>
           {record.notes && <p className="mt-2 text-sm text-slate-600">“{record.notes}”</p>}
         </div>
         <div className="text-right">
@@ -168,7 +168,7 @@ function RecordItem({
             </p>
           )}
           {record.distanceM && record.durationMs != null && (
-            <p className="text-xs text-slate-400">{formatPace(record.distanceM, record.durationMs)}</p>
+            <p className="text-xs text-slate-500">{formatPace(record.distanceM, record.durationMs)}</p>
           )}
         </div>
       </div>
@@ -180,7 +180,7 @@ function RecordItem({
             onClick={toggleShare}
             disabled={busy}
             className={`flex items-center gap-2 text-sm font-medium ${
-              shared ? "text-emerald-600" : "text-slate-400"
+              shared ? "text-emerald-700" : "text-slate-500"
             }`}
           >
             <span
@@ -194,7 +194,7 @@ function RecordItem({
             </span>
             {shared ? s.sharedWithCoach : s.privateLabel}
           </button>
-          <button onClick={remove} disabled={busy} className="text-xs text-slate-400 hover:text-red-500">
+          <button onClick={remove} disabled={busy} className="text-xs text-slate-500 hover:text-red-500">
             {s.deleteBtn}
           </button>
         </div>
@@ -210,7 +210,7 @@ function RecordItem({
                   {c.authorRole === "COACH" ? "📋" : "🏃"} {c.authorName}
                 </span>
                 <span className="text-slate-300">·</span>
-                <span className="text-slate-400">{formatDate(c.createdAt, lang)}</span>
+                <span className="text-slate-500">{formatDate(c.createdAt, lang)}</span>
               </p>
               <p className="mt-1 text-sm text-slate-700">{c.body}</p>
             </div>

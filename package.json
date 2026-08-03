@@ -37,6 +37,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.56.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.7",
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19.0.3",
     "@types/sanitize-html": "^2.16.1",
     "autoprefixer": "^10.4.20",
+    "axe-core": "^4.12.1",
     "postcss": "^8.5.1",
     "prisma": "^6.3.1",
     "tailwindcss": "^3.4.17",

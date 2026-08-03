@@ -141,7 +141,7 @@ export default function BlogEngagement({
         {liked ? "❤️" : "🤍"} {s.like} {likeCount > 0 && <span className="tabular-nums">{likeCount}</span>}
       </button>
 
-      <h2 className="mt-8 font-bold">{s.commentsHeading} {comments.length > 0 && <span className="text-slate-400">{comments.length}</span>}</h2>
+      <h2 className="mt-8 font-bold">{s.commentsHeading} {comments.length > 0 && <span className="text-slate-500">{comments.length}</span>}</h2>
 
       <form onSubmit={submitComment} className="mt-3 flex gap-2">
         <input
@@ -164,8 +164,8 @@ export default function BlogEngagement({
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-semibold text-slate-600">
                 {c.authorName}
-                {c.authorRole === "COACH" && <span className="badge ml-1.5 bg-brand/10 text-brand">{s.coachBadge}</span>}
-                <span className="ml-2 font-normal text-slate-400">{formatDate(c.createdAt, lang)}</span>
+                {c.authorRole === "COACH" && <span className="badge ml-1.5 bg-brand/10 text-brand-dark">{s.coachBadge}</span>}
+                <span className="ml-2 font-normal text-slate-500">{formatDate(c.createdAt, lang)}</span>
               </p>
               {(c.mine || canModerate) && (
                 <button

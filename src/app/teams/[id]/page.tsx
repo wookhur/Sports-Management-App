@@ -94,7 +94,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href="/" className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href="/" className="text-sm text-slate-500 hover:text-slate-600">
           {s.backHome}
         </Link>
 
@@ -152,7 +152,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
                       <p className="text-sm font-medium">
                         {r.user.name} · {metricLabel(r.metricKey, r.metricName, lang)}
                       </p>
-                      <p className="text-xs text-slate-400">{formatDate(r.createdAt, lang)}</p>
+                      <p className="text-xs text-slate-500">{formatDate(r.createdAt, lang)}</p>
                     </div>
                     {r.durationMs != null && (
                       <span className="font-mono font-semibold tabular-nums">{formatDuration(r.durationMs)}</span>

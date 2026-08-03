@@ -55,7 +55,7 @@ export default function ConnectionRequests({
       <section className="card p-5">
         <h2 className="font-bold">{s.incomingHeading}</h2>
         {incoming.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-slate-500">
             {role === "COACH" ? s.incomingEmptyCoach : s.incomingEmptyAthlete}
           </p>
         ) : (
@@ -84,16 +84,16 @@ export default function ConnectionRequests({
       <section className="card p-5">
         <h2 className="font-bold">{s.outgoingHeading}</h2>
         {outgoing.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">{s.outgoingEmpty}</p>
+          <p className="mt-2 text-sm text-slate-500">{s.outgoingEmpty}</p>
         ) : (
           <ul className="mt-3 divide-y divide-slate-100">
             {outgoing.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                 <div>
                   <p className="text-sm font-medium">{r.otherName}</p>
-                  <p className="text-xs text-slate-400">{s.waitingOn(r.otherName)}</p>
+                  <p className="text-xs text-slate-500">{s.waitingOn(r.otherName)}</p>
                 </div>
-                <button type="button" disabled={busy === r.otherId} onClick={() => remove(r.otherId)} className="text-xs font-semibold text-slate-400 hover:text-red-600">
+                <button type="button" disabled={busy === r.otherId} onClick={() => remove(r.otherId)} className="text-xs font-semibold text-slate-500 hover:text-red-600">
                   {s.cancel}
                 </button>
               </li>
@@ -105,16 +105,16 @@ export default function ConnectionRequests({
       <section className="card p-5">
         <h2 className="font-bold">{s.activeHeading}</h2>
         {active.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">{s.activeEmpty}</p>
+          <p className="mt-2 text-sm text-slate-500">{s.activeEmpty}</p>
         ) : (
           <ul className="mt-3 divide-y divide-slate-100">
             {active.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                 <div>
                   <p className="text-sm font-medium">{r.otherName}</p>
-                  <p className="text-xs text-slate-400">{r.otherEmail}</p>
+                  <p className="text-xs text-slate-500">{r.otherEmail}</p>
                 </div>
-                <button type="button" disabled={busy === r.otherId} onClick={() => remove(r.otherId)} className="text-xs font-semibold text-slate-400 hover:text-red-600">
+                <button type="button" disabled={busy === r.otherId} onClick={() => remove(r.otherId)} className="text-xs font-semibold text-slate-500 hover:text-red-600">
                   {s.remove}
                 </button>
               </li>

@@ -173,16 +173,16 @@ export default async function LeaderboardPage({
                   key={row.userId}
                   className={`flex items-center gap-4 px-5 py-3.5 ${isMe ? "bg-brand/5" : ""}`}
                 >
-                  <span className="w-8 text-center text-lg font-bold text-slate-400">
+                  <span className="w-8 text-center text-lg font-bold text-slate-500">
                     {medals[i] ?? i + 1}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">
                       {nameOf.get(row.userId) ?? t.unknown}
-                      {isMe && <span className="badge ml-2 bg-brand/10 text-brand">{t.me}</span>}
+                      {isMe && <span className="badge ml-2 bg-brand/10 text-brand-dark">{t.me}</span>}
                     </p>
                     {dateOf.get(row.userId) && (
-                      <p className="text-xs text-slate-400">{formatDate(dateOf.get(row.userId)!, lang)}</p>
+                      <p className={`text-xs ${isMe ? "text-slate-600" : "text-slate-500"}`}>{formatDate(dateOf.get(row.userId)!, lang)}</p>
                     )}
                   </div>
                   <span className="font-mono text-lg font-bold tabular-nums">

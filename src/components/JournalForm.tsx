@@ -61,8 +61,8 @@ export default function JournalForm({ lang }: { lang: Lang }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">{s.sportLabel}</label>
-          <select className="input" value={sport} onChange={(e) => setSport(e.target.value)}>
+          <label className="label" htmlFor="journal-sport">{s.sportLabel}</label>
+          <select id="journal-sport" className="input" value={sport} onChange={(e) => setSport(e.target.value)}>
             {SPORT_LIST.map((sp) => (
               <option key={sp.id} value={sp.id}>
                 {sp.emoji} {SPORT_I18N[sp.id]?.[lang]?.name ?? sp.name}
@@ -71,8 +71,9 @@ export default function JournalForm({ lang }: { lang: Lang }) {
           </select>
         </div>
         <div>
-          <label className="label">{s.minutesInput}</label>
+          <label className="label" htmlFor="journal-minutes">{s.minutesInput}</label>
           <input
+            id="journal-minutes"
             className="input"
             type="number"
             min={5}
@@ -108,7 +109,7 @@ export default function JournalForm({ lang }: { lang: Lang }) {
       <div>
         <label className="label">
           {s.intensityLabel} · <span className="font-bold text-brand">{intensity}</span>{" "}
-          <span className="text-xs font-normal text-slate-400">({rpeHint})</span>
+          <span className="text-xs font-normal text-slate-500">({rpeHint})</span>
         </label>
         <input
           type="range"
@@ -119,15 +120,16 @@ export default function JournalForm({ lang }: { lang: Lang }) {
           className="w-full accent-[var(--brand,#4f46e5)]"
           aria-label={s.intensityLabel}
         />
-        <div className="flex justify-between text-[11px] text-slate-400">
+        <div className="flex justify-between text-[11px] text-slate-500">
           <span>1 · {s.rpeHintLow}</span>
           <span>10 · {s.rpeHintHigh}</span>
         </div>
       </div>
 
       <div>
-        <label className="label">{s.notesLabel}</label>
+        <label className="label" htmlFor="journal-notes">{s.notesLabel}</label>
         <input
+          id="journal-notes"
           className="input"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

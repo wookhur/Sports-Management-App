@@ -44,7 +44,7 @@ interface SidebarProps {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-1 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:mt-0">
+    <p className="mb-1 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500 first:mt-0">
       {children}
     </p>
   );
@@ -70,13 +70,13 @@ function NavItem({
       aria-current={active ? "page" : undefined}
       className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
         active
-          ? "bg-brand/10 font-semibold text-brand"
+          ? "bg-brand/10 font-semibold text-brand-dark"
           : "font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       }`}
     >
       {/* Active indicator bar */}
       {active && <span aria-hidden="true" className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-brand" />}
-      <span className={`h-5 w-5 shrink-0 ${active ? "text-brand" : "text-slate-400"}`}>{icon}</span>
+      <span className={`h-5 w-5 shrink-0 ${active ? "text-brand" : "text-slate-500"}`}>{icon}</span>
       <span className="truncate">{label}</span>
     </Link>
   );
@@ -159,7 +159,7 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
                 aria-current={active ? "page" : undefined}
                 className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
                   active
-                    ? "bg-brand/10 font-semibold text-brand"
+                    ? "bg-brand/10 font-semibold text-brand-dark"
                     : "font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
@@ -254,7 +254,7 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-800">{user.name}</p>
-            <p className="text-xs text-slate-400">{isCoach ? t(lang).nav.roleCoach : t(lang).nav.roleAthlete}</p>
+            <p className="text-xs text-slate-500">{isCoach ? t(lang).nav.roleCoach : t(lang).nav.roleAthlete}</p>
           </div>
         </Link>
       </div>
@@ -295,7 +295,7 @@ export default function Sidebar({ lang, user, pet }: SidebarProps) {
                 type="button"
                 onClick={close}
                 aria-label={s.closeMenu}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600"
               >
                 <CloseIcon className="h-5 w-5" />
               </button>

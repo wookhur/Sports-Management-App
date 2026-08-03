@@ -22,7 +22,7 @@ export default async function NewBlogPostPage() {
     <>
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <Link href="/blog" className="text-sm text-slate-400 hover:text-slate-600">
+        <Link href="/blog" className="text-sm text-slate-500 hover:text-slate-600">
           {s.back}
         </Link>
         <h1 className="mt-3 text-2xl font-bold">{s.title}</h1>
