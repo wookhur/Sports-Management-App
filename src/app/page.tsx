@@ -287,7 +287,7 @@ export default async function HomePage({
   }
 
   const athleteCount = isCoach
-    ? await prisma.coachAthlete.count({ where: { coachId: session.userId } })
+    ? await prisma.coachAthlete.count({ where: { coachId: session.userId, status: "ACCEPTED" } })
     : 0;
 
   // --- Companion state -----------------------------------------------------

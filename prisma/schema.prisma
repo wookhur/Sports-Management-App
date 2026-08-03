@@ -83,6 +83,7 @@ model User {
   boardLikes       BoardLike[]
   trainingSessions TrainingSession[]
   gameScores       GameScore[]
+  notifications    Notification[]
 
   assignmentsGiven    Assignment[] @relation("AssignmentCoach")
   assignmentsReceived Assignment[] @relation("AssignmentAthlete")
@@ -230,17 +231,32 @@ model BlogImage {
 }
 
 // Explicit many-to-many link between a coach and an athlete.
+enum LinkStatus {
+  PENDING
+  ACCEPTED
+}
+
+/// A coach<->athlete link.
+///
+/// Only an ACCEPTED link grants the coach any visibility of the athlete's
+/// data. `status` defaults to PENDING so a query or insert that forgets to
+/// mention it fails closed: the worst outcome of a bug here is a coach seeing
+/// nothing, never a child's training data going somewhere unconsented.
 model CoachAthlete {
-  id        String   @id @default(cuid())
-  coach     User     @relation("CoachSide", fields: [coachId], references: [id], onDelete: Cascade)
-  coachId   String
-  athlete   User     @relation("AthleteSide", fields: [athleteId], references: [id], onDelete: Cascade)
-  athleteId String
-  createdAt DateTime @default(now())
+  id            String     @id @default(cuid())
+  coach         User       @relation("CoachSide", fields: [coachId], references: [id], onDelete: Cascade)
+  coachId       String
+  athlete       User       @relation("AthleteSide", fields: [athleteId], references: [id], onDelete: Cascade)
+  athleteId     String
+  status        LinkStatus @default(PENDING)
+  /// Who asked. The other party is the one who has to accept.
+  requestedById String?
+  respondedAt   DateTime?
+  createdAt     DateTime   @default(now())
 
   @@unique([coachId, athleteId])
-  @@index([coachId])
-  @@index([athleteId])
+  @@index([coachId, status])
+  @@index([athleteId, status])
 }
 
 // A single performance record. Sport-agnostic core with optional
@@ -391,5 +407,26 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
 
+  @@index([userId, createdAt])
+}
+
+
+/// An in-app notification.
+///
+/// `kind` is a stable key translated at render time and `data` carries only the
+/// values interpolated into the sentence. Storing the rendered sentence would
+/// freeze it into whatever language the actor happened to be using, which is
+/// not necessarily the reader's.
+model Notification {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  kind      String
+  data      Json?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
   @@index([userId, createdAt])
 }

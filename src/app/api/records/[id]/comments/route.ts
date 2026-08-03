@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { notify } from "@/lib/notifyServer";
 
 const schema = z.object({ body: z.string().min(1, "내용을 입력하세요").max(500) });
 
@@ -23,7 +24,8 @@ export async function POST(req: Request, { params }: Params) {
     const link = await prisma.coachAthlete.findUnique({
       where: { coachId_athleteId: { coachId: session.userId, athleteId: record.userId } },
     });
-    allowed = Boolean(link);
+    // A pending request grants nothing until the athlete accepts.
+    allowed = link?.status === "ACCEPTED";
   }
   if (!allowed) return fail("코멘트를 남길 권한이 없습니다", 403);
 
@@ -34,5 +36,7 @@ export async function POST(req: Request, { params }: Params) {
     data: { recordId: id, authorId: session.userId, body: parsed.data.body.trim() },
     include: { author: { select: { name: true, role: true } } },
   });
+  // Tell the record's owner, unless they are the one who just commented.
+  if (!isOwner) await notify(record.userId, "recordComment", { name: session.name }, "/records");
   return ok(comment, 201);
 }

@@ -58,7 +58,7 @@ export default async function RecordsPage() {
   });
 
   const coachLinks = await prisma.coachAthlete.findMany({
-    where: { athleteId: session.userId },
+    where: { athleteId: session.userId, status: "ACCEPTED" },
     include: { coach: { select: { id: true, name: true, email: true } } },
   });
   const connections: Connection[] = coachLinks.map((l) => l.coach);

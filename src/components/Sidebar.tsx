@@ -21,6 +21,7 @@ import {
   ChatIcon,
   ClipboardIcon,
   CrosshairIcon,
+  UsersIcon,
 } from "./navIcons";
 
 export interface SidebarUser {
@@ -209,6 +210,13 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
               onNavigate={onNavigate}
             />
           )}
+          <NavItem
+            href="/connections"
+            active={pathname.startsWith("/connections")}
+            icon={<UsersIcon className="h-5 w-5" />}
+            label={s.connections}
+            onNavigate={onNavigate}
+          />
         </div>
       </nav>
 

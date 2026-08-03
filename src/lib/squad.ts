@@ -51,7 +51,7 @@ export async function buildTeamReport(coachId: string, weeks: number): Promise<T
   const today = seoulDayKey();
 
   const links = await prisma.coachAthlete.findMany({
-    where: { coachId },
+    where: { coachId, status: "ACCEPTED" },
     select: { athlete: { select: { id: true, name: true } } },
   });
   const athletes = links.map((l) => l.athlete);
@@ -83,7 +83,7 @@ export async function buildRoster(coachId: string): Promise<Roster> {
   const today = seoulDayKey();
 
   const links = await prisma.coachAthlete.findMany({
-    where: { coachId },
+    where: { coachId, status: "ACCEPTED" },
     select: { athlete: { select: { id: true, name: true, currentStreak: true } } },
   });
   const athletes = links.map((l) => l.athlete);

@@ -72,7 +72,7 @@ export default async function CoachPage() {
   const { roster, triage } = await buildSquad(session.userId);
 
   const links = await prisma.coachAthlete.findMany({
-    where: { coachId: session.userId },
+    where: { coachId: session.userId, status: "ACCEPTED" },
     include: { athlete: { select: { id: true, name: true, email: true } } },
     orderBy: { createdAt: "asc" },
   });

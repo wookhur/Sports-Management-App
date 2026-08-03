@@ -7,6 +7,8 @@ import SearchBox from "./SearchBox";
 import LanguageSwitcher from "./LanguageSwitcher";
 import SidebarToggleButton from "./SidebarToggleButton";
 import BrandMark from "./BrandMark";
+import NotificationBell from "./NotificationBell";
+import { unreadCount } from "@/lib/notifyServer";
 
 export default async function NavBar() {
   const session = await getSession();
@@ -16,6 +18,7 @@ export default async function NavBar() {
   const lang = await getLang();
   const s = t(lang).nav;
   const sb = t(lang).sidebar;
+  const unread = await unreadCount(session.userId);
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -54,6 +57,7 @@ export default async function NavBar() {
           <a href="/?tutorial=1" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 md:block">
             {s.help}
           </a>
+          <NotificationBell lang={lang} initialUnread={unread} />
           <div className="ml-2 hidden sm:block">
             <LanguageSwitcher lang={lang} />
           </div>

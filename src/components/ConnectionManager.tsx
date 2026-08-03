@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Lang } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 
 export interface Connection {
   id: string;
@@ -71,15 +71,20 @@ export default function ConnectionManager({
   role,
   connections,
   lang = "ko",
+  hideList = false,
 }: {
   role: "ATHLETE" | "COACH";
   connections: Connection[];
   lang?: Lang;
+  /** On /connections the accepted list is rendered separately; don't repeat it. */
+  hideList?: boolean;
 }) {
   const s = L[lang];
+  const c = t(lang).connect;
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function add(e: React.FormEvent) {
@@ -98,6 +103,9 @@ export default function ConnectionManager({
       return;
     }
     setEmail("");
+    // The counterpart has to accept before anything is linked, so say so
+    // rather than letting the cleared form imply it worked instantly.
+    setNotice(data.status === "ACCEPTED" ? c.alreadyLinked(data.name ?? "") : c.requestSent(data.name ?? ""));
     router.refresh();
   }
 
@@ -129,8 +137,14 @@ export default function ConnectionManager({
         </button>
       </form>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {notice && (
+        <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          {notice}
+          <span className="mt-0.5 block text-xs text-emerald-600">{c.requestSentHint}</span>
+        </p>
+      )}
 
-      <ul className="mt-4 space-y-2">
+      <ul className={`mt-4 space-y-2 ${hideList ? "hidden" : ""}`}>
         {connections.length === 0 && (
           <li className="text-sm text-slate-400">{role === "COACH" ? s.emptyAthlete : s.emptyCoach}</li>
         )}

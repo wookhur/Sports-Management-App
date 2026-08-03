@@ -430,6 +430,7 @@ export interface SidebarDict {
   games: string;
   sports: string;
   myActivity: string;
+  connections: string;
   myRecords: string;
   coachDashboard: string;
   admin: string;
@@ -452,6 +453,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "미니게임",
     sports: "스포츠",
     myActivity: "내 활동",
+    connections: "연결 관리",
     myRecords: "내 기록",
     coachDashboard: "코치 대시보드",
     admin: "운영 현황",
@@ -472,6 +474,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "Mini-games",
     sports: "Sports",
     myActivity: "My Activity",
+    connections: "Connections",
     myRecords: "My Records",
     coachDashboard: "Coach Dashboard",
     admin: "Operations",
@@ -492,6 +495,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "Minijuegos",
     sports: "Deportes",
     myActivity: "Mi actividad",
+    connections: "Conexiones",
     myRecords: "Mis marcas",
     coachDashboard: "Panel del entrenador",
     admin: "Operaciones",
@@ -756,6 +760,148 @@ const roster: Record<Lang, RosterDict> = {
     sessionsIn14: (n) => `${n} de 14 días`,
     streak: (n) => `racha de ${n} días`,
     disclaimer: "Una guía, no un diagnóstico. Pregunta a tus atletas cómo se sienten.",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Connections (consent) + in-app notifications
+// ---------------------------------------------------------------------------
+export interface ConnectDict {
+  title: string;
+  subtitle: string;
+  incomingHeading: string;
+  incomingEmptyAthlete: string;
+  incomingEmptyCoach: string;
+  outgoingHeading: string;
+  outgoingEmpty: string;
+  activeHeading: string;
+  activeEmpty: string;
+  askedYouCoach: (name: string) => string;
+  askedYouAthlete: (name: string) => string;
+  waitingOn: (name: string) => string;
+  accept: string;
+  decline: string;
+  cancel: string;
+  remove: string;
+  requestSent: (name: string) => string;
+  requestSentHint: string;
+  alreadyLinked: (name: string) => string;
+  consentNote: string;
+}
+
+const connect: Record<Lang, ConnectDict> = {
+  ko: {
+    title: "연결 관리",
+    subtitle: "코치와 선수는 서로 수락해야 연결돼요.",
+    incomingHeading: "받은 요청",
+    incomingEmptyAthlete: "받은 코치 요청이 없어요.",
+    incomingEmptyCoach: "받은 선수 요청이 없어요.",
+    outgoingHeading: "보낸 요청",
+    outgoingEmpty: "보낸 요청이 없어요.",
+    activeHeading: "연결됨",
+    activeEmpty: "아직 연결된 상대가 없어요.",
+    askedYouCoach: (name) => `${name} 코치가 내 기록을 보고 싶어 해요.`,
+    askedYouAthlete: (name) => `${name} 선수가 내 로스터에 들어오고 싶어 해요.`,
+    waitingOn: (name) => `${name} 님의 수락을 기다리는 중`,
+    accept: "수락",
+    decline: "거절",
+    cancel: "요청 취소",
+    remove: "연결 해제",
+    requestSent: (name) => `${name} 님에게 요청을 보냈어요.`,
+    requestSentHint: "상대가 수락하면 연결돼요.",
+    alreadyLinked: (name) => `${name} 님과는 이미 연결돼 있어요.`,
+    consentNote: "수락하기 전까지는 상대가 내 훈련 기록을 볼 수 없어요.",
+  },
+  en: {
+    title: "Connections",
+    subtitle: "A coach and an athlete are only linked once both agree.",
+    incomingHeading: "Requests to you",
+    incomingEmptyAthlete: "No coach has asked to connect.",
+    incomingEmptyCoach: "No athlete has asked to join.",
+    outgoingHeading: "Requests you sent",
+    outgoingEmpty: "You haven't sent any requests.",
+    activeHeading: "Connected",
+    activeEmpty: "Nobody connected yet.",
+    askedYouCoach: (name) => `Coach ${name} would like to see your records.`,
+    askedYouAthlete: (name) => `${name} would like to join your roster.`,
+    waitingOn: (name) => `Waiting for ${name} to accept`,
+    accept: "Accept",
+    decline: "Decline",
+    cancel: "Cancel request",
+    remove: "Disconnect",
+    requestSent: (name) => `Request sent to ${name}.`,
+    requestSentHint: "You'll be connected once they accept.",
+    alreadyLinked: (name) => `You're already connected to ${name}.`,
+    consentNote: "Until you accept, they cannot see any of your training data.",
+  },
+  es: {
+    title: "Conexiones",
+    subtitle: "Un entrenador y un atleta solo se vinculan si ambos aceptan.",
+    incomingHeading: "Solicitudes recibidas",
+    incomingEmptyAthlete: "Ningún entrenador ha pedido conectarse.",
+    incomingEmptyCoach: "Ningún atleta ha pedido unirse.",
+    outgoingHeading: "Solicitudes enviadas",
+    outgoingEmpty: "No has enviado ninguna solicitud.",
+    activeHeading: "Conectados",
+    activeEmpty: "Todavía no hay nadie conectado.",
+    askedYouCoach: (name) => `El entrenador ${name} quiere ver tus marcas.`,
+    askedYouAthlete: (name) => `${name} quiere unirse a tu plantilla.`,
+    waitingOn: (name) => `Esperando a que ${name} acepte`,
+    accept: "Aceptar",
+    decline: "Rechazar",
+    cancel: "Cancelar solicitud",
+    remove: "Desconectar",
+    requestSent: (name) => `Solicitud enviada a ${name}.`,
+    requestSentHint: "Os conectaréis en cuanto acepte.",
+    alreadyLinked: (name) => `Ya estás conectado con ${name}.`,
+    consentNote: "Hasta que aceptes, no puede ver ninguno de tus datos de entrenamiento.",
+  },
+};
+
+export interface NotifyDict {
+  title: string;
+  empty: string;
+  emptyHint: string;
+  ariaLabel: string;
+  line: Record<string, (name: string) => string>;
+}
+
+const notifications: Record<Lang, NotifyDict> = {
+  ko: {
+    title: "알림",
+    empty: "새 알림이 없어요",
+    emptyHint: "연결 요청이나 코치 피드백이 오면 여기에 표시돼요.",
+    ariaLabel: "알림 열기",
+    line: {
+      connectionRequest: (name) => `${name} 님이 연결을 요청했어요.`,
+      connectionAccepted: (name) => `${name} 님이 연결을 수락했어요.`,
+      assignmentGiven: (name) => `${name} 코치가 새 과제를 냈어요.`,
+      recordComment: (name) => `${name} 님이 내 기록에 피드백을 남겼어요.`,
+    },
+  },
+  en: {
+    title: "Notifications",
+    empty: "Nothing new",
+    emptyHint: "Connection requests and coach feedback show up here.",
+    ariaLabel: "Open notifications",
+    line: {
+      connectionRequest: (name) => `${name} asked to connect with you.`,
+      connectionAccepted: (name) => `${name} accepted your connection request.`,
+      assignmentGiven: (name) => `Coach ${name} set you a new assignment.`,
+      recordComment: (name) => `${name} left feedback on your record.`,
+    },
+  },
+  es: {
+    title: "Notificaciones",
+    empty: "Nada nuevo",
+    emptyHint: "Aquí aparecen las solicitudes de conexión y los comentarios del entrenador.",
+    ariaLabel: "Abrir notificaciones",
+    line: {
+      connectionRequest: (name) => `${name} ha pedido conectarse contigo.`,
+      connectionAccepted: (name) => `${name} ha aceptado tu solicitud de conexión.`,
+      assignmentGiven: (name) => `El entrenador ${name} te ha puesto una tarea nueva.`,
+      recordComment: (name) => `${name} ha comentado tu marca.`,
+    },
   },
 };
 
@@ -2088,6 +2234,8 @@ export function t(lang: Lang) {
     report: report[lang],
     digest: digest[lang],
     reset: reset[lang],
+    connect: connect[lang],
+    notifications: notifications[lang],
   };
 }
 

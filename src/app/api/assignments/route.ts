@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { notify } from "@/lib/notifyServer";
 
 const schema = z.object({
   athleteId: z.string().min(1),
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
   const link = await prisma.coachAthlete.findUnique({
     where: { coachId_athleteId: { coachId: session.userId, athleteId } },
   });
-  if (!link) return fail("연결된 선수에게만 과제를 배정할 수 있어요");
+  if (link?.status !== "ACCEPTED") return fail("연결된 선수에게만 과제를 배정할 수 있어요");
 
   const assignment = await prisma.assignment.create({
     data: {
@@ -41,5 +42,6 @@ export async function POST(req: Request) {
       dueDate: dueDate ? new Date(dueDate) : null,
     },
   });
+  await notify(athleteId, "assignmentGiven", { name: session.name }, "/");
   return ok({ id: assignment.id }, 201);
 }

@@ -17,6 +17,7 @@ const ROUTES = [
   "/blog/new",
   "/records",
   "/profile",
+  "/connections",
   "/search?q=phelps",
   "/sports/swimming",
   "/sports/swimming/athletes",
