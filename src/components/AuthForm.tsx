@@ -69,6 +69,12 @@ export default function AuthForm({ lang }: { lang: Lang }) {
         {loading ? s.submitLoading : s.submit}
       </button>
 
+      <p className="text-center text-sm">
+        <Link href="/forgot" className="text-slate-400 hover:text-slate-600">
+          {t(lang).reset.forgotLink}
+        </Link>
+      </p>
+
       <p className="text-center text-sm text-slate-500">
         {s.noAccount}{" "}
         <Link href="/signup" className="font-semibold text-brand">

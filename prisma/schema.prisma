@@ -70,6 +70,7 @@ model User {
   digestOptOut Boolean @default(false)
 
   records          Record[]
+  resetTokens      PasswordResetToken[]
   comments         Comment[]
   posts            BlogPost[]
   athleteGuides    AthleteGuide[]
@@ -374,4 +375,21 @@ model BoardLike {
   createdAt DateTime  @default(now())
 
   @@id([postId, userId])
+}
+
+
+/// A single-use password reset grant.
+///
+/// Only the SHA-256 of the token is stored, so a database leak cannot be
+/// replayed to take over accounts — the plaintext exists only in the email.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }

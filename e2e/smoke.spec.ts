@@ -57,6 +57,15 @@ for (const who of [
   });
 }
 
+test("password reset pages render for logged-out visitors", async ({ page }) => {
+  for (const route of ["/forgot", "/reset/not-a-real-token"]) {
+    const res = await page.goto(route, { waitUntil: "domcontentloaded" });
+    expect(res?.status(), `${route} status`).toBeLessThan(400);
+  }
+  // A dead link must say so rather than offering a password form.
+  await expect(page.locator('input[type="password"]')).toHaveCount(0);
+});
+
 test("landing page shows for logged-out visitors", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("body")).toContainText(/무료로 시작하기|Start free|Empieza gratis/);

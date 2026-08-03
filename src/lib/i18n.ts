@@ -760,6 +760,146 @@ const roster: Record<Lang, RosterDict> = {
 };
 
 // ---------------------------------------------------------------------------
+// Password reset
+// ---------------------------------------------------------------------------
+export interface ResetDict {
+  forgotLink: string;
+  requestTitle: string;
+  requestSubtitle: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  submit: string;
+  submitting: string;
+  /** Deliberately identical whether or not the address exists. */
+  sentTitle: string;
+  sentBody: (email: string) => string;
+  sentHint: (minutes: number) => string;
+  backToLogin: string;
+  newTitle: string;
+  newSubtitle: string;
+  newPassword: string;
+  confirmPassword: string;
+  save: string;
+  saving: string;
+  doneTitle: string;
+  doneBody: string;
+  signIn: string;
+  errTooShort: (n: number) => string;
+  errMismatch: string;
+  errExpired: string;
+  errUsed: string;
+  errUnknown: string;
+  errFailed: string;
+  mailSubject: string;
+  mailGreeting: (name: string) => string;
+  mailBody: (minutes: number) => string;
+  mailCta: string;
+  mailIgnore: string;
+}
+
+const reset: Record<Lang, ResetDict> = {
+  ko: {
+    forgotLink: "비밀번호를 잊으셨나요?",
+    requestTitle: "비밀번호 재설정",
+    requestSubtitle: "가입한 이메일을 입력하시면 재설정 링크를 보내드려요.",
+    emailLabel: "이메일",
+    emailPlaceholder: "you@example.com",
+    submit: "재설정 링크 받기",
+    submitting: "보내는 중…",
+    sentTitle: "메일을 확인해주세요",
+    sentBody: (email) => `${email} 로 계정이 있다면 재설정 링크를 보냈어요.`,
+    sentHint: (m) => `링크는 ${m}분 동안 유효해요. 안 보이면 스팸함도 확인해주세요.`,
+    backToLogin: "← 로그인으로",
+    newTitle: "새 비밀번호 설정",
+    newSubtitle: "새로 사용할 비밀번호를 입력해주세요.",
+    newPassword: "새 비밀번호",
+    confirmPassword: "비밀번호 확인",
+    save: "비밀번호 변경",
+    saving: "변경하는 중…",
+    doneTitle: "비밀번호가 변경됐어요",
+    doneBody: "새 비밀번호로 로그인해주세요.",
+    signIn: "로그인하기",
+    errTooShort: (n) => `비밀번호는 ${n}자 이상이어야 해요.`,
+    errMismatch: "두 비밀번호가 일치하지 않아요.",
+    errExpired: "링크가 만료됐어요. 다시 요청해주세요.",
+    errUsed: "이미 사용된 링크예요. 다시 요청해주세요.",
+    errUnknown: "유효하지 않은 링크예요. 다시 요청해주세요.",
+    errFailed: "실패했어요. 잠시 후 다시 시도해주세요.",
+    mailSubject: "[Sideline365] 비밀번호 재설정",
+    mailGreeting: (name) => `${name}님,`,
+    mailBody: (m) => `아래 버튼을 눌러 새 비밀번호를 설정하세요. 이 링크는 ${m}분 후 만료됩니다.`,
+    mailCta: "비밀번호 재설정",
+    mailIgnore: "본인이 요청하지 않았다면 이 메일은 무시하셔도 됩니다. 비밀번호는 그대로 유지돼요.",
+  },
+  en: {
+    forgotLink: "Forgot your password?",
+    requestTitle: "Reset your password",
+    requestSubtitle: "Enter the email you signed up with and we'll send a reset link.",
+    emailLabel: "Email",
+    emailPlaceholder: "you@example.com",
+    submit: "Send reset link",
+    submitting: "Sending…",
+    sentTitle: "Check your email",
+    sentBody: (email) => `If an account exists for ${email}, a reset link is on its way.`,
+    sentHint: (m) => `The link is valid for ${m} minutes. Check your spam folder if it doesn't arrive.`,
+    backToLogin: "← Back to sign in",
+    newTitle: "Set a new password",
+    newSubtitle: "Choose the password you'll use from now on.",
+    newPassword: "New password",
+    confirmPassword: "Confirm password",
+    save: "Change password",
+    saving: "Saving…",
+    doneTitle: "Your password is changed",
+    doneBody: "Sign in with your new password.",
+    signIn: "Sign in",
+    errTooShort: (n) => `Use at least ${n} characters.`,
+    errMismatch: "Those two passwords don't match.",
+    errExpired: "That link has expired. Request a new one.",
+    errUsed: "That link has already been used. Request a new one.",
+    errUnknown: "That link isn't valid. Request a new one.",
+    errFailed: "Something went wrong. Try again in a moment.",
+    mailSubject: "[Sideline365] Reset your password",
+    mailGreeting: (name) => `Hi ${name},`,
+    mailBody: (m) => `Use the button below to set a new password. This link expires in ${m} minutes.`,
+    mailCta: "Reset password",
+    mailIgnore: "If you didn't ask for this, you can ignore this email — your password stays as it is.",
+  },
+  es: {
+    forgotLink: "¿Olvidaste tu contraseña?",
+    requestTitle: "Restablecer contraseña",
+    requestSubtitle: "Escribe el correo con el que te registraste y te enviaremos un enlace.",
+    emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@ejemplo.com",
+    submit: "Enviar enlace",
+    submitting: "Enviando…",
+    sentTitle: "Revisa tu correo",
+    sentBody: (email) => `Si existe una cuenta para ${email}, el enlace ya está en camino.`,
+    sentHint: (m) => `El enlace vale ${m} minutos. Mira también la carpeta de spam si no llega.`,
+    backToLogin: "← Volver a iniciar sesión",
+    newTitle: "Elige una contraseña nueva",
+    newSubtitle: "Escribe la contraseña que usarás a partir de ahora.",
+    newPassword: "Nueva contraseña",
+    confirmPassword: "Confirmar contraseña",
+    save: "Cambiar contraseña",
+    saving: "Guardando…",
+    doneTitle: "Contraseña cambiada",
+    doneBody: "Inicia sesión con tu nueva contraseña.",
+    signIn: "Iniciar sesión",
+    errTooShort: (n) => `Usa al menos ${n} caracteres.`,
+    errMismatch: "Las dos contraseñas no coinciden.",
+    errExpired: "Ese enlace ha caducado. Pide uno nuevo.",
+    errUsed: "Ese enlace ya se usó. Pide uno nuevo.",
+    errUnknown: "Ese enlace no es válido. Pide uno nuevo.",
+    errFailed: "Algo salió mal. Inténtalo de nuevo en un momento.",
+    mailSubject: "[Sideline365] Restablece tu contraseña",
+    mailGreeting: (name) => `Hola ${name}:`,
+    mailBody: (m) => `Usa el botón de abajo para elegir una contraseña nueva. El enlace caduca en ${m} minutos.`,
+    mailCta: "Restablecer contraseña",
+    mailIgnore: "Si no lo pediste, puedes ignorar este correo: tu contraseña seguirá igual.",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Squad Intelligence — weekly digest email
 // ---------------------------------------------------------------------------
 export interface DigestDict {
@@ -1947,6 +2087,7 @@ export function t(lang: Lang) {
     triage: triage[lang],
     report: report[lang],
     digest: digest[lang],
+    reset: reset[lang],
   };
 }
 
