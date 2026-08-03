@@ -85,11 +85,17 @@ export function formatDayKey(dayKey: string, lang: string = "ko"): string {
 export function seoulDayKey(input: Date | string = new Date()): string {
   const d = typeof input === "string" ? new Date(input) : input;
   // en-CA formats as YYYY-MM-DD, which is exactly the key shape we want.
+  //
+  // Every field must be fixed-width. `day: "numeric"` drops the leading zero
+  // on the 1st–9th, producing "2026-08-3" — not a parseable date string, so
+  // `new Date(key + "T00:00:00Z")` is Invalid Date and dayWindow() throws.
+  // These keys are also compared and sorted as plain strings, which only holds
+  // while every key is the same length.
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Seoul",
     year: "numeric",
     month: "2-digit",
-    day: "numeric",
+    day: "2-digit",
   }).format(d);
 }
 

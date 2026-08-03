@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { seoulDayKey } from "../src/lib/format";
 import {
   sessionLoad,
   dayWindow,
@@ -108,4 +109,19 @@ test("the week-over-week trend uses the preceding seven days", () => {
   const s = summarizeLoad([...lastWeek, ...thisWeek], TODAY, 60);
   expect(s.weekTotal).toBe(7 * 360);
   expect(s.prevWeekTotal).toBe(7 * 180);
+});
+
+test("day keys are fixed-width, so date maths and string ordering both work", () => {
+  // Regression: seoulDayKey used `day: "numeric"`, which dropped the leading
+  // zero on the 1st–9th. The resulting "2026-08-3" is not a parseable date
+  // string, so dayWindow() threw and the coach dashboard returned 500 for the
+  // first nine days of every month.
+  for (const iso of ["2026-08-01", "2026-08-09", "2026-08-10", "2026-12-31"]) {
+    const key = seoulDayKey(new Date(`${iso}T12:00:00Z`));
+    expect(key, iso).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(() => dayWindow(key, 3), key).not.toThrow();
+    expect(new Date(`${key}T00:00:00Z`).toISOString(), key).toContain(key);
+  }
+  // Equal length everywhere means plain string ordering is date ordering.
+  expect(seoulDayKey(new Date("2026-08-09T12:00:00Z")) < seoulDayKey(new Date("2026-08-10T12:00:00Z"))).toBe(true);
 });
