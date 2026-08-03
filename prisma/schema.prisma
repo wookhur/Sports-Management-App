@@ -48,12 +48,10 @@ model User {
   // Gamification ("미션 & 캐릭터"): 완두콩(beans) is the spendable currency
   // earned by completing daily missions; XP is cumulative (drives Roybot tier).
   // petGrowth accumulates as beans are spent caring for the pet — the egg
-  // hatches into a bird once it crosses the hatch threshold. (houseRepairs is
-  // retained from the old house-repair mechanic; no longer used.)
-  beans        Int      @default(0)
-  charXp       Int      @default(0)
-  petGrowth    Int      @default(0)
-  houseRepairs String[] @default([])
+  // hatches into a bird once it crosses the hatch threshold.
+  beans     Int @default(0)
+  charXp    Int @default(0)
+  petGrowth Int @default(0)
 
   // Home dashboard personalization: widget keys the user has chosen to hide.
   // Empty = show every default section.
