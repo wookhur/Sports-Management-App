@@ -173,7 +173,11 @@ export default async function LeaderboardPage({
                   key={row.userId}
                   className={`flex items-center gap-4 px-5 py-3.5 ${isMe ? "bg-brand/5" : ""}`}
                 >
-                  <span className="w-8 text-center text-lg font-bold text-slate-500">
+                  {/* Darker on the highlighted row: slate-500 is 4.36:1 against
+                      the brand tint, just under AA. Same reason as the date below. */}
+                  <span
+                    className={`w-8 text-center text-lg font-bold ${isMe ? "text-slate-600" : "text-slate-500"}`}
+                  >
                     {medals[i] ?? i + 1}
                   </span>
                   <div className="min-w-0 flex-1">

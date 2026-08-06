@@ -36,6 +36,18 @@ Pick one before deploying:
 There is currently no env flag for this; the seed always runs. Say the word and
 I'll add one.
 
+### If you are showing the site to someone
+
+The seeded coach has one athlete who has logged nothing, so every coach screen
+correctly renders an empty state. Populate a squad first:
+
+```bash
+npm run db:demo
+```
+
+Run it **the same day** as the demo — the dates are relative to today. See
+"Demo data" in `OPERATIONS.md`. `npm run db:demo -- --clean` removes it again.
+
 ---
 
 ## 1. Environment variables

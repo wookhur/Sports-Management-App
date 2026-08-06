@@ -107,6 +107,34 @@ npm run db:fixture     # deterministic starting state for the seeded athlete
 npm run test:e2e
 ```
 
+## Demo data
+
+`prisma/seed.ts` gives the seeded coach exactly one athlete, who has logged
+nothing. Every coach feature then renders its empty state correctly — a blank
+heatmap, a zeroed report, "nothing to send this week" — which is accurate and
+shows none of what the app is for.
+
+`prisma/demo.ts` builds a squad on top of it:
+
+```bash
+npm run db:demo              # populate / refresh
+npm run db:demo -- --clean   # remove every demo athlete again
+```
+
+Nine athletes named `Demo Athlete 1…9` (`demo.athlete1@example.com`), attached
+to `coach@example.com` with consent already accepted. Their training shapes are
+chosen so each triage bucket appears at least once — a load spike, someone who
+stopped logging, a plateau, and two recent personal bests — because a dashboard
+that is entirely green demonstrates nothing.
+
+**Re-run it immediately before showing the app to anyone.** Every date is
+relative to the day it runs, so "set a personal best this week" goes stale.
+It is safe to re-run: the athletes' sessions and records are wiped and rebuilt
+rather than stacked.
+
+The names are deliberately, obviously fake. This is a school product, and demo
+rows must never be mistakable for real children.
+
 ## Database backups — check these in the Neon console
 
 The migration workflow protects against *accidental schema* changes; it does not
@@ -121,9 +149,6 @@ protect against bad data or a dropped table. Confirm in Neon:
 
 ## Known gaps
 
-- `User.houseRepairs` is unused (left over from the old house-repair mechanic).
-  It is retained deliberately; dropping it is a destructive migration and should
-  be done as its own reviewed change.
 - Guide step/tip content exists in Korean, English and Spanish. Blog posts,
   community posts and athlete guides stay in whatever language they were
   authored in — this is intentional, and the i18n test excludes those routes.
