@@ -93,7 +93,7 @@ export default function ResetConfirmForm({ lang, token }: { lang: Lang; token: s
       />
 
       {error && (
-        <p role="alert" className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        <p role="alert" className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
 
       <button type="submit" disabled={busy} className="btn-primary mt-4 w-full">

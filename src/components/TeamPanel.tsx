@@ -119,7 +119,7 @@ export default function TeamPanel({ teams, lang = "ko" }: { teams: TeamRow[]; la
           {busy ? s.creating : s.create}
         </button>
       </form>
-      {error && <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
     </div>
   );
 }

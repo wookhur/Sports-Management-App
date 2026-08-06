@@ -70,10 +70,9 @@ test("signed-out pages are accessible too", async ({ page }) => {
   expect(problems, "accessibility violations").toEqual([]);
 });
 
-test("text meets AA contrast everywhere an athlete goes", async ({ page }) => {
-  await login(page, ATHLETE);
+async function contrastProblems(page: import("@playwright/test").Page, routes: string[]) {
   const problems: string[] = [];
-  for (const route of ATHLETE_ROUTES) {
+  for (const route of routes) {
     await page.goto(route, { waitUntil: "networkidle" });
     const res = await new AxeBuilder({ page }).exclude("iframe").withRules(["color-contrast"]).analyze();
     for (const v of res.violations)
@@ -82,5 +81,18 @@ test("text meets AA contrast everywhere an athlete goes", async ({ page }) => {
         problems.push(`${route}: ${d?.fgColor} on ${d?.bgColor} — ${n.html.slice(0, 70)}`);
       }
   }
-  expect(problems, "contrast violations").toEqual([]);
+  return problems;
+}
+
+test("text meets AA contrast everywhere an athlete goes", async ({ page }) => {
+  await login(page, ATHLETE);
+  expect(await contrastProblems(page, ATHLETE_ROUTES), "contrast violations").toEqual([]);
+});
+
+// The coach routes had the accessible-name check but not this one, which is
+// backwards: the squad table, the triage list and the report are the densest
+// colour-coded screens in the app, and the ones an evaluator looks at longest.
+test("text meets AA contrast on the coach routes too", async ({ page }) => {
+  await login(page, COACH);
+  expect(await contrastProblems(page, COACH_ROUTES), "contrast violations").toEqual([]);
 });

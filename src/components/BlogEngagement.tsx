@@ -156,7 +156,7 @@ export default function BlogEngagement({
           {busy ? s.submitting : s.submit}
         </button>
       </form>
-      {error && <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
 
       <ul className="mt-4 space-y-3">
         {comments.map((c) => (

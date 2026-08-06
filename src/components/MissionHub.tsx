@@ -122,7 +122,7 @@ export default function MissionHub({ lang, beans, pet, care, missions }: Props) 
         </div>
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {hatchMsg && (
         <p className="rounded-2xl bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-700">
           {s.hatchedMsg}

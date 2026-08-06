@@ -67,7 +67,7 @@ export default function DeletePostButton({
       type="button"
       onClick={onDelete}
       disabled={busy}
-      className={className ?? "text-xs font-medium text-red-500 hover:text-red-600"}
+      className={className ?? "text-xs font-medium text-red-600 hover:text-red-700"}
     >
       {busy ? t.busy : t.label}
     </button>

@@ -158,7 +158,7 @@ export default function BoardComposer({ lang }: { lang: Lang }) {
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex items-center gap-2">
         <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />

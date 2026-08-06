@@ -251,7 +251,7 @@ export default function BlogEditor({
         <RichTextEditor content={body} onChange={setBody} lang={lang} />
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <button type="submit" disabled={loading || uploading} className="btn-primary w-full">
         {loading ? s.saving : isEdit ? s.saveEdit : s.publish}

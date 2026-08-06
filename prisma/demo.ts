@@ -29,6 +29,8 @@ const prisma = new PrismaClient();
 
 /** Which coach the squad attaches to. */
 const COACH_EMAIL = "coach@example.com";
+/** The seeded athlete, who has shared records but no training sessions. */
+const SEEDED_ATHLETE_EMAIL = "athlete@example.com";
 const DEMO_PREFIX = "demo.athlete";
 
 const day = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
@@ -147,6 +149,12 @@ async function main() {
   if (removeOnly) {
     await clean(existingIds);
     await prisma.user.deleteMany({ where: { id: { in: existingIds } } });
+    // The seeded athlete is not ours to delete — only the sessions we gave them.
+    const seeded = await prisma.user.findUnique({ where: { email: SEEDED_ATHLETE_EMAIL } });
+    if (seeded) {
+      const days = steady(27, 2, 55, 6).map((s) => s.day);
+      await prisma.trainingSession.deleteMany({ where: { userId: seeded.id, day: { in: days } } });
+    }
     console.log(`[demo] removed ${existingIds.length} demo athletes.`);
     return;
   }
@@ -223,6 +231,30 @@ async function main() {
       });
       recordCount += 1;
     }
+  }
+
+  // The seeded athlete shares records but logs no training, so the dashboard
+  // flagged them "never logged anything" directly above their own shared
+  // times. Both statements are true — records and training sessions are
+  // different things — but side by side they read as a bug. Give them a
+  // steady history so the squad's one non-demo member looks like a member.
+  const seeded = await prisma.user.findUnique({ where: { email: SEEDED_ATHLETE_EMAIL } });
+  if (seeded) {
+    // Only ever the days this script writes, so re-running re-dates them
+    // instead of stacking a second month on top.
+    const days = steady(27, 2, 55, 6).map((s) => s.day);
+    await prisma.trainingSession.deleteMany({ where: { userId: seeded.id, day: { in: days } } });
+    await prisma.trainingSession.createMany({
+      data: steady(27, 2, 55, 6).map((s) => ({
+        userId: seeded.id,
+        day: s.day,
+        sport: "swimming",
+        kind: "technique",
+        minutes: s.minutes,
+        intensity: s.intensity,
+      })),
+    });
+    sessionCount += days.length;
   }
 
   console.log(

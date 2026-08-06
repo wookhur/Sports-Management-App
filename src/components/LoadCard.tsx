@@ -2,10 +2,10 @@ import { CHRONIC_DAYS, type LoadSummary } from "@/lib/load";
 import { t, type Lang } from "@/lib/i18n";
 
 const ZONE_STYLE: Record<string, { chip: string; bar: string }> = {
-  detraining: { chip: "bg-sky-50 text-sky-600", bar: "bg-sky-400" },
+  detraining: { chip: "bg-sky-50 text-sky-700", bar: "bg-sky-400" },
   optimal: { chip: "bg-emerald-50 text-emerald-700", bar: "bg-emerald-500" },
   caution: { chip: "bg-amber-50 text-amber-700", bar: "bg-amber-500" },
-  high: { chip: "bg-red-50 text-red-600", bar: "bg-red-500" },
+  high: { chip: "bg-red-50 text-red-700", bar: "bg-red-500" },
   unknown: { chip: "bg-slate-100 text-slate-600", bar: "bg-slate-300" },
 };
 
@@ -28,8 +28,10 @@ export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadS
           <p className="mt-1 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold tabular-nums">{Math.round(summary.weekTotal)}</span>
             <span className="text-xs text-slate-500">{s.weekLoad}</span>
+            {/* sky-700, not sky-500: the lighter blue is 3.0:1 on white and
+                fails AA. Both arrows carry the same weight as text. */}
             {trend != null && trend !== 0 && (
-              <span className={`text-sm font-bold ${trend > 0 ? "text-amber-700" : "text-sky-500"}`}>
+              <span className={`text-sm font-bold ${trend > 0 ? "text-amber-700" : "text-sky-700"}`}>
                 {trend > 0 ? "▲" : "▼"}
                 {Math.abs(trend)}%
               </span>

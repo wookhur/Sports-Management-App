@@ -244,7 +244,7 @@ export default function GoalManager({
           />
           <span className="text-sm text-slate-500">{s.seconds}</span>
         </div>
-        {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{error}</p>}
+        {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
         <button type="submit" disabled={busy} className="btn-primary w-full text-sm">
           {busy ? s.saving : s.addGoal}
         </button>
