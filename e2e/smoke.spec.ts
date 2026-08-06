@@ -80,3 +80,13 @@ test("coach-only areas load for a coach", async ({ page }) => {
     expect(res?.status(), `${route} status`).toBeLessThan(400);
   }
 });
+
+// A 200 is not enough here. `CoachAthlete.status` defaults to PENDING, so a
+// seed that forgets to set it leaves the coach with an empty roster on any
+// fresh database — every coach page still renders, just with nothing in it.
+// That shipped once; this is the check that would have caught it.
+test("the seeded coach has an accepted athlete, not a pending one", async ({ page }) => {
+  await login(page, COACH);
+  await page.goto("/coach", { waitUntil: "networkidle" });
+  await expect(page.locator("main")).not.toContainText(/연결된 선수가 없어요|no athletes connected|no hay atletas/i);
+});

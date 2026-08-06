@@ -48,7 +48,7 @@ for (const lang of ["en", "es"]) {
       // entered in — including the single-character avatar initials derived
       // from them. Strip those before looking for untranslated chrome.
       const cleaned = text
-        .replace(/이선수|김코치|박태환|손흥민|clare nam/gi, "")
+        .replace(/박태환|손흥민|clare nam/gi, "")
         .replace(/(^|\s)[가-힣](?=\s|$)/g, "$1") // lone avatar initials
         .replace(/^\s*$/gm, "");
       if (HANGUL.test(cleaned)) {

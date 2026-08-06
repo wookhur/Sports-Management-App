@@ -6,12 +6,17 @@ const prisma = new PrismaClient();
 async function main() {
   const password = await bcrypt.hash("password123", 10);
 
+  // These two are shown to people evaluating the product, so the names are
+  // English: a team report reading "Coached by 김코치" is read as an unfinished
+  // product by an audience that cannot read it. `update` carries the name so a
+  // rename actually reaches rows that already exist — everything else about a
+  // seeded account is left alone once created.
   const coach = await prisma.user.upsert({
     where: { email: "coach@example.com" },
-    update: {},
+    update: { name: "Coach Kim" },
     create: {
       email: "coach@example.com",
-      name: "김코치",
+      name: "Coach Kim",
       password,
       role: "COACH",
     },
@@ -19,19 +24,30 @@ async function main() {
 
   const athlete = await prisma.user.upsert({
     where: { email: "athlete@example.com" },
-    update: {},
+    update: { name: "Alex Lee" },
     create: {
       email: "athlete@example.com",
-      name: "이선수",
+      name: "Alex Lee",
       password,
       role: "ATHLETE",
     },
   });
 
+  // Explicitly ACCEPTED. `status` defaults to PENDING — correct for a real
+  // request, wrong here: on a fresh database (CI, a new Neon branch) the
+  // seeded coach would come up with an empty roster and every coach feature
+  // would render its empty state. Existing databases hide this, because the
+  // consent migration backfilled links that predated it.
   await prisma.coachAthlete.upsert({
     where: { coachId_athleteId: { coachId: coach.id, athleteId: athlete.id } },
-    update: {},
-    create: { coachId: coach.id, athleteId: athlete.id },
+    update: { status: "ACCEPTED" },
+    create: {
+      coachId: coach.id,
+      athleteId: athlete.id,
+      status: "ACCEPTED",
+      requestedById: athlete.id,
+      respondedAt: new Date(),
+    },
   });
 
   // Sample swimming records for the athlete (some shared with the coach).
@@ -46,7 +62,7 @@ async function main() {
           metricName: "자유형 50m",
           distanceM: 50,
           durationMs: 34120,
-          notes: "출발 반응 좋았음",
+          notes: "Good reaction off the start",
           shared: true,
         },
         {
@@ -56,7 +72,7 @@ async function main() {
           metricName: "자유형 50m",
           distanceM: 50,
           durationMs: 33480,
-          notes: "턴 개선",
+          notes: "Better turn",
           shared: true,
         },
         {
@@ -69,6 +85,21 @@ async function main() {
           shared: false,
         },
       ],
+    });
+  }
+
+  // The block above only runs on a database with no records at all, so the
+  // notes it writes never reach one that was seeded earlier. These two rows
+  // predate the rename and still carry Korean notes, which surface on the
+  // coach dashboard and the record list in every language. Matched on the
+  // exact old text so nothing an athlete actually wrote can be hit.
+  for (const [from, to] of [
+    ["출발 반응 좋았음", "Good reaction off the start"],
+    ["턴 개선", "Better turn"],
+  ]) {
+    await prisma.record.updateMany({
+      where: { userId: athlete.id, notes: from },
+      data: { notes: to },
     });
   }
 
