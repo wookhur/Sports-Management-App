@@ -15,9 +15,11 @@ accounts, all with the password `password123`** — and the login page prints tw
 of them on screen.
 
 ```
-athlete@example.com / password123
-coach@example.com   / password123
+athlete@example.com / password123   (Alex Lee)
+coach@example.com   / password123   (Coach Kim)
 ```
+
+**The repository is public**, so this is not obscured by anything.
 
 That is correct for a demo and wrong for a school. Anyone who opens the site can
 sign in as a coach: create teams, publish blog posts, open the coach dashboard,
@@ -163,6 +165,11 @@ The two fixes with real user impact, first:
 - [ ] **Consent holds.** From a coach account, request a connection to an
       athlete who has not accepted. The athlete must *not* appear on `/coach`,
       and assigning them training must be refused.
+- [ ] **The seeded coach's roster is not empty.** `CoachAthlete.status`
+      defaults to PENDING and the seed used to leave it there, which produced a
+      coach dashboard that returned 200 with nothing on it. Production should
+      be unaffected — its links predate consent and were backfilled — but this
+      is the one failure that looks like success.
 
 Then the rest:
 
