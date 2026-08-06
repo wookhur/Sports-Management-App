@@ -37,20 +37,23 @@ export default async function NavBar() {
           <div className="mr-1 hidden sm:block">
             <SearchBox compact lang={lang} />
           </div>
-          {/* Quick links duplicate the sidebar on lg — show them only below it. */}
-          <Link href="/" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
+          {/* Quick links duplicate the sidebar, which owns navigation from lg
+              up and from the hamburger drawer below it. So they are only worth
+              showing in between: on a 390px phone this row overflowed the
+              viewport and every signed-in page scrolled sideways. */}
+          <Link href="/" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 sm:block lg:hidden">
             {s.home}
           </Link>
           {isCoach ? (
-            <Link href="/coach" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
+            <Link href="/coach" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 sm:block lg:hidden">
               {s.coachDashboard}
             </Link>
           ) : (
-            <Link href="/records" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
+            <Link href="/records" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 sm:block lg:hidden">
               {s.myRecords}
             </Link>
           )}
-          <Link href="/blog" className="rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 lg:hidden">
+          <Link href="/blog" className="hidden rounded-lg px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-100 sm:block lg:hidden">
             {s.blog}
           </Link>
           {/* Plain <a>, not <Link>: forces a full navigation so the server
