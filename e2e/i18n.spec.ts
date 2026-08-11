@@ -1,5 +1,6 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { login } from "./helpers";
+import { langFromAcceptLanguage } from "../src/lib/i18n";
 
 // Guards against Korean copy leaking into the EN/ES UI. Content authored by
 // users (blog posts, board posts, athlete guides) is deliberately left in
@@ -65,4 +66,35 @@ test("Korean UI still renders Korean", async ({ page, context }) => {
   await setLang(context, page, "ko");
   await page.goto("/sports/lacrosse", { waitUntil: "networkidle" });
   await expect(page.locator("main")).toContainText("크레들링");
+});
+
+// A first-time visitor has no cookie, so the landing page — the one screen
+// that has to make sense to a stranger — is picked from Accept-Language.
+test.describe("first visit falls back to the browser's language", () => {
+  test("picks a supported language, matching on the base tag", () => {
+    expect(langFromAcceptLanguage("en-US,en;q=0.9")).toBe("en");
+    expect(langFromAcceptLanguage("es-419")).toBe("es");
+    expect(langFromAcceptLanguage("ko-KR")).toBe("ko");
+  });
+
+  test("honours quality values rather than header order", () => {
+    expect(langFromAcceptLanguage("fr;q=0.9,en;q=0.8,es;q=1.0")).toBe("es");
+    expect(langFromAcceptLanguage("en;q=0.4,ko;q=0.8")).toBe("ko");
+  });
+
+  test("skips languages we do not speak", () => {
+    expect(langFromAcceptLanguage("fr-FR,de;q=0.9,en;q=0.5")).toBe("en");
+  });
+
+  test("returns null when there is nothing to go on, so Korean stays default", () => {
+    expect(langFromAcceptLanguage("")).toBeNull();
+    expect(langFromAcceptLanguage(null)).toBeNull();
+    expect(langFromAcceptLanguage("fr-FR,de")).toBeNull();
+    expect(langFromAcceptLanguage("*")).toBeNull();
+  });
+
+  // One malformed entry must not be read as q=0 and reshuffle the rest.
+  test("a malformed quality value drops that entry only", () => {
+    expect(langFromAcceptLanguage("en;q=abc,es")).toBe("es");
+  });
 });

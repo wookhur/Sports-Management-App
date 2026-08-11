@@ -42,7 +42,9 @@ export default function LanguageSwitcher({ lang, dark = false }: { lang: Lang; d
           type="button"
           onClick={() => setLang(opt.code)}
           aria-pressed={lang === opt.code}
-          className={`rounded-full px-2.5 py-1 transition ${lang === opt.code ? activePill : idleText}`}
+          // nowrap: "한국어" broke onto two lines in the landing page's tight
+          // phone header, which pushed the whole row out of shape.
+          className={`whitespace-nowrap rounded-full px-2.5 py-1 transition ${lang === opt.code ? activePill : idleText}`}
         >
           {opt.label}
         </button>

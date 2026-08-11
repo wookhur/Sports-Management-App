@@ -16,6 +16,39 @@ export function resolveLang(raw: string | undefined): Lang {
   return "ko";
 }
 
+/**
+ * Best supported language from an Accept-Language header, or null if the
+ * visitor asked for nothing we speak.
+ *
+ * Used only when there is no cookie — that is, on someone's first visit. A
+ * Korean-only landing page is the right default for a Korean product, but it
+ * was also the *only* thing an English speaker could see: the language switcher
+ * lives behind the sign-in pages, so the one screen that has to make sense to a
+ * stranger was the one screen they could not translate.
+ */
+export function langFromAcceptLanguage(header: string | null | undefined): Lang | null {
+  if (!header) return null;
+  const ranked = header
+    .split(",")
+    .map((part) => {
+      const [tag, ...params] = part.trim().split(";");
+      const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+      return { tag: tag.trim().toLowerCase(), q: q ? Number(q.slice(2)) : 1 };
+    })
+    // A malformed q is dropped rather than treated as 0, so one bad entry
+    // cannot silently outrank the rest of the header.
+    .filter((e) => e.tag !== "" && Number.isFinite(e.q))
+    .sort((a, b) => b.q - a.q);
+
+  for (const { tag } of ranked) {
+    // "en-US" and "en" both mean English. "*" matches nothing in particular,
+    // so it falls through to the caller's own default.
+    const base = tag.split("-")[0];
+    if (base === "ko" || base === "en" || base === "es") return base;
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Login page
 // ---------------------------------------------------------------------------
@@ -1975,9 +2008,14 @@ const journal: Record<Lang, JournalDict> = {
 // ---------------------------------------------------------------------------
 export interface LandingDict {
   kicker: string;
+  // Rendered as `headline1 <hi>` / line break / `headline2`, so the
+  // highlighted word always ends the first line. Korean puts its verb there
+  // naturally; EN and ES have to be phrased around that, not translated
+  // word-for-word — doing the latter produced "Turn every workout Track into
+  // progress" on the live site.
   headline1: string;
   headline2: string;
-  headlineHi: string; // highlighted word
+  headlineHi: string; // highlighted word, ends line one
   sub: string;
   ctaStart: string;
   ctaLogin: string;
@@ -2018,9 +2056,9 @@ const landing: Record<Lang, LandingDict> = {
   },
   en: {
     kicker: "The training platform for athletes and coaches",
-    headline1: "Turn every workout",
+    headline1: "Turn every",
     headline2: "into progress",
-    headlineHi: "Track",
+    headlineHi: "workout",
     sub: "Measure your times, see them scored, and stay motivated with missions. Sideline365 turns every moment of training into data.",
     ctaStart: "Start free",
     ctaLogin: "Log in",
@@ -2044,9 +2082,9 @@ const landing: Record<Lang, LandingDict> = {
   },
   es: {
     kicker: "La plataforma de entrenamiento para atletas y entrenadores",
-    headline1: "Convierte cada sesión",
+    headline1: "Convierte cada",
     headline2: "en progreso",
-    headlineHi: "Registra",
+    headlineHi: "sesión",
     sub: "Mide tus tiempos, míralos puntuados y mantente motivado con misiones. Sideline365 convierte cada momento en datos.",
     ctaStart: "Empieza gratis",
     ctaLogin: "Iniciar sesión",

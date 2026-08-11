@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandMark from "./BrandMark";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { t, type Lang } from "@/lib/i18n";
 
 // Public intro/hero for logged-out visitors. Energetic but self-contained:
@@ -23,9 +24,18 @@ export default function Landing({ lang }: { lang: Lang }) {
           <BrandMark className="h-7 w-7" />
           <span className="text-lg font-bold tracking-tight">Sideline365</span>
         </div>
-        <Link href="/login" className="text-sm font-semibold text-slate-200 hover:text-white">
-          {s.ctaLogin}
-        </Link>
+        {/* The switcher belongs here, not only behind the sign-in pages: this
+            is the first screen a stranger sees, and until now the only one
+            they could not translate. */}
+        <div className="flex shrink-0 items-center gap-3">
+          <LanguageSwitcher lang={lang} dark />
+          <Link
+            href="/login"
+            className="whitespace-nowrap text-sm font-semibold text-slate-200 hover:text-white"
+          >
+            {s.ctaLogin}
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}
