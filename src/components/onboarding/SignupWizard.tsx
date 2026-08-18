@@ -83,6 +83,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
   const [role, setRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [researchConsent, setResearchConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -118,6 +119,9 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
           experienceLevel: experienceLevel ?? undefined,
           dob: dob || undefined,
           grade: grade ?? undefined,
+          // Always sent, so the server records a real answer either way
+          // rather than leaving the account looking like it was never asked.
+          researchConsent,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -239,6 +243,8 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
               onSubmit={submit}
               loading={loading}
               error={error}
+              researchConsent={researchConsent}
+              onResearchConsentChange={setResearchConsent}
             />
           )}
         </div>
@@ -595,6 +601,8 @@ function AccountStep({
   onSubmit,
   loading,
   error,
+  researchConsent,
+  onResearchConsentChange,
 }: {
   s: SignupDict;
   email: string;
@@ -604,6 +612,8 @@ function AccountStep({
   onSubmit: () => void;
   loading: boolean;
   error: string | null;
+  researchConsent: boolean;
+  onResearchConsentChange: (v: boolean) => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -643,6 +653,31 @@ function AccountStep({
           {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
         </button>
       </div>
+      {/* Unchecked to begin with, and deliberately absent from the submit
+          button's `disabled` condition below: sign-up must succeed whether or
+          not this is ticked, or it is not a choice. */}
+      <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
+        <label htmlFor="researchConsent" className="flex cursor-pointer items-start gap-3">
+          <input
+            id="researchConsent"
+            type="checkbox"
+            checked={researchConsent}
+            onChange={(e) => onResearchConsentChange(e.target.checked)}
+            aria-describedby="researchConsentDetail"
+            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-white/30 bg-transparent accent-teal-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+          />
+          <span className="text-sm font-medium text-[#EAFBF6]">
+            {s.account.researchLabel}{" "}
+            <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-[#9CB3AE]">
+              {s.account.researchOptional}
+            </span>
+          </span>
+        </label>
+        <p id="researchConsentDetail" className="mt-2 pl-8 text-xs leading-relaxed text-[#9CB3AE]">
+          {s.account.researchDetail}
+        </p>
+      </div>
+
       {error && (
         <p role="alert" className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}

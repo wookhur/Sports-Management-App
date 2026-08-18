@@ -20,6 +20,9 @@ const schema = z.object({
   experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
   dob: z.string().optional(),
   grade: z.string().max(50).optional(),
+  // Optional in the schema so an older client, or any caller that omits it,
+  // creates an account recorded as never asked rather than as declining.
+  researchConsent: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
   }
-  const { username, email, password, role, school, sportInterests, experienceLevel, dob, grade } =
+  const { username, email, password, role, school, sportInterests, experienceLevel, dob, grade, researchConsent } =
     parsed.data;
 
   const [existingEmail, existingUsername] = await Promise.all([
@@ -53,6 +56,11 @@ export async function POST(req: Request) {
       experienceLevel: experienceLevel ?? null,
       dob: parsedDob ?? null,
       grade: grade || null,
+      // Both branches record the moment the choice was made — declining is an
+      // answer too, and is worth being able to prove. Omitted entirely leaves
+      // both columns null, which reads as "never asked".
+      researchConsent: researchConsent ?? null,
+      researchConsentAt: researchConsent === undefined ? null : new Date(),
       // The onboarding wizard itself explains the app, so there's no need
       // to also auto-show the post-login feature tour for these users.
       onboarded: true,

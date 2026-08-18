@@ -8,6 +8,7 @@ import NavBar from "@/components/NavBar";
 import BadgeRow from "@/components/BadgeRow";
 import ProfileEditor, { type ProfileData } from "@/components/ProfileEditor";
 import HomeSettings from "@/components/HomeSettings";
+import ResearchConsent from "@/components/ResearchConsent";
 import { HOME_WIDGETS } from "@/lib/homeWidgets";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
@@ -85,6 +86,7 @@ export default async function ProfilePage() {
       currentStreak: true,
       longestStreak: true,
       homeHidden: true,
+      researchConsent: true,
       createdAt: true,
       _count: { select: { records: true } },
     },
@@ -162,6 +164,8 @@ export default async function ProfilePage() {
         <section className="mt-6">
           <HomeSettings lang={lang} widgets={[...HOME_WIDGETS]} initialHidden={user.homeHidden} />
         </section>
+
+        <ResearchConsent lang={lang} consent={user.researchConsent} />
       </main>
     </>
   );

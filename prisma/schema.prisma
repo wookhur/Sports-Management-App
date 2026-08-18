@@ -67,6 +67,17 @@ model User {
   // app is exactly who the digest is for.
   digestOptOut Boolean @default(false)
 
+  // Optional consent to have this account's data used in research.
+  //
+  // Nullable with no default, and that is the whole point: null means nobody
+  // has ever asked, which is not the same as being asked and declining. Every
+  // account that existed before this shipped is null, and none of them may be
+  // treated as consenting. Consent is also never a condition of using the
+  // app — sign-up succeeds either way — and it can be withdrawn from the
+  // profile page, which is what makes it consent rather than a notice.
+  researchConsent   Boolean?
+  researchConsentAt DateTime?
+
   records          Record[]
   resetTokens      PasswordResetToken[]
   comments         Comment[]

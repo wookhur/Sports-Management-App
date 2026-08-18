@@ -160,6 +160,11 @@ export interface SignupDict {
     starting: string;
     errGeneric: string;
     errNetwork: string;
+    // Optional research consent. `optional` is not decoration — it is the
+    // part that makes this a choice, so it stays next to the label.
+    researchLabel: string;
+    researchDetail: string;
+    researchOptional: string;
   };
 }
 
@@ -213,6 +218,10 @@ const signup: Record<Lang, SignupDict> = {
       starting: "가입 중…",
       errGeneric: "가입에 실패했습니다. 다시 시도해주세요.",
       errNetwork: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+      researchLabel: "훈련 기록이 연구 목적으로 사용되는 데 동의합니다",
+      researchDetail:
+        "훈련·기록 데이터가 개인을 식별할 수 없는 형태로 처리되어 연구와 서비스 개선에 쓰일 수 있습니다. 동의하지 않아도 모든 기능을 그대로 사용할 수 있고, 프로필에서 언제든지 철회할 수 있습니다.",
+      researchOptional: "선택 항목",
     },
   },
   en: {
@@ -264,6 +273,10 @@ const signup: Record<Lang, SignupDict> = {
       starting: "Signing up…",
       errGeneric: "Sign-up failed. Please try again.",
       errNetwork: "Couldn't reach the server. Please try again in a moment.",
+      researchLabel: "I agree that my training data may be used for research",
+      researchDetail:
+        "Training and performance data may be used in a de-identified form for research and to improve the service. Every feature works the same if you decline, and you can withdraw at any time from your profile.",
+      researchOptional: "Optional",
     },
   },
   es: {
@@ -315,6 +328,10 @@ const signup: Record<Lang, SignupDict> = {
       starting: "Registrando…",
       errGeneric: "No se pudo completar el registro. Inténtalo de nuevo.",
       errNetwork: "No se pudo conectar con el servidor. Inténtalo de nuevo en un momento.",
+      researchLabel: "Acepto que mis datos de entrenamiento se usen para investigación",
+      researchDetail:
+        "Los datos de entrenamiento y de marcas podrán usarse de forma anonimizada para investigación y para mejorar el servicio. Todas las funciones siguen igual si no aceptas, y puedes retirar el consentimiento cuando quieras desde tu perfil.",
+      researchOptional: "Opcional",
     },
   },
 };
