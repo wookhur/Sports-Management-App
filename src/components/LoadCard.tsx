@@ -9,6 +9,14 @@ const ZONE_STYLE: Record<string, { chip: string; bar: string }> = {
   unknown: { chip: "bg-slate-100 text-slate-600", bar: "bg-slate-300" },
 };
 
+// Amber, not red: monotony is a nudge to vary the week, never an alarm.
+const MONOTONY_CHIP: Record<string, string> = {
+  varied: "bg-emerald-50 text-emerald-700",
+  moderate: "bg-slate-100 text-slate-600",
+  monotonous: "bg-amber-50 text-amber-700",
+  unknown: "bg-slate-100 text-slate-600",
+};
+
 /** Athlete-facing view of the training-load engine. */
 export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadSummary }) {
   const s = t(lang).load;
@@ -62,6 +70,23 @@ export default function LoadCard({ lang, summary }: { lang: Lang; summary: LoadS
       <p className="mt-3 text-sm text-slate-600">
         {summary.acwr == null ? s.buildingHint : s.zoneHint[summary.zone]}
       </p>
+
+      {/* Monotony answers a question the ratio cannot: the same weekly total
+          spread evenly, with no easy day in it, is harder to absorb than the
+          same total with rest in it. Hidden when nothing was logged this week,
+          because there is no pattern to report. */}
+      {summary.monotonyBand !== "unknown" && (
+        <div className="mt-3 border-t border-slate-100 pt-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-semibold text-slate-500">{s.monotonyLabel}</span>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${MONOTONY_CHIP[summary.monotonyBand]}`}>
+              {s.monotonyBand[summary.monotonyBand]}
+              {summary.monotony != null && ` ${summary.monotony.toFixed(2)}`}
+            </span>
+          </div>
+          <p className="mt-1.5 text-sm text-slate-600">{s.monotonyHint[summary.monotonyBand]}</p>
+        </div>
+      )}
 
       <p className="mt-3 border-t border-slate-100 pt-3 text-[11px] leading-relaxed text-slate-500">
         ⓘ {s.disclaimer}

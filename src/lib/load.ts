@@ -30,6 +30,32 @@ export const MIN_HISTORY_DAYS = 14;
 
 export type LoadZone = "detraining" | "optimal" | "caution" | "high" | "unknown";
 
+export type MonotonyBand = "varied" | "moderate" | "monotonous" | "unknown";
+
+/**
+ * Monotony is a *weekly* statistic in Foster's method, so it is computed over
+ * the acute window rather than the chronic one. Across 28 days it stops
+ * describing "this week was samey" and starts averaging hard weeks with rest
+ * weeks into a number that means neither.
+ */
+export const MONOTONY_DAYS = ACUTE_DAYS;
+/** Commonly cited flag point; above this, days stop differing enough. */
+export const MONOTONY_FLAG = 2.0;
+export const MONOTONY_MODERATE = 1.5;
+/**
+ * Identical load every single day gives SD = 0 and an infinite ratio. That is
+ * the *most* monotonous week possible, so it is capped rather than discarded —
+ * reporting it as "unknown" would hide precisely the case worth flagging.
+ */
+export const MONOTONY_MAX = 9.99;
+
+export function monotonyBand(monotony: number | null): MonotonyBand {
+  if (monotony == null) return "unknown";
+  if (monotony >= MONOTONY_FLAG) return "monotonous";
+  if (monotony >= MONOTONY_MODERATE) return "moderate";
+  return "varied";
+}
+
 export interface LoadSummary {
   /** Load per day over the chronic window, oldest → newest (zeros included). */
   daily: { day: string; load: number }[];
@@ -39,8 +65,14 @@ export interface LoadSummary {
   zone: LoadZone;
   /** Distinct days with any load, within the chronic window. */
   activeDays: number;
-  /** Variability of daily load (mean / SD). High monotony = same load daily. */
+  /**
+   * Foster's monotony for the acute week: mean daily load ÷ SD of daily load.
+   * High means every day looked the same — the same total spread evenly with
+   * no easy days is harder to absorb than the same total with rest in it.
+   * Null when nothing was logged that week; there is no pattern to describe.
+   */
   monotony: number | null;
+  monotonyBand: MonotonyBand;
   weekTotal: number; // = acute
   prevWeekTotal: number; // the 7 days before that, for a trend arrow
 }
@@ -108,9 +140,17 @@ export function summarizeLoad(
   const acwr = enoughHistory ? acute / chronic : null;
 
   const activeDays = loads.filter((l) => l > 0).length;
-  const sd = stdDev(loads);
-  const mean = chronicTotal / CHRONIC_DAYS;
-  const monotony = sd > 0 ? mean / sd : null;
+
+  // Weekly, per Foster — see MONOTONY_DAYS.
+  const weekLoads = loads.slice(-MONOTONY_DAYS);
+  const weekMean = weekLoads.reduce((a, b) => a + b, 0) / MONOTONY_DAYS;
+  const weekSd = stdDev(weekLoads);
+  const monotony =
+    weekMean === 0
+      ? null // nothing logged this week — no pattern to describe
+      : weekSd === 0
+        ? MONOTONY_MAX // trained an identical amount every day: maximally monotonous
+        : Math.min(weekMean / weekSd, MONOTONY_MAX);
 
   return {
     daily,
@@ -120,6 +160,7 @@ export function summarizeLoad(
     zone: zoneFor(acwr),
     activeDays,
     monotony: monotony == null ? null : Math.round(monotony * 100) / 100,
+    monotonyBand: monotonyBand(monotony),
     weekTotal: acute,
     prevWeekTotal,
   };

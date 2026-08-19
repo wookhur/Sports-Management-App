@@ -671,6 +671,10 @@ export interface LoadDict {
   zoneHint: Record<string, string>;
   disclaimer: string;
   activeDays: (n: number, total: number) => string;
+  /** Training monotony — how alike this week's days were. */
+  monotonyLabel: string;
+  monotonyBand: Record<string, string>;
+  monotonyHint: Record<string, string>;
 }
 
 const load: Record<Lang, LoadDict> = {
@@ -691,6 +695,14 @@ const load: Record<Lang, LoadDict> = {
     },
     disclaimer: "참고용 지표예요. 몸에 통증이 있으면 지표와 관계없이 쉬어가세요.",
     activeDays: (n, total) => `최근 ${total}일 중 ${n}일 훈련`,
+    monotonyLabel: "훈련 단조로움",
+    monotonyBand: { varied: "완급 있음", moderate: "보통", monotonous: "매일 비슷", unknown: "—" },
+    monotonyHint: {
+      varied: "힘든 날과 가벼운 날이 잘 나뉘어 있어요. 회복할 틈이 있다는 뜻이에요.",
+      moderate: "날마다 비슷해지고 있어요. 가벼운 날을 하루 넣어보세요.",
+      monotonous: "이번 주는 매일 거의 같았어요. 총량이 같아도 쉬는 날 없이 고르게 하면 몸이 더 힘들어해요.",
+      unknown: "",
+    },
   },
   en: {
     title: "Training load",
@@ -709,6 +721,14 @@ const load: Record<Lang, LoadDict> = {
     },
     disclaimer: "A guide, not a diagnosis. If something hurts, rest regardless of the number.",
     activeDays: (n, total) => `Trained ${n} of the last ${total} days`,
+    monotonyLabel: "Training monotony",
+    monotonyBand: { varied: "Varied", moderate: "Moderate", monotonous: "Every day alike", unknown: "—" },
+    monotonyHint: {
+      varied: "Hard days and easy days are clearly separated — there's room to recover.",
+      moderate: "Your days are starting to look alike. Try making one of them easy.",
+      monotonous: "Every day this week looked the same. The same total is harder to absorb spread evenly with no easy days.",
+      unknown: "",
+    },
   },
   es: {
     title: "Carga de entrenamiento",
@@ -727,6 +747,14 @@ const load: Record<Lang, LoadDict> = {
     },
     disclaimer: "Es una guía, no un diagnóstico. Si algo duele, descansa igualmente.",
     activeDays: (n, total) => `Entrenaste ${n} de los últimos ${total} días`,
+    monotonyLabel: "Monotonía del entrenamiento",
+    monotonyBand: { varied: "Variado", moderate: "Moderado", monotonous: "Todos los días igual", unknown: "—" },
+    monotonyHint: {
+      varied: "Los días duros y los suaves están bien separados: hay margen para recuperar.",
+      moderate: "Tus días empiezan a parecerse. Prueba a dejar uno suave.",
+      monotonous: "Esta semana todos los días fueron iguales. El mismo total cuesta más si se reparte por igual sin días suaves.",
+      unknown: "",
+    },
   },
 };
 

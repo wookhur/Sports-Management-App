@@ -4,9 +4,12 @@ import {
   sessionLoad,
   dayWindow,
   summarizeLoad,
+  monotonyBand,
   ACUTE_DAYS,
   CHRONIC_DAYS,
   MIN_HISTORY_DAYS,
+  MONOTONY_FLAG,
+  MONOTONY_MAX,
   type SessionInput,
 } from "../src/lib/load";
 
@@ -124,4 +127,66 @@ test("day keys are fixed-width, so date maths and string ordering both work", ()
   }
   // Equal length everywhere means plain string ordering is date ordering.
   expect(seoulDayKey(new Date("2026-08-09T12:00:00Z")) < seoulDayKey(new Date("2026-08-10T12:00:00Z"))).toBe(true);
+});
+
+// ---------------------------------------------------------------------------
+// Training monotony (Foster). Computed all along but shown nowhere until now,
+// so these are the first tests it has ever had — and they pin down the two
+// things that were wrong when it surfaced.
+// ---------------------------------------------------------------------------
+
+test("training every day at the same load is the most monotonous week there is", () => {
+  // Regression: SD is exactly 0 here, and the old code returned null for that,
+  // reporting the single most monotonous case as "no data".
+  const s = summarizeLoad(steady(CHRONIC_DAYS, 60, 6), TODAY, 60);
+  expect(s.monotony).toBe(MONOTONY_MAX);
+  expect(s.monotonyBand).toBe("monotonous");
+});
+
+test("hard days mixed with rest days read as varied", () => {
+  // Three training days in the week, four rest days.
+  const week = dayWindow(TODAY, ACUTE_DAYS);
+  const sessions: SessionInput[] = [0, 2, 4].map((i) => ({
+    day: week[i],
+    minutes: 90,
+    intensity: 8,
+  }));
+  const s = summarizeLoad(sessions, TODAY, 60);
+  expect(s.monotony!).toBeLessThan(MONOTONY_FLAG);
+  expect(s.monotonyBand).toBe("varied");
+});
+
+test("monotony describes this week, not the last four", () => {
+  // A samey week following a varied month must read as samey: monotony is a
+  // weekly statistic, and averaging it across 28 days described neither.
+  const month = dayWindow(TODAY, CHRONIC_DAYS);
+  const older = month.slice(0, CHRONIC_DAYS - ACUTE_DAYS).filter((_, i) => i % 3 === 0);
+  const sessions: SessionInput[] = [
+    ...older.map((day) => ({ day, minutes: 120, intensity: 9 })),
+    ...month.slice(-ACUTE_DAYS).map((day) => ({ day, minutes: 60, intensity: 6 })),
+  ];
+  const s = summarizeLoad(sessions, TODAY, 60);
+  expect(s.monotonyBand).toBe("monotonous");
+});
+
+test("a week with nothing logged has no pattern to report", () => {
+  const s = summarizeLoad([], TODAY, 60);
+  expect(s.monotony).toBeNull();
+  expect(s.monotonyBand).toBe("unknown");
+});
+
+test("monotony does not depend on having enough history for a ratio", () => {
+  // ACWR needs a baseline; monotony is just this week's shape, so a brand new
+  // athlete still gets one.
+  const s = summarizeLoad(steady(ACUTE_DAYS, 45, 5), TODAY, 3);
+  expect(s.acwr, "not enough history for a ratio").toBeNull();
+  expect(s.monotonyBand).not.toBe("unknown");
+});
+
+test("the band boundaries are inclusive at the flag point", () => {
+  expect(monotonyBand(null)).toBe("unknown");
+  expect(monotonyBand(1.49)).toBe("varied");
+  expect(monotonyBand(1.5)).toBe("moderate");
+  expect(monotonyBand(1.99)).toBe("moderate");
+  expect(monotonyBand(MONOTONY_FLAG)).toBe("monotonous");
 });
