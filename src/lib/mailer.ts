@@ -29,9 +29,18 @@ export function mailerConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.DIGEST_FROM);
 }
 
-/** The app's public base URL, used for links inside emails. */
+/**
+ * The app's public base URL, used for links inside emails.
+ *
+ * `APP_URL` wins so a custom domain can be pinned. Otherwise Netlify's own
+ * `URL` is used: it always names the current site, so renaming the site does
+ * not silently break every password-reset link. Neither is guessed — the
+ * previous fallback was a hard-coded address that no longer pointed at this
+ * deployment, which would have sent people to somebody else's domain.
+ */
 export function appUrl(): string {
-  return (process.env.APP_URL || "https://sideline365.netlify.app").replace(/\/$/, "");
+  const base = process.env.APP_URL || process.env.URL || "http://localhost:3000";
+  return base.replace(/\/$/, "");
 }
 
 async function deliver(mail: Mail): Promise<SendResult> {

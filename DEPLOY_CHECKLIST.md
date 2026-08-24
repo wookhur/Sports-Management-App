@@ -67,8 +67,10 @@ Optional, each fails closed if unset:
       Affects **both** the weekly digest and **password reset**: without these,
       a locked-out user cannot recover their account. `DIGEST_FROM` needs a
       verified sending domain in Resend.
-- [ ] `APP_URL` — public base URL. Used for links inside emails, including the
-      password-reset link. Wrong value means dead reset links.
+- [ ] `APP_URL` — public base URL for links inside emails, including the
+      password-reset link. Only needed to pin a custom domain: unset, it falls
+      back to Netlify's own `URL`, so **renaming the site does not break reset
+      links**. Set it to a stale value and it will.
 - [ ] `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` — unset means Sentry is inert.
 
 Quickest sanity check that they landed: after deploying, `/coach/digest` renders
