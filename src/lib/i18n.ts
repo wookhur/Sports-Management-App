@@ -2067,6 +2067,16 @@ export interface LandingDict {
   stats: { value: string; label: string }[];
   featuresTitle: string;
   features: { emoji: string; title: string; desc: string }[];
+  /** Labels for the mock coach panel in the hero — a real screen, not a claim. */
+  preview: {
+    title: string;
+    subtitle: string;
+    rows: { name: string; band: string; why: string }[];
+    disclaimer: string;
+  };
+  coachTitle: string;
+  coachSub: string;
+  coachPoints: { title: string; desc: string }[];
   finalTitle: string;
   finalSub: string;
   finalCta: string;
@@ -2095,6 +2105,23 @@ const landing: Record<Lang, LandingDict> = {
       { emoji: "🏆", title: "리더보드 & 배지", desc: "친구·팀과 경쟁하고 성취를 배지로 남기세요." },
       { emoji: "💬", title: "커뮤니티", desc: "블로그·자유게시판·경기영상으로 함께 성장하세요." },
     ],
+    preview: {
+      title: "오늘 누구를 챙길까",
+      subtitle: "선수들이 남긴 기록에서 자동으로 계산돼요.",
+      rows: [
+        { name: "선수 A", band: "부하 급증", why: "최근 7일이 평소의 1.9배예요." },
+        { name: "선수 B", band: "정체", why: "꾸준히 훈련했지만 개인 기록이 44일째 그대로예요." },
+        { name: "선수 C", band: "안정", why: "부하도 회복도 평소 범위예요." },
+      ],
+      disclaimer: "참고용이며 진단이 아니에요.",
+    },
+    coachTitle: "코치에게는 판단할 거리를",
+    coachSub: "선수가 기록하면 코치는 읽기만 하면 돼요. 따로 입력할 것은 없어요.",
+    coachPoints: [
+      { title: "한 화면에 팀 전체", desc: "최근 14일 훈련량을 한눈에 훑고, 살펴볼 선수가 위로 올라와요." },
+      { title: "이유와 다음 행동까지", desc: "«위험»이 아니라 «며칠 강도를 낮추고 통증을 직접 물어보세요»로 알려드려요." },
+      { title: "월요일 아침 메일", desc: "보낼 내용이 없는 주에는 보내지 않아요." },
+    ],
     finalTitle: "오늘, 첫 기록을 남겨보세요",
     finalSub: "가입은 1분이면 충분해요.",
     finalCta: "지금 시작하기",
@@ -2121,6 +2148,23 @@ const landing: Record<Lang, LandingDict> = {
       { emoji: "🏆", title: "Leaderboards & badges", desc: "Compete with friends and teams, earn badges." },
       { emoji: "💬", title: "Community", desc: "Blog, community board, and gameplay clips — grow together." },
     ],
+    preview: {
+      title: "Who to check on today",
+      subtitle: "Worked out from what your athletes already log.",
+      rows: [
+        { name: "Player A", band: "Load spike", why: "The last 7 days are 1.9× their usual." },
+        { name: "Player B", band: "Plateau", why: "Training steadily, but no personal best in 44 days." },
+        { name: "Player C", band: "Steady", why: "Load and recovery both sit in their normal range." },
+      ],
+      disclaimer: "A guide, not a diagnosis.",
+    },
+    coachTitle: "Coaches get something to act on",
+    coachSub: "Athletes log; coaches read. There is nothing for a coach to fill in.",
+    coachPoints: [
+      { title: "The whole squad on one screen", desc: "Fourteen days at a glance, with whoever needs a look rising to the top." },
+      { title: "A reason and a next step", desc: "Not \u201Cat risk\u201D but \u201Cease off for a few days and ask about the pain directly.\u201D" },
+      { title: "A Monday morning email", desc: "And silence in a week with nothing worth sending." },
+    ],
     finalTitle: "Log your first time today",
     finalSub: "Signing up takes a minute.",
     finalCta: "Get started now",
@@ -2146,6 +2190,23 @@ const landing: Record<Lang, LandingDict> = {
       { emoji: "⭐", title: "Rutinas estrella", desc: "Descubre cómo entrenan de verdad los mejores atletas." },
       { emoji: "🏆", title: "Clasificaciones e insignias", desc: "Compite con amigos y equipos, gana insignias." },
       { emoji: "💬", title: "Comunidad", desc: "Blog, tablón y clips de juego — creced juntos." },
+    ],
+    preview: {
+      title: "A quién revisar hoy",
+      subtitle: "Calculado con lo que tus atletas ya registran.",
+      rows: [
+        { name: "Jugador A", band: "Pico de carga", why: "Los últimos 7 días son 1,9× lo habitual." },
+        { name: "Jugador B", band: "Estancado", why: "Entrena constante, pero sin mejor marca en 44 días." },
+        { name: "Jugador C", band: "Estable", why: "Carga y recuperación dentro de su rango normal." },
+      ],
+      disclaimer: "Es una orientación, no un diagnóstico.",
+    },
+    coachTitle: "El entrenador recibe algo accionable",
+    coachSub: "Los atletas registran; el entrenador lee. No tiene nada que rellenar.",
+    coachPoints: [
+      { title: "Todo el equipo en una pantalla", desc: "Catorce días de un vistazo, y quien necesita atención sube arriba." },
+      { title: "Un motivo y un siguiente paso", desc: "No «en riesgo», sino «baja la intensidad unos días y pregúntale por el dolor»." },
+      { title: "Un correo el lunes por la mañana", desc: "Y silencio en la semana que no dio nada que contar." },
     ],
     finalTitle: "Registra tu primer tiempo hoy",
     finalSub: "Registrarse toma un minuto.",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLang } from "@/lib/getLang";
 import { getSession } from "@/lib/auth";
 import Sidebar, { type SidebarPet } from "@/components/Sidebar";
+import FontLink from "@/components/FontLink";
 import { SidebarProvider } from "@/components/SidebarContext";
 import { getShellData } from "@/lib/shell";
 import { petState, careActions } from "@/lib/pet";
@@ -37,6 +38,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang}>
+      <head>
+        {/* Barlow for the whole app, not just the sign-up wizard. Skipped under
+            test so the suite does not depend on Google's CDN being reachable —
+            typeface has no bearing on what the a11y and i18n specs assert. */}
+        {process.env.NEXT_PUBLIC_NO_WEBFONT === "1" ? null : <FontLink />}
+      </head>
       <body>
         {session ? (
           <SidebarProvider>

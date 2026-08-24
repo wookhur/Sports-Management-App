@@ -28,6 +28,8 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: `npx next start -p ${PORT}`,
+    // Keep the suite hermetic: no third-party font fetch on every navigation.
+    env: { NEXT_PUBLIC_NO_WEBFONT: "1" },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
