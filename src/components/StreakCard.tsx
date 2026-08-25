@@ -62,7 +62,7 @@ export default function StreakCard({
   return (
     <div className="grid gap-4 sm:grid-cols-[1fr_1.2fr]">
       {/* Personal streak */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 p-5 text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-700 to-rose-700 p-5 text-white">
         <p className="text-sm text-white/85">{s.streakLabel}</p>
         <div className="mt-1 flex items-end gap-2">
           <span className="text-4xl font-extrabold tabular-nums">{streak.current}</span>

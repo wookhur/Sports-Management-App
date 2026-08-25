@@ -32,6 +32,8 @@ const L: Record<
     subCoach: string;
     subAthlete: string;
     newFeedback: (n: number) => string;
+    todayTitle: string;
+    rewardsTitle: string;
     weeklyTitle: string;
     weeklySub: string;
     measureCountLabel: string;
@@ -59,6 +61,8 @@ const L: Record<
     subCoach: "선수들의 기록을 확인하고 피드백을 남겨보세요.",
     subAthlete: "종목을 선택해 훈련하고 기록을 측정하세요.",
     newFeedback: (n) => `💬 코치가 새 피드백 ${n}개를 남겼어요`,
+    todayTitle: "오늘",
+    rewardsTitle: "미션 & 보상",
     weeklyTitle: "주간 리포트",
     weeklySub: "· 최근 7일",
     measureCountLabel: "측정 횟수",
@@ -86,6 +90,8 @@ const L: Record<
     subAthlete: "Pick a sport to train and track your records.",
     newFeedback: (n) =>
       `💬 Your coach left ${n} new feedback comment${n === 1 ? "" : "s"}`,
+    todayTitle: "Today",
+    rewardsTitle: "Streaks & rewards",
     weeklyTitle: "Weekly report",
     weeklySub: "· last 7 days",
     measureCountLabel: "Times recorded",
@@ -114,6 +120,8 @@ const L: Record<
     subAthlete: "Elige un deporte para entrenar y registrar tus marcas.",
     newFeedback: (n) =>
       `💬 Tu entrenador dejó ${n} comentario${n === 1 ? " nuevo" : "s nuevos"}`,
+    todayTitle: "Hoy",
+    rewardsTitle: "Rachas y logros",
     weeklyTitle: "Reporte semanal",
     weeklySub: "· últimos 7 días",
     measureCountLabel: "Mediciones",
@@ -374,19 +382,6 @@ export default async function HomePage({
           </div>
         )}
 
-        <div className="mb-6">
-          <CompanionCard
-            lang={lang}
-            name={session.name}
-            growth={petGrowth}
-            mood={mood}
-            streak={streak.current}
-            daysIdle={daysIdle}
-            needsCare={needsCare}
-            sayOverride={sayOverride}
-          />
-        </div>
-
         {newFeedback > 0 && (
           <Link
             href="/records"
@@ -397,6 +392,12 @@ export default async function HomePage({
             </p>
             <span className="text-brand">→</span>
           </Link>
+        )}
+
+        {(show("calendar") || (todayScore && show("score"))) && (
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {s.todayTitle}
+          </h2>
         )}
 
         {show("calendar") && (
@@ -413,12 +414,6 @@ export default async function HomePage({
               yesterdayTotal={todayScore.yesterdayTotal}
               minutes={todayScore.minutes}
             />
-          </section>
-        )}
-
-        {show("streak") && (
-          <section className="mb-8">
-            <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />
           </section>
         )}
 
@@ -455,15 +450,6 @@ export default async function HomePage({
           <section className="mb-8 grid gap-4 md:grid-cols-2">
             <AssignmentCard assignments={myAssignments} lang={lang} />
             <JoinTeamCard teams={myTeams} lang={lang} />
-          </section>
-        )}
-
-        {!isCoach && badges.length > 0 && show("badges") && (
-          <section className="mb-8">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-              {s.badgesTitle} <span className="font-normal normal-case text-slate-500">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
-            </h2>
-            <BadgeRow badges={badges} />
           </section>
         )}
 
@@ -553,6 +539,44 @@ export default async function HomePage({
             )}
           </section>
         )}
+        {/* Streaks, the companion and badges were previously interleaved with
+            the training data — the pet sat second on the page, above anything
+            an athlete had actually done. They earn their place, but as their
+            own zone rather than as interruptions. */}
+        <section className="mt-10">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {s.rewardsTitle}
+          </h2>
+
+          <div className="mb-6">
+            <CompanionCard
+              lang={lang}
+              name={session.name}
+              growth={petGrowth}
+              mood={mood}
+              streak={streak.current}
+              daysIdle={daysIdle}
+              needsCare={needsCare}
+              sayOverride={sayOverride}
+            />
+          </div>
+
+          {show("streak") && (
+            <div className="mb-6">
+              <StreakCard streak={streak} leaders={leaders} myName={session.name} lang={lang} />
+            </div>
+          )}
+
+          {!isCoach && badges.length > 0 && show("badges") && (
+            <div>
+              <p className="mb-3 text-sm font-medium text-slate-500">
+                {s.badgesTitle} <span className="text-slate-500">{s.badgesSub(badges.filter((b) => b.earned).length, badges.length)}</span>
+              </p>
+              <BadgeRow badges={badges} />
+            </div>
+          )}
+        </section>
+
       </main>
     </>
   );
