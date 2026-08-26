@@ -22,31 +22,20 @@ import {
   SwimIcon,
 } from "./icons";
 
-// Scoped to this wizard only — the rest of the app keeps the system font stack.
-// Loaded via a runtime <link> (not next/font/google) so `next build` never
-// depends on reaching Google's servers; the browser fetches it, with a system
-// font fallback while it loads (font-display: swap).
+// Barlow is the app's typeface now, loaded once in the root layout without
+// blocking render. These names stay because the wizard sets them inline; the
+// wizard used to fetch the same two families a second time, from its own
+// render-blocking <link>, which is exactly what was costing a page load.
 const BODY_FONT = "'Barlow', ui-sans-serif, system-ui, sans-serif";
 const HEADING_FONT = "'Barlow Condensed', ui-sans-serif, system-ui, sans-serif";
-
-function RoyFontLink() {
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap"
-      />
-    </>
-  );
-}
 
 const SPORT_ICONS: Record<string, (props: { className?: string }) => ReactElement> = {
   lacrosse: LacrosseIcon,
   soccer: SoccerBallIcon,
   swimming: SwimIcon,
 };
+// Sports without their own mark fall back rather than rendering an empty tile.
+const SPORT_ICON_FALLBACK = RunnerIcon;
 
 const ADJ = ["Swift", "Mighty", "Brave", "Clever", "Bold", "Quick", "Fierce", "Steady"];
 const NOUN = ["Falcon", "Tiger", "Wave", "Comet", "Blaze", "Storm", "Panther", "Ranger"];
@@ -56,14 +45,16 @@ function suggestUsername() {
   return `${a}${n}${Math.floor(Math.random() * 100)}`;
 }
 
-// Shared style tokens — dark/teal, scoped to this wizard.
+// Shared style tokens, scoped to this wizard. Still deliberately dark — the
+// sign-up flow is a one-time immersive moment — but on the brand green now
+// rather than a teal that appeared nowhere else in the product.
 const SURFACE_BASE =
-  "w-full rounded-2xl border border-white/[0.08] bg-[#121D1A] p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412]";
-const SURFACE_SELECTED = "border-teal-400 bg-teal-400/10";
+  "w-full rounded-2xl border border-white/[0.08] bg-[#111C15] p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A1310]";
+const SURFACE_SELECTED = "border-green-400 bg-green-400/10";
 const SURFACE_UNSELECTED = "hover:border-white/20";
 const INPUT_CLASS =
-  "w-full rounded-2xl border border-white/[0.08] bg-[#121D1A] px-5 py-4 text-lg text-[#EAFBF6] outline-none placeholder:text-[#5C716C] transition focus-visible:border-teal-400 focus-visible:ring-2 focus-visible:ring-teal-400";
-const LABEL_CLASS = "mb-1.5 block text-sm font-medium text-[#9CB3AE]";
+  "w-full rounded-2xl border border-white/[0.08] bg-[#111C15] px-5 py-4 text-lg text-[#ECF7EC] outline-none placeholder:text-[#66766A] transition focus-visible:border-green-400 focus-visible:ring-2 focus-visible:ring-green-400";
+const LABEL_CLASS = "mb-1.5 block text-sm font-medium text-[#A2B5A4]";
 
 type Role = "ATHLETE" | "COACH";
 type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number]["value"];
@@ -138,13 +129,12 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0B1412] text-[#EAFBF6]" style={{ fontFamily: BODY_FONT }}>
-      <RoyFontLink />
+    <div className="flex min-h-screen bg-[#0A1310] text-[#ECF7EC]" style={{ fontFamily: BODY_FONT }}>
 
       {/* Left brand panel — desktop only, gives the flow a wide PC layout */}
       <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 lg:flex xl:w-3/5">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-16 top-10 h-72 w-72 rounded-full bg-teal-500/20 blur-3xl" />
+          <div className="absolute -left-16 top-10 h-72 w-72 rounded-full bg-green-500/20 blur-3xl" />
           <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-emerald-600/10 blur-3xl" />
         </div>
         <div className="relative flex items-center gap-2">
@@ -156,13 +146,13 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
         <div className="relative flex flex-col items-center">
           <RoybotAvatar
             tier="beginner"
-            className="h-72 w-72 drop-shadow-[0_0_50px_rgba(45,212,191,0.4)]"
+            className="h-72 w-72 drop-shadow-[0_0_50px_rgba(74,222,128,0.4)]"
           />
-          <p className="mt-8 max-w-sm text-center text-xl font-medium text-[#EAFBF6]/90">
+          <p className="mt-8 max-w-sm text-center text-xl font-medium text-[#ECF7EC]/90">
             {t(lang).login.tagline}
           </p>
         </div>
-        <p className="relative text-sm text-[#8FA8A2]">Sideline365 · Student Sports</p>
+        <p className="relative text-sm text-[#95A996]">Sideline365 · Student Sports</p>
       </aside>
 
       {/* Right column: the wizard flow */}
@@ -175,7 +165,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
               <button
                 onClick={goBack}
                 aria-label={s.common.back}
-                className="rounded-full p-1.5 text-[#9CB3AE] transition hover:bg-white/5 hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                className="rounded-full p-1.5 text-[#A2B5A4] transition hover:bg-white/5 hover:text-[#ECF7EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
               >
                 <ChevronLeftIcon className="h-5 w-5" />
               </button>
@@ -185,7 +175,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
             {step > 0 && step <= 5 && (
               <button
                 onClick={goNext}
-                className="rounded px-1 text-sm font-medium text-[#9CB3AE] transition hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                className="rounded px-1 text-sm font-medium text-[#A2B5A4] transition hover:text-[#ECF7EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
               >
                 {s.common.skip}
               </button>
@@ -197,7 +187,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
         {/* Progress bar */}
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-teal-400 transition-all duration-300"
+            className="h-full rounded-full bg-green-400 transition-all duration-300"
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -263,26 +253,26 @@ function IntroStep({ s, onOkay }: { s: SignupDict; onOkay: () => void }) {
     <div className="flex flex-1 flex-col">
       <h1 className="text-3xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
         {s.intro.greetingPrefix}
-        <span className="text-teal-400">Roybot</span>
+        <span className="text-green-400">Roybot</span>
         {s.intro.greetingSuffix}
       </h1>
-      <p className="mt-3 text-lg text-[#9CB3AE]">{s.intro.sub}</p>
+      <p className="mt-3 text-lg text-[#A2B5A4]">{s.intro.sub}</p>
       {/* On desktop the left brand panel shows Roybot, so hide this one there. */}
       <div className="flex flex-1 items-center justify-center lg:hidden">
-        <RoybotAvatar tier="beginner" className="h-44 w-44 drop-shadow-[0_0_24px_rgba(45,212,191,0.35)]" />
+        <RoybotAvatar tier="beginner" className="h-44 w-44 drop-shadow-[0_0_24px_rgba(74,222,128,0.35)]" />
       </div>
       <div className="hidden flex-1 lg:block" aria-hidden="true" />
       <div className="mt-auto space-y-4">
         <button
           onClick={onOkay}
-          className="w-full rounded-full bg-teal-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412]"
+          className="w-full rounded-full bg-green-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-green-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A1310]"
         >
           {s.intro.okay}
         </button>
-        <p className="text-center text-sm text-[#9CB3AE]">
+        <p className="text-center text-sm text-[#A2B5A4]">
           <Link
             href="/login"
-            className="rounded font-semibold text-teal-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="rounded font-semibold text-green-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
           >
             {s.intro.haveAccount}
           </Link>
@@ -298,7 +288,7 @@ function StepHeading({ title, subtitle }: { title: string; subtitle?: string }) 
       <h2 className="text-2xl font-bold leading-tight tracking-tight" style={{ fontFamily: HEADING_FONT }}>
         {title}
       </h2>
-      {subtitle && <p className="mt-2 text-[#9CB3AE]">{subtitle}</p>}
+      {subtitle && <p className="mt-2 text-[#A2B5A4]">{subtitle}</p>}
     </div>
   );
 }
@@ -318,7 +308,7 @@ function NextButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="mt-auto flex w-full items-center justify-center gap-2 rounded-full bg-teal-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412] disabled:cursor-not-allowed disabled:opacity-40"
+      className="mt-auto flex w-full items-center justify-center gap-2 rounded-full bg-green-400 py-4 text-base font-bold text-[#052e28] transition hover:bg-green-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A1310] disabled:cursor-not-allowed disabled:opacity-40"
     >
       {label}
       {icon}
@@ -355,7 +345,7 @@ function UsernameStep({
       />
       <button
         onClick={onSuggest}
-        className="mt-3 flex items-center gap-1.5 self-start rounded text-sm font-medium text-teal-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+        className="mt-3 flex items-center gap-1.5 self-start rounded text-sm font-medium text-green-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
       >
         <ShuffleIcon className="h-4 w-4" />
         {s.username.suggest}
@@ -414,7 +404,7 @@ function SportInterestsStep({
       <div className="space-y-3">
         {SPORT_LIST.map((sport) => {
           const isSelected = selected.includes(sport.id);
-          const Icon = SPORT_ICONS[sport.id];
+          const Icon = SPORT_ICONS[sport.id] ?? SPORT_ICON_FALLBACK;
           const label = SPORT_I18N[sport.id]?.[lang] ?? { name: sport.name, tagline: sport.tagline };
           return (
             <button
@@ -425,16 +415,16 @@ function SportInterestsStep({
             >
               <span
                 className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                  isSelected ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"
+                  isSelected ? "bg-green-400/20 text-green-300" : "bg-white/5 text-[#A2B5A4]"
                 }`}
               >
-                {Icon && <Icon className="h-6 w-6" />}
+                <Icon className="h-6 w-6" />
               </span>
               <span className="flex-1">
                 <span className="block font-semibold">{label.name}</span>
-                <span className="block text-sm text-[#9CB3AE]">{label.tagline}</span>
+                <span className="block text-sm text-[#A2B5A4]">{label.tagline}</span>
               </span>
-              {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
+              {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-green-400" />}
             </button>
           );
         })}
@@ -473,9 +463,9 @@ function ExperienceStep({
             >
               <span>
                 <span className="block font-semibold">{label.label}</span>
-                <span className="block text-sm text-[#9CB3AE]">{label.detail}</span>
+                <span className="block text-sm text-[#A2B5A4]">{label.detail}</span>
               </span>
-              {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
+              {isSelected && <CheckIcon className="h-5 w-5 shrink-0 text-green-400" />}
             </button>
           );
         })}
@@ -524,10 +514,10 @@ function DobGradeStep({
             key={g}
             onClick={() => onGradeChange(g)}
             aria-pressed={grade === g}
-            className={`rounded-2xl border px-3 py-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1412] ${
+            className={`rounded-2xl border px-3 py-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A1310] ${
               grade === g
-                ? "border-teal-400 bg-teal-400/10 text-[#EAFBF6]"
-                : "border-white/[0.08] bg-[#121D1A] text-[#9CB3AE] hover:border-white/20"
+                ? "border-green-400 bg-green-400/10 text-[#ECF7EC]"
+                : "border-white/[0.08] bg-[#111C15] text-[#A2B5A4] hover:border-white/20"
             }`}
           >
             {lang === "en" ? GRADE_I18N_EN[g] ?? g : lang === "es" ? GRADE_I18N_ES[g] ?? g : g}
@@ -560,15 +550,15 @@ function RoleStep({
           className={`${SURFACE_BASE} flex items-center gap-4 ${value === "ATHLETE" ? SURFACE_SELECTED : SURFACE_UNSELECTED}`}
         >
           <span
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "ATHLETE" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "ATHLETE" ? "bg-green-400/20 text-green-300" : "bg-white/5 text-[#A2B5A4]"}`}
           >
             <RunnerIcon className="h-6 w-6" />
           </span>
           <span className="flex-1">
             <span className="block font-semibold">{s.role.athleteName}</span>
-            <span className="block text-sm text-[#9CB3AE]">{s.role.athleteDesc}</span>
+            <span className="block text-sm text-[#A2B5A4]">{s.role.athleteDesc}</span>
           </span>
-          {value === "ATHLETE" && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
+          {value === "ATHLETE" && <CheckIcon className="h-5 w-5 shrink-0 text-green-400" />}
         </button>
         <button
           onClick={() => onChange("COACH")}
@@ -576,15 +566,15 @@ function RoleStep({
           className={`${SURFACE_BASE} flex items-center gap-4 ${value === "COACH" ? SURFACE_SELECTED : SURFACE_UNSELECTED}`}
         >
           <span
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "COACH" ? "bg-teal-400/20 text-teal-300" : "bg-white/5 text-[#9CB3AE]"}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${value === "COACH" ? "bg-green-400/20 text-green-300" : "bg-white/5 text-[#A2B5A4]"}`}
           >
             <ClipboardIcon className="h-6 w-6" />
           </span>
           <span className="flex-1">
             <span className="block font-semibold">{s.role.coachName}</span>
-            <span className="block text-sm text-[#9CB3AE]">{s.role.coachDesc}</span>
+            <span className="block text-sm text-[#A2B5A4]">{s.role.coachDesc}</span>
           </span>
-          {value === "COACH" && <CheckIcon className="h-5 w-5 shrink-0 text-teal-400" />}
+          {value === "COACH" && <CheckIcon className="h-5 w-5 shrink-0 text-green-400" />}
         </button>
       </div>
       <NextButton onClick={onNext} disabled={!value} label={s.common.next} />
@@ -648,7 +638,7 @@ function AccountStep({
           type="button"
           onClick={() => setShowPassword((v) => !v)}
           aria-label={showPassword ? s.account.hidePassword : s.account.showPassword}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-[#9CB3AE] hover:text-[#EAFBF6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-[#A2B5A4] hover:text-[#ECF7EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
         >
           {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
         </button>
@@ -664,16 +654,16 @@ function AccountStep({
             checked={researchConsent}
             onChange={(e) => onResearchConsentChange(e.target.checked)}
             aria-describedby="researchConsentDetail"
-            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-white/30 bg-transparent accent-teal-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-white/30 bg-transparent accent-green-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
           />
-          <span className="text-sm font-medium text-[#EAFBF6]">
+          <span className="text-sm font-medium text-[#ECF7EC]">
             {s.account.researchLabel}{" "}
-            <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-[#9CB3AE]">
+            <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-[#A2B5A4]">
               {s.account.researchOptional}
             </span>
           </span>
         </label>
-        <p id="researchConsentDetail" className="mt-2 pl-8 text-xs leading-relaxed text-[#9CB3AE]">
+        <p id="researchConsentDetail" className="mt-2 pl-8 text-xs leading-relaxed text-[#A2B5A4]">
           {s.account.researchDetail}
         </p>
       </div>
