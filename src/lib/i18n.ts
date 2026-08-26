@@ -10,10 +10,14 @@ export type Lang = "ko" | "en" | "es";
 export const LANG_COOKIE = "lang";
 
 /** Normalize a raw cookie value (or undefined) to a supported Lang. */
+/**
+ * The app's default language is English. Korean and Spanish are reached by an
+ * explicit choice, or by a browser that asks for them (see getLang).
+ */
 export function resolveLang(raw: string | undefined): Lang {
-  if (raw === "en") return "en";
+  if (raw === "ko") return "ko";
   if (raw === "es") return "es";
-  return "ko";
+  return "en";
 }
 
 /**

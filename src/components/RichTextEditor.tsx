@@ -124,7 +124,7 @@ function ToolbarDivider() {
 export default function RichTextEditor({
   content,
   onChange,
-  lang = "ko",
+  lang = "en",
 }: {
   content: string;
   onChange: (html: string) => void;

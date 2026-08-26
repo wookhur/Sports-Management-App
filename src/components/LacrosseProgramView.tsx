@@ -179,7 +179,7 @@ const L: Record<
   },
 };
 
-export default function LacrosseProgramView({ sportId, lang = "ko" }: { sportId: string; lang?: Lang }) {
+export default function LacrosseProgramView({ sportId, lang = "en" }: { sportId: string; lang?: Lang }) {
   const s = L[lang];
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">

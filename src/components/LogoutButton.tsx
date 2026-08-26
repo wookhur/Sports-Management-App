@@ -9,7 +9,7 @@ const L: Record<Lang, { label: string }> = {
   es: { label: "Cerrar sesión" },
 };
 
-export default function LogoutButton({ lang = "ko" }: { lang?: Lang }) {
+export default function LogoutButton({ lang = "en" }: { lang?: Lang }) {
   const [loading, setLoading] = useState(false);
 
   async function logout() {

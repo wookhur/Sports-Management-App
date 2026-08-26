@@ -56,7 +56,7 @@ const L: Record<
 // Athlete side: join a team with the coach's invite code + list my teams.
 export default function JoinTeamCard({
   teams,
-  lang = "ko",
+  lang = "en",
 }: {
   teams: MyTeam[];
   lang?: Lang;

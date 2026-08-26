@@ -86,7 +86,7 @@ const L: Record<
 export default function AssignmentPanel({
   athletes,
   assignments,
-  lang = "ko",
+  lang = "en",
 }: {
   athletes: { id: string; name: string }[];
   assignments: AssignmentRow[];

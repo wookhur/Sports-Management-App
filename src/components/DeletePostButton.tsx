@@ -33,7 +33,7 @@ export default function DeletePostButton({
   redirectTo,
   className,
   endpointBase = "/api/blog",
-  lang = "ko",
+  lang = "en",
 }: {
   slug: string;
   /** Where to navigate after a successful delete. Omit to just refresh in place. */

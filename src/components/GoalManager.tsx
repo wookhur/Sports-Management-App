@@ -111,7 +111,7 @@ const L: Record<
 export default function GoalManager({
   goals,
   metrics,
-  lang = "ko",
+  lang = "en",
 }: {
   goals: GoalView[];
   metrics: { key: string; name: string }[];

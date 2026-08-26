@@ -124,7 +124,7 @@ function stepsFor(role: "ATHLETE" | "COACH", lang: Lang): OnboardingStep[] {
 export default function OnboardingTour({
   role,
   initialOpen,
-  lang = "ko",
+  lang = "en",
 }: {
   role: "ATHLETE" | "COACH";
   initialOpen: boolean;

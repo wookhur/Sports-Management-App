@@ -115,7 +115,7 @@ export default function AthleteGuideEditor({
   sport,
   sportName,
   initial,
-  lang = "ko",
+  lang = "en",
 }: {
   sport: string;
   sportName: string;

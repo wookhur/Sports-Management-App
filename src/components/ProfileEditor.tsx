@@ -102,7 +102,7 @@ export default function ProfileEditor({
   gradeOptions,
   experienceOptions,
   sportOptions,
-  lang = "ko",
+  lang = "en",
 }: {
   initial: ProfileData;
   gradeOptions: string[];

@@ -120,7 +120,7 @@ const L: Record<
 export default function Stopwatch({
   sportId,
   metrics,
-  lang = "ko",
+  lang = "en",
 }: {
   sportId: string;
   metrics: Metric[];

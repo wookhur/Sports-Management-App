@@ -51,7 +51,7 @@ export default function StreakCard({
   streak,
   leaders,
   myName,
-  lang = "ko",
+  lang = "en",
 }: {
   streak: StreakInfo;
   leaders: LeaderRow[];

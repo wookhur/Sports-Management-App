@@ -58,7 +58,7 @@ const L: Record<
 // Athlete side: homework list with a completion checkbox.
 export default function AssignmentCard({
   assignments,
-  lang = "ko",
+  lang = "en",
 }: {
   assignments: MyAssignment[];
   lang?: Lang;

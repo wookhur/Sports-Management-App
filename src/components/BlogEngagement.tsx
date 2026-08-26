@@ -69,7 +69,7 @@ export default function BlogEngagement({
   initialLikeCount,
   comments,
   canModerate,
-  lang = "ko",
+  lang = "en",
 }: {
   slug: string;
   initialLiked: boolean;

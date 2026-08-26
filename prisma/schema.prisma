@@ -60,7 +60,7 @@ model User {
   // Preferred language, mirrored from the "lang" cookie when it is changed.
   // The cookie still drives every request; this exists for the weekly digest,
   // which is sent by a scheduler with no request and therefore no cookie to
-  // read. Null = never chose one, so the digest falls back to Korean.
+  // read. Null = never chose one, so the digest falls back to English.
   lang String?
 
   // Weekly digest opt-out. Default on, because a coach who never opens the

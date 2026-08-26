@@ -114,7 +114,7 @@ const L: Record<
 
 export default function BlogEditor({
   initial,
-  lang = "ko",
+  lang = "en",
 }: {
   initial?: BlogEditorInitial;
   lang?: Lang;

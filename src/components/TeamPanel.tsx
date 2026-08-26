@@ -54,7 +54,7 @@ const L: Record<
 };
 
 // Coach side: create teams and share the invite code.
-export default function TeamPanel({ teams, lang = "ko" }: { teams: TeamRow[]; lang?: Lang }) {
+export default function TeamPanel({ teams, lang = "en" }: { teams: TeamRow[]; lang?: Lang }) {
   const s = L[lang];
   const router = useRouter();
   const [name, setName] = useState("");

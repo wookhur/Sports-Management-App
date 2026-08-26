@@ -13,7 +13,7 @@ const ARIA_LABEL: Record<Lang, string> = {
 export default function DrillDiagram({
   spec,
   className = "",
-  lang = "ko",
+  lang = "en",
 }: {
   spec: DiagramSpec;
   className?: string;

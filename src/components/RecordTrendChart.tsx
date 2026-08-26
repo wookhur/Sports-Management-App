@@ -47,7 +47,7 @@ export default function RecordTrendChart({
   metricKey,
   metricName,
   points,
-  lang = "ko",
+  lang = "en",
 }: {
   metricKey: string;
   metricName: string;

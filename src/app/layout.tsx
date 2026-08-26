@@ -8,9 +8,12 @@ import { getShellData } from "@/lib/shell";
 import { petState, careActions } from "@/lib/pet";
 import "./globals.css";
 
+// The browser tab and the description search engines show. Static, so it does
+// not follow the language switcher — English, like the rest of the defaults.
 export const metadata: Metadata = {
-  title: "Sideline365 · 스포츠 통합 관리",
-  description: "기록을 측정하고 코치와 공유해 더 나은 운동 성과를 만드는 스포츠 통합 관리 앱",
+  title: "Sideline365 · Training, tracked",
+  description:
+    "Athletes log their training; coaches see who to check on today, and why. Sideline365 turns what a squad already records into something a coach can act on.",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

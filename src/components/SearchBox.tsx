@@ -13,7 +13,7 @@ const L: Record<Lang, { placeholder: string; ariaLabel: string }> = {
 export default function SearchBox({
   compact = false,
   initial = "",
-  lang = "ko",
+  lang = "en",
 }: {
   compact?: boolean;
   initial?: string;

@@ -59,7 +59,7 @@ const L: Record<
 export default function RecordList({
   records,
   mode,
-  lang = "ko",
+  lang = "en",
 }: {
   records: RecordView[];
   /** "owner": athlete managing own records. "coach": read + comment. */
@@ -86,7 +86,7 @@ export default function RecordList({
 function RecordItem({
   record,
   mode,
-  lang = "ko",
+  lang = "en",
 }: {
   record: RecordView;
   mode: "owner" | "coach";

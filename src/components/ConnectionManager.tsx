@@ -70,7 +70,7 @@ const L: Record<
 export default function ConnectionManager({
   role,
   connections,
-  lang = "ko",
+  lang = "en",
   hideList = false,
 }: {
   role: "ATHLETE" | "COACH";

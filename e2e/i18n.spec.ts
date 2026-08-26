@@ -1,6 +1,6 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { login } from "./helpers";
-import { langFromAcceptLanguage } from "../src/lib/i18n";
+import { langFromAcceptLanguage, resolveLang } from "../src/lib/i18n";
 
 // Guards against Korean copy leaking into the EN/ES UI. Content authored by
 // users (blog posts, board posts, athlete guides) is deliberately left in
@@ -92,7 +92,7 @@ test.describe("first visit falls back to the browser's language", () => {
     expect(langFromAcceptLanguage("fr-FR,de;q=0.9,en;q=0.5")).toBe("en");
   });
 
-  test("returns null when there is nothing to go on, so Korean stays default", () => {
+  test("returns null when there is nothing to go on, so the default applies", () => {
     expect(langFromAcceptLanguage("")).toBeNull();
     expect(langFromAcceptLanguage(null)).toBeNull();
     expect(langFromAcceptLanguage("fr-FR,de")).toBeNull();
@@ -114,4 +114,19 @@ test("the community board ships English seed content", async ({ page, context })
   await page.goto("/board", { waitUntil: "networkidle" });
   await expect(page.locator("main")).toContainText("Welcome to the community board");
   await expect(page.locator("main")).not.toContainText("자유게시판을 열었어요");
+});
+
+
+// English is the product default now, not Korean. Pinned because it is a
+// decision rather than an accident, and because it is reached from three
+// directions: an unset cookie, an unrecognised cookie, and a browser asking
+// for a language we do not speak.
+test("the default language is English", () => {
+  expect(resolveLang(undefined)).toBe("en");
+  expect(resolveLang("")).toBe("en");
+  expect(resolveLang("fr")).toBe("en");
+  expect(langFromAcceptLanguage("fr-FR,de;q=0.8")).toBeNull();
+  // An explicit choice still wins in both directions.
+  expect(resolveLang("ko")).toBe("ko");
+  expect(resolveLang("es")).toBe("es");
 });

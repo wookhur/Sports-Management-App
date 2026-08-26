@@ -6,9 +6,9 @@ import { LANG_COOKIE, langFromAcceptLanguage, resolveLang, type Lang } from "./i
  *
  * An explicit choice always wins — once someone picks a language from the
  * switcher, the cookie decides and the browser's opinion is ignored. Only on a
- * first visit, with no cookie to go on, do we read Accept-Language, so an
- * English or Spanish speaker's first screen is one they can read. Korean stays
- * the default for anyone whose browser asks for something else.
+ * first visit, with no cookie to go on, do we read Accept-Language, so a Korean
+ * or Spanish speaker's first screen is one they can read. English is the
+ * default for anyone whose browser asks for something else.
  */
 export async function getLang(): Promise<Lang> {
   const cookieStore = await cookies();
@@ -16,5 +16,5 @@ export async function getLang(): Promise<Lang> {
   if (chosen) return resolveLang(chosen);
 
   const headerList = await headers();
-  return langFromAcceptLanguage(headerList.get("accept-language")) ?? "ko";
+  return langFromAcceptLanguage(headerList.get("accept-language")) ?? "en";
 }
