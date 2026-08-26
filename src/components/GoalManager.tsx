@@ -41,7 +41,7 @@ const L: Record<
   }
 > = {
   ko: {
-    heading: "🎯 목표",
+    heading: "목표",
     sub: "목표 기록을 정하고 달성해보세요.",
     empty: "아직 목표가 없어요. 아래에서 첫 목표를 세워보세요!",
     targetBefore: " ",
@@ -63,7 +63,7 @@ const L: Record<
     addGoal: "목표 추가",
   },
   en: {
-    heading: "🎯 Goals",
+    heading: "Goals",
     sub: "Set a target time and go get it.",
     empty: "No goals yet. Set your first one below!",
     targetBefore: " under ",
@@ -85,7 +85,7 @@ const L: Record<
     addGoal: "Add goal",
   },
   es: {
-    heading: "🎯 Metas",
+    heading: "Metas",
     sub: "Fija un tiempo objetivo y ve por él.",
     empty: "Aún no tienes metas. ¡Crea la primera aquí abajo!",
     targetBefore: " en menos de ",

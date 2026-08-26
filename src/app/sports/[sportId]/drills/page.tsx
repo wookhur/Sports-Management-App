@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { TimerIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import DrillDiagram from "@/components/DrillDiagram";
 import { getLang } from "@/lib/getLang";
@@ -22,21 +23,21 @@ const L: Record<
 > = {
   ko: {
     back: "← 축구",
-    title: "⚽ 축구 드릴",
+    title: "축구 드릴",
     subtitle: "연령대를 선택하면 그에 맞는 드릴을 그림과 함께 볼 수 있어요.",
     all: "전체",
     minutes: (n) => `${n}분`,
   },
   en: {
     back: "← Soccer",
-    title: "⚽ Soccer Drills",
+    title: "Soccer Drills",
     subtitle: "Pick an age group to see matching drills with diagrams.",
     all: "All",
     minutes: (n) => `${n} min`,
   },
   es: {
     back: "← Fútbol",
-    title: "⚽ Ejercicios de fútbol",
+    title: "Ejercicios de fútbol",
     subtitle: "Elige un grupo de edad para ver los ejercicios adecuados con diagramas.",
     all: "Todos",
     minutes: (n) => `${n} min`,
@@ -100,7 +101,10 @@ export default async function DrillsPage({
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="badge bg-indigo-50 text-indigo-600">{loc(d.category, lang)}</span>
-                  <span className="text-xs text-slate-500">⏱ {s.minutes(d.durationMin)}</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                    <TimerIcon className="h-3.5 w-3.5" />
+                    {s.minutes(d.durationMin)}
+                  </span>
                 </div>
                 <h3 className="mt-2 font-bold group-hover:text-brand">{loc(d.title, lang)}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">{loc(d.summary, lang)}</p>

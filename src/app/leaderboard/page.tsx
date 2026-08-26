@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST, getSport } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import { formatDate, formatDuration } from "@/lib/format";
 import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
@@ -25,7 +26,7 @@ const L: Record<
   }
 > = {
   ko: {
-    title: "🏆 리더보드",
+    title: "리더보드",
     sub: "공유된 기록 기준, 종목·항목별 최고 기록 순위예요.",
     empty: (metricName) => `아직 ${metricName} 공유 기록이 없어요. 기록을 측정하고 공유해보세요!`,
     noMetrics: "이 종목은 아직 기록 측정을 지원하지 않아요.",
@@ -33,7 +34,7 @@ const L: Record<
     unknown: "알 수 없음",
   },
   en: {
-    title: "🏆 Leaderboard",
+    title: "Leaderboard",
     sub: "Best-time rankings per sport and event, based on shared records.",
     empty: (metricName) => `No shared ${metricName} records yet. Track a time and share it!`,
     noMetrics: "This sport doesn't support time tracking yet.",
@@ -41,7 +42,7 @@ const L: Record<
     unknown: "Unknown",
   },
   es: {
-    title: "🏆 Clasificación",
+    title: "Clasificación",
     sub: "Ranking de mejores tiempos por deporte y prueba, según las marcas compartidas.",
     empty: (metricName) => `Todavía no hay marcas compartidas de ${metricName}. ¡Registra un tiempo y compártelo!`,
     noMetrics: "Este deporte aún no admite medición de tiempos.",
@@ -130,7 +131,7 @@ export default async function LeaderboardPage({
                   isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
-                <span aria-hidden="true">{sp.emoji}</span>
+                <SportIcon sportId={sp.id} className="h-4 w-4" />
                 {name}
               </Link>
             );

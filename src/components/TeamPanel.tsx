@@ -25,7 +25,7 @@ const L: Record<
   }
 > = {
   ko: {
-    heading: "👥 팀",
+    heading: "팀",
     sub: "팀을 만들고 초대 코드를 선수에게 알려주세요.",
     memberCount: (n) => `${n}명`,
     namePlaceholder: "새 팀 이름",
@@ -34,7 +34,7 @@ const L: Record<
     errCreate: "팀을 만들지 못했습니다",
   },
   en: {
-    heading: "👥 Teams",
+    heading: "Teams",
     sub: "Create a team and share the invite code with your athletes.",
     memberCount: (n) => `${n} member${n === 1 ? "" : "s"}`,
     namePlaceholder: "New team name",
@@ -43,7 +43,7 @@ const L: Record<
     errCreate: "Couldn't create the team",
   },
   es: {
-    heading: "👥 Equipos",
+    heading: "Equipos",
     sub: "Crea un equipo y comparte el código de invitación con tus atletas.",
     memberCount: (n) => `${n} miembro${n === 1 ? "" : "s"}`,
     namePlaceholder: "Nombre del nuevo equipo",

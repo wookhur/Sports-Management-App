@@ -100,7 +100,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
 
         <header className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 p-6 text-white">
           <div>
-            <h1 className="text-2xl font-bold">👥 {team.name}</h1>
+            <h1 className="text-2xl font-bold">{team.name}</h1>
             <p className="mt-1 text-slate-300">
               {s.coachAndMembers(team.coach.name, team.members.length)}
             </p>

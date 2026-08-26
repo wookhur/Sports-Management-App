@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getSport } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
@@ -87,7 +88,14 @@ export default async function AthleteGuidePage({
         </div>
 
         <header className="mt-4">
-          {!guide.coverImage && <div className="text-5xl">{sport.emoji}</div>}
+          {!guide.coverImage && (
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-2xl"
+              style={{ backgroundColor: `${sport.accent}14`, color: sport.accentText }}
+            >
+              <SportIcon sportId={sport.id} className="h-8 w-8" />
+            </div>
+          )}
           <div className="mt-3 flex items-center gap-2">
             <span className="badge bg-brand/10 text-brand-dark">{guide.athleteName}</span>
             <span className="text-sm text-slate-500">{formatDate(guide.createdAt, lang)}</span>

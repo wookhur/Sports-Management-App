@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getSport } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
@@ -103,7 +104,12 @@ export default async function AthleteGuideListPage({
                     className="h-20 w-28 rounded-xl bg-slate-100 object-cover"
                   />
                 ) : (
-                  <span className="text-4xl">{sport.emoji}</span>
+                  <span
+                    className="flex h-20 w-28 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: `${sport.accent}14`, color: sport.accentText }}
+                  >
+                    <SportIcon sportId={sportId} className="h-9 w-9" />
+                  </span>
                 )}
               </Link>
               <div className="min-w-0 flex-1">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SPORTS, SPORT_LIST } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import { formatDate } from "@/lib/format";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
@@ -26,21 +27,21 @@ const L: Record<
   }
 > = {
   ko: {
-    title: "⭐ 스타 루틴",
+    title: "스타 루틴",
     sub: "세계적인 선수들이 실제로 사용하는 훈련 방법을 만나보세요.",
     all: "전체",
     writeTitle: (sportName) => `${sportName} 스타 루틴 작성`,
     empty: "아직 등록된 스타 루틴이 없어요.",
   },
   en: {
-    title: "⭐ Star Routines",
+    title: "Star Routines",
     sub: "Discover the training methods world-class athletes actually use.",
     all: "All",
     writeTitle: (sportName) => `Write a ${sportName} star routine`,
     empty: "No star routines have been posted yet.",
   },
   es: {
-    title: "⭐ Rutinas de estrellas",
+    title: "Rutinas de estrellas",
     sub: "Descubre los métodos de entrenamiento que realmente usan los atletas de clase mundial.",
     all: "Todos",
     writeTitle: (sportName) => `Escribir una rutina de estrella de ${sportName}`,
@@ -145,11 +146,13 @@ export default async function StarRoutinesPage({
                     <img src={guide.coverImage} alt="" className="h-36 w-full bg-slate-100 object-cover" />
                   ) : (
                     <div
-                      className="flex h-36 w-full items-center justify-center text-5xl"
-                      style={{ backgroundColor: `${s?.accent ?? "#64748b"}14` }}
-                      aria-hidden="true"
+                      className="flex h-36 w-full items-center justify-center"
+                      style={{
+                        backgroundColor: `${s?.accent ?? "#64748b"}14`,
+                        color: s?.accentText ?? "#334155",
+                      }}
                     >
-                      {s?.emoji ?? "⭐"}
+                      <SportIcon sportId={guide.sport} className="h-14 w-14" />
                     </div>
                   )}
                   <div className="flex flex-1 flex-col p-5">

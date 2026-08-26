@@ -8,6 +8,7 @@ import {
   GRADE_I18N_ES,
   type Lang,
 } from "@/lib/i18n";
+import SportIcon from "@/components/sportIcons";
 
 export interface ProfileData {
   name: string;
@@ -107,7 +108,7 @@ export default function ProfileEditor({
   initial: ProfileData;
   gradeOptions: string[];
   experienceOptions: { value: string; label: string }[];
-  sportOptions: { id: string; name: string; emoji: string }[];
+  sportOptions: { id: string; name: string }[];
   lang?: Lang;
 }) {
   const router = useRouter();
@@ -202,11 +203,12 @@ export default function ProfileEditor({
                 type="button"
                 onClick={() => toggleSport(s.id)}
                 aria-pressed={on}
-                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                   on ? "border-brand bg-brand/10 text-brand-dark" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
                 }`}
               >
-                {s.emoji} {s.name}
+                <SportIcon sportId={s.id} className="h-4 w-4" />
+                {s.name}
               </button>
             );
           })}

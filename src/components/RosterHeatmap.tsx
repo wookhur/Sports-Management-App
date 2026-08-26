@@ -25,7 +25,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
   if (roster.rows.length === 0) {
     return (
       <section className="card p-8 text-center">
-        <h2 className="text-lg font-bold">📊 {s.title}</h2>
+        <h2 className="text-lg font-bold">{s.title}</h2>
         <p className="mt-2 text-sm text-slate-500">{s.empty}</p>
         <p className="mt-1 text-xs text-slate-500">{s.emptyHint}</p>
       </section>
@@ -37,7 +37,7 @@ export default function RosterHeatmap({ lang, roster }: { lang: Lang; roster: Ro
       {/* No "needs attention" count here — the triage list above owns that
           judgement, and two counts on one screen would eventually disagree. */}
       <div className="border-b border-slate-100 px-5 py-4">
-        <h2 className="text-lg font-bold">📊 {s.title}</h2>
+        <h2 className="text-lg font-bold">{s.title}</h2>
         <p className="mt-0.5 text-sm text-slate-500">{s.subtitle}</p>
       </div>
 

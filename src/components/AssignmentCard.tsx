@@ -27,7 +27,7 @@ const L: Record<
   }
 > = {
   ko: {
-    title: "📋 내 훈련 과제",
+    title: "내 훈련 과제",
     remaining: (n) => `${n}개 남음`,
     empty: "코치가 과제를 배정하면 여기에 표시돼요.",
     coachAttr: (name) => `${name} 코치`,
@@ -36,7 +36,7 @@ const L: Record<
     ariaUncomplete: (title) => `${title} 완료 취소`,
   },
   en: {
-    title: "📋 My training tasks",
+    title: "My training tasks",
     remaining: (n) => `${n} left`,
     empty: "Tasks assigned by your coach will show up here.",
     coachAttr: (name) => `Coach ${name}`,
@@ -45,7 +45,7 @@ const L: Record<
     ariaUncomplete: (title) => `Mark "${title}" incomplete`,
   },
   es: {
-    title: "📋 Mis tareas de entrenamiento",
+    title: "Mis tareas de entrenamiento",
     remaining: (n) => (n === 1 ? "1 pendiente" : `${n} pendientes`),
     empty: "Las tareas que te asigne tu entrenador aparecerán aquí.",
     coachAttr: (name) => `Entrenador ${name}`,

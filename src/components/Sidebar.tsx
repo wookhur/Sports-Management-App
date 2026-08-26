@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BrandMark from "./BrandMark";
 import PetAvatar from "./PetAvatar";
+import SportIcon from "@/components/sportIcons";
 import { SPORT_LIST } from "@/lib/sports";
 import { SPORT_I18N, t, type Lang } from "@/lib/i18n";
 import { useSidebar } from "./SidebarContext";
@@ -166,15 +167,14 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
                 {active && (
                   <span aria-hidden="true" className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-brand" />
                 )}
-                {/* Sports keep their emoji brand marks (used on every sport card
-                    across the app) inside a tinted chip; functional nav icons
-                    above are SVG. */}
+                {/* Same stroke family as the functional nav icons above — the
+                    sport's own colour is what tells them apart, not a change of
+                    medium. */}
                 <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sm"
-                  style={{ backgroundColor: `${sport.accent}1a` }}
-                  aria-hidden="true"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+                  style={{ backgroundColor: `${sport.accent}1a`, color: sport.accentText }}
                 >
-                  {sport.emoji}
+                  <SportIcon sportId={sport.id} className="h-4 w-4" />
                 </span>
                 <span className="truncate">{name}</span>
               </Link>

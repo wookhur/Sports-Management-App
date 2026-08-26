@@ -21,7 +21,7 @@ const L: Record<
 > = {
   ko: {
     back: "← 축구",
-    title: "⚽ 축구 훈련 프로그램",
+    title: "축구 훈련 프로그램",
     subtitle: "학년별 세션 커리큘럼과 웜업·쿨다운 스트레칭 루틴이에요.",
     sessionPlan: "세션 플랜",
     warmupTitle: "웜업 루틴",
@@ -29,7 +29,7 @@ const L: Record<
   },
   en: {
     back: "← Soccer",
-    title: "⚽ Soccer Training Program",
+    title: "Soccer Training Program",
     subtitle: "Session curricula by grade level plus warm-up and cool-down stretching routines.",
     sessionPlan: "Session plan",
     warmupTitle: "Warm-up routine",
@@ -37,7 +37,7 @@ const L: Record<
   },
   es: {
     back: "← Fútbol",
-    title: "⚽ Programa de entrenamiento de fútbol",
+    title: "Programa de entrenamiento de fútbol",
     subtitle: "Currículos de sesión por nivel escolar más rutinas de calentamiento y estiramientos de vuelta a la calma.",
     sessionPlan: "Plan de sesión",
     warmupTitle: "Rutina de calentamiento",

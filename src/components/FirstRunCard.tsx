@@ -18,7 +18,7 @@ export default function FirstRunCard({ lang, state }: { lang: Lang; state: First
     <section className="card overflow-hidden border-brand/20">
       <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-100 bg-brand/5 px-5 py-4">
         <div>
-          <h2 className="text-lg font-bold">🚀 {s.title}</h2>
+          <h2 className="text-lg font-bold">{s.title}</h2>
           <p className="mt-0.5 text-sm text-slate-600">{s.subtitle}</p>
         </div>
         <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-bold text-brand">

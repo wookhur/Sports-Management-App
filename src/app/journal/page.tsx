@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import JournalForm from "@/components/JournalForm";
 import DeleteSessionButton from "@/components/DeleteSessionButton";
@@ -63,7 +64,7 @@ export default async function JournalPage() {
       <NavBar />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold sm:text-3xl">📓 {s.title}</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">{s.title}</h1>
           <p className="mt-1 text-slate-500">{s.subtitle}</p>
         </header>
 
@@ -118,7 +119,8 @@ export default async function JournalPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold">
-                          {sport?.emoji} {sportName} · {s.kinds[e.kind]}
+                          {sport && <SportIcon sportId={sport.id} className="mr-1 inline h-4 w-4 align-[-2px]" />}
+                          {sportName} · {s.kinds[e.kind]}
                         </p>
                         <p className="text-xs text-slate-500">
                           {s.minutesVal(e.minutes)} · RPE {e.intensity}

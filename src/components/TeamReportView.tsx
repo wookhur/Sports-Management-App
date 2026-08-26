@@ -135,7 +135,7 @@ export default function TeamReportView({
 
           {/* The good news — what parents actually want to read. */}
           <section className="mt-8">
-            <h2 className="text-lg font-bold">🏅 {s.highlights}</h2>
+            <h2 className="text-lg font-bold">{s.highlights}</h2>
             <p className="mt-0.5 text-xs text-slate-500">{s.highlightsHint}</p>
             {report.highlights.length === 0 ? (
               <p className="mt-3 text-sm text-slate-500">{s.noHighlights}</p>

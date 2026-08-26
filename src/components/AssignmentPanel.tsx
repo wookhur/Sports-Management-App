@@ -33,7 +33,7 @@ const L: Record<
   }
 > = {
   ko: {
-    heading: "📋 훈련 과제",
+    heading: "훈련 과제",
     sub: "선수에게 이번 주 과제를 배정하세요.",
     noAthletes: "연결된 선수가 있어야 과제를 배정할 수 있어요.",
     athleteSelectAria: "선수 선택",
@@ -49,7 +49,7 @@ const L: Record<
     errSave: "과제를 저장하지 못했습니다",
   },
   en: {
-    heading: "📋 Training assignments",
+    heading: "Training assignments",
     sub: "Assign this week's homework to your athletes.",
     noAthletes: "You need a connected athlete before you can assign homework.",
     athleteSelectAria: "Select athlete",
@@ -65,7 +65,7 @@ const L: Record<
     errSave: "Couldn't save the assignment",
   },
   es: {
-    heading: "📋 Tareas de entrenamiento",
+    heading: "Tareas de entrenamiento",
     sub: "Asigna las tareas de esta semana a tus atletas.",
     noAthletes: "Necesitas un atleta conectado para poder asignar tareas.",
     athleteSelectAria: "Seleccionar atleta",

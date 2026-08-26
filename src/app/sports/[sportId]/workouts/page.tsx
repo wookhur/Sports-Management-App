@@ -37,7 +37,7 @@ const L: Record<
 > = {
   ko: {
     back: "← 수영",
-    title: "🏊 수영 훈련 프로그램",
+    title: "수영 훈련 프로그램",
     subtitle: (workouts, videos) =>
       `총 ${workouts.toLocaleString()}개 워크아웃 · ${videos}개 검증 드릴 영상. 영법·거리·레벨로 골라보세요.`,
     filterStroke: "영법",
@@ -53,7 +53,7 @@ const L: Record<
   },
   en: {
     back: "← Swimming",
-    title: "🏊 Swim Training Programs",
+    title: "Swim Training Programs",
     subtitle: (workouts, videos) =>
       `${workouts.toLocaleString()} workouts · ${videos} verified drill videos. Filter by stroke, distance, and level.`,
     filterStroke: "Stroke",
@@ -69,7 +69,7 @@ const L: Record<
   },
   es: {
     back: "← Natación",
-    title: "🏊 Programas de entrenamiento de natación",
+    title: "Programas de entrenamiento de natación",
     subtitle: (workouts, videos) =>
       `${workouts.toLocaleString()} entrenamientos · ${videos} videos de ejercicios verificados. Filtra por estilo, distancia y nivel.`,
     filterStroke: "Estilo",

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getSport } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
+import { ChevronRightIcon, TargetIcon, TimerIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import Stopwatch from "@/components/Stopwatch";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
@@ -170,87 +172,74 @@ export default async function SportPage({
         <header
           className={`mt-3 flex items-center gap-4 rounded-2xl bg-gradient-to-br ${sport.gradient} p-6 text-white`}
         >
-          <span className="text-5xl">{sport.emoji}</span>
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+            <SportIcon sportId={sport.id} className="h-8 w-8" />
+          </span>
           <div>
             <h1 className="text-2xl font-bold">{sportName}</h1>
-            <p className="text-white/85">{sportTagline}</p>
+            <p className="text-white/90">{sportTagline}</p>
           </div>
         </header>
 
-        {/* Reference content from coach-provided databases */}
+        {/* Reference content from coach-provided databases.
+            Every one of these panels used to pick its own hue — a cyan card, an
+            indigo card, an emerald card and an amber card, none of them the
+            colour of the sport they sit under, and two of them borrowing the
+            coach dashboard's status colours. They are all the same card now,
+            tinted with the sport's own accent. */}
         {sportId === "swimming" && (
-          <Link
+          <RefLink
             href="/sports/swimming/workouts"
-            className="mt-6 flex items-center justify-between rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 p-5 transition hover:shadow-md"
-          >
-            <div>
-              <p className="text-sm font-medium text-cyan-700">{t.swProgramCat}</p>
-              <p className="mt-0.5 text-lg font-bold text-slate-800">
-                {t.swProgramTitle}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {t.swProgramDesc}
-              </p>
-            </div>
-            <span className="text-2xl text-cyan-600">→</span>
-          </Link>
+            accent={sport.accent}
+            accentText={sport.accentText}
+            cat={t.swProgramCat}
+            title={t.swProgramTitle}
+            desc={t.swProgramDesc}
+            className="mt-6"
+          />
         )}
         {sportId === "soccer" && (
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <Link
+            <RefLink
               href="/sports/soccer/drills"
-              className="flex items-center justify-between rounded-2xl border border-indigo-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 transition hover:shadow-md"
-            >
-              <div>
-                <p className="text-sm font-medium text-indigo-700">{t.scDrillsCat}</p>
-                <p className="mt-0.5 text-lg font-bold text-slate-800">{t.scDrillsTitle}</p>
-                <p className="mt-1 text-sm text-slate-500">{t.scDrillsDesc}</p>
-              </div>
-              <span className="text-2xl text-indigo-600">→</span>
-            </Link>
-            <Link
+              accent={sport.accent}
+              accentText={sport.accentText}
+              cat={t.scDrillsCat}
+              title={t.scDrillsTitle}
+              desc={t.scDrillsDesc}
+            />
+            <RefLink
               href="/sports/soccer/program"
-              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-5 transition hover:shadow-md"
-            >
-              <div>
-                <p className="text-sm font-medium text-slate-600">{t.scProgramCat}</p>
-                <p className="mt-0.5 text-lg font-bold text-slate-800">{t.scProgramTitle}</p>
-                <p className="mt-1 text-sm text-slate-500">{t.scProgramDesc}</p>
-              </div>
-              <span className="text-2xl text-slate-500">→</span>
-            </Link>
+              accent={sport.accent}
+              accentText={sport.accentText}
+              cat={t.scProgramCat}
+              title={t.scProgramTitle}
+              desc={t.scProgramDesc}
+            />
           </div>
         )}
         {sportId === "lacrosse" && (
-          <Link
+          <RefLink
             href="/sports/lacrosse/program"
-            className="mt-6 flex items-center justify-between rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 transition hover:shadow-md"
-          >
-            <div>
-              <p className="text-sm font-medium text-emerald-700">{t.laxProgramCat}</p>
-              <p className="mt-0.5 text-lg font-bold text-slate-800">
-                {t.laxProgramTitle}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {t.laxProgramDesc}
-              </p>
-            </div>
-            <span className="text-2xl text-emerald-700">→</span>
-          </Link>
+            accent={sport.accent}
+            accentText={sport.accentText}
+            cat={t.laxProgramCat}
+            title={t.laxProgramTitle}
+            desc={t.laxProgramDesc}
+            className="mt-6"
+          />
         )}
 
         {/* Famous athlete training methods (every sport) */}
-        <Link
+        <RefLink
           href={`/sports/${sportId}/athletes`}
-          className="mt-6 flex items-center justify-between rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 transition hover:shadow-md"
-        >
-          <div>
-            <p className="text-sm font-medium text-amber-700">{t.athletesCat}</p>
-            <p className="mt-0.5 text-lg font-bold text-slate-800">{t.athletesTitle}</p>
-            <p className="mt-1 text-sm text-slate-500">{t.athletesDesc}</p>
-          </div>
-          <span className="text-2xl text-amber-700">→</span>
-        </Link>
+          accent={sport.accent}
+          accentText={sport.accentText}
+          cat={t.athletesCat}
+          title={t.athletesTitle}
+          desc={t.athletesDesc}
+          className="mt-6"
+        />
 
         {/* Guides (lacrosse / soccer) */}
         {sport.guides && sport.guides.length > 0 && (
@@ -270,11 +259,17 @@ export default async function SportPage({
                 >
                   <div className="flex items-center justify-between">
                     <span className={`badge ${levelColors[guide.level]}`}>{guideLevelLabel(guide.level, lang)}</span>
-                    <span className="text-xs text-slate-500">⏱ {t.minutes(guide.durationMin)}</span>
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <TimerIcon className="h-3.5 w-3.5" />
+                      {t.minutes(guide.durationMin)}
+                    </span>
                   </div>
                   <h3 className="mt-3 text-lg font-bold group-hover:text-brand">{guideCopy(guide.id, lang, guide).title}</h3>
                   <p className="mt-1 text-sm text-slate-500">{guideCopy(guide.id, lang, guide).summary}</p>
-                  <p className="mt-3 text-xs font-medium text-slate-500">🎯 {guideCopy(guide.id, lang, guide).focus}</p>
+                  <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
+                    <TargetIcon className="h-3.5 w-3.5" />
+                    {guideCopy(guide.id, lang, guide).focus}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -333,5 +328,48 @@ export default async function SportPage({
         )}
       </main>
     </>
+  );
+}
+
+/**
+ * A link out to a body of reference content — swim programs, soccer drills,
+ * star routines. One shape, tinted with whichever sport's page it appears on.
+ */
+function RefLink({
+  href,
+  accent,
+  accentText,
+  cat,
+  title,
+  desc,
+  className = "",
+}: {
+  href: string;
+  accent: string;
+  accentText: string;
+  cat: string;
+  title: string;
+  desc: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex items-center justify-between gap-4 rounded-2xl border p-5 transition hover:shadow-md ${className}`}
+      style={{ borderColor: `${accent}33`, backgroundColor: `${accent}0d` }}
+    >
+      <div>
+        <p className="text-sm font-medium" style={{ color: accentText }}>
+          {cat}
+        </p>
+        <p className="mt-0.5 text-lg font-bold text-slate-800">{title}</p>
+        {/* slate-600, not the 500 these cards used to use: on a tinted ground
+            rather than plain white, 500 lands at 4.35:1 and misses AA. */}
+        <p className="mt-1 text-sm text-slate-600">{desc}</p>
+      </div>
+      <span className="shrink-0" style={{ color: accentText }}>
+        <ChevronRightIcon className="h-5 w-5" />
+      </span>
+    </Link>
   );
 }

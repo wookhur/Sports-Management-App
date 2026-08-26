@@ -5,6 +5,7 @@ import CompanionCard from "@/components/CompanionCard";
 import { petMood, careActions } from "@/lib/pet";
 import { prisma } from "@/lib/db";
 import { SPORT_LIST } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import OnboardingTour from "@/components/OnboardingTour";
 import StreakCard from "@/components/StreakCard";
@@ -475,24 +476,38 @@ export default async function HomePage({
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SPORT_LIST.map((sport) => (
+              // Five saturated tiles side by side turned a browse list into the
+              // loudest thing on the page. The sport keeps its colour — in the
+              // mark and the rule down the side — and the card itself goes
+              // quiet, like every other card in the app.
               <Link
                 key={sport.id}
                 href={`/sports/${sport.id}`}
-                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${sport.gradient} p-5 text-white shadow-sm transition hover:shadow-md`}
+                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
               >
-                <div className="text-4xl">{sport.emoji}</div>
-                <h3 className="mt-3 text-xl font-bold">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-0 left-0 w-1"
+                  style={{ backgroundColor: sport.accent }}
+                />
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: `${sport.accent}1a`, color: sport.accentText }}
+                >
+                  <SportIcon sportId={sport.id} className="h-6 w-6" />
+                </div>
+                <h3 className="mt-3 text-xl font-bold text-slate-900">
                   {SPORT_I18N[sport.id]?.[lang]?.name ?? sport.name}
                 </h3>
-                <p className="mt-1 text-sm text-white/85">
+                <p className="mt-1 text-sm text-slate-500">
                   {SPORT_I18N[sport.id]?.[lang]?.tagline ?? sport.tagline}
                 </p>
                 <div className="mt-4 flex gap-1.5">
                   {sport.features.includes("guide") && (
-                    <span className="badge bg-white/20 text-white">{s.featGuide}</span>
+                    <span className="badge bg-slate-100 text-slate-600">{s.featGuide}</span>
                   )}
                   {sport.features.includes("measure") && (
-                    <span className="badge bg-white/20 text-white">{s.featMeasure}</span>
+                    <span className="badge bg-slate-100 text-slate-600">{s.featMeasure}</span>
                   )}
                 </div>
               </Link>

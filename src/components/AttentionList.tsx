@@ -1,11 +1,14 @@
 import type { Triage, TriageItem, Flag } from "@/lib/triage";
 import { t, type Lang } from "@/lib/i18n";
 
+// The dot is drawn, not typed. Coloured-circle emoji render at whatever size
+// and hue the operating system feels like, which is a poor way to carry the one
+// signal on this screen that a coach reads at a glance.
 const FLAG_STYLE: Record<Flag, { dot: string; chip: string; edge: string }> = {
-  injuryRisk: { dot: "🔴", chip: "bg-red-50 text-red-700", edge: "border-l-red-400" },
-  disengaged: { dot: "🟠", chip: "bg-orange-50 text-orange-700", edge: "border-l-orange-400" },
-  plateau: { dot: "🟡", chip: "bg-amber-50 text-amber-700", edge: "border-l-amber-300" },
-  breakthrough: { dot: "🟢", chip: "bg-emerald-50 text-emerald-700", edge: "border-l-emerald-400" },
+  injuryRisk: { dot: "bg-red-500", chip: "bg-red-50 text-red-700", edge: "border-l-red-400" },
+  disengaged: { dot: "bg-orange-500", chip: "bg-orange-50 text-orange-700", edge: "border-l-orange-400" },
+  plateau: { dot: "bg-amber-400", chip: "bg-amber-50 text-amber-700", edge: "border-l-amber-300" },
+  breakthrough: { dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700", edge: "border-l-emerald-400" },
 };
 
 /** The one-line explanation of why this athlete is in the list. */
@@ -30,7 +33,7 @@ export default function AttentionList({ lang, triage }: { lang: Lang; triage: Tr
     <section className="card overflow-hidden">
       <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-100 px-5 py-4">
         <div>
-          <h2 className="text-lg font-bold">🎯 {s.title}</h2>
+          <h2 className="text-lg font-bold">{s.title}</h2>
           <p className="mt-0.5 text-sm text-slate-500">{s.subtitle}</p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-1.5">
@@ -64,7 +67,8 @@ export default function AttentionList({ lang, triage }: { lang: Lang; triage: Tr
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-sm font-bold">{item.name}</p>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${style.chip}`}>
-                    {style.dot} {s.label[item.flag]}
+                    <span aria-hidden="true" className={`inline-block h-2 w-2 rounded-full ${style.dot}`} />
+                    {s.label[item.flag]}
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-slate-600">{reasonFor(item, s)}</p>

@@ -34,18 +34,31 @@ export interface Metric {
   unitLabel?: string;
 }
 
+// -----------------------------------------------------------------------------
+// A note on sport colours
+//
+// Red, amber and emerald are spoken for: on the coach's screens they mean
+// "spike / risk", "watch this one" and "on track". A sport's colour is identity,
+// not status, so none of the five may borrow those hues — basketball used to be
+// red and track orange, which put an injury-red tile and a falling-off-orange
+// tile on the athlete's home screen for no reason at all.
+//
+// What is left is the cool half of the wheel, and the five are spaced across it
+// at a single value (Tailwind's 700) so they read as one family. Every `from`
+// stop clears 4.5:1 against white body text; the `to` stop is darker still.
+// -----------------------------------------------------------------------------
+
 export interface SportDef {
   id: string;
   name: string;
-  emoji: string;
-  /** Tailwind gradient classes for the sport card. */
+  /** Tailwind gradient classes for the sport's page header. */
   gradient: string;
   accent: string; // hex, for small accents and background tints
   /**
    * The same identity, dark enough to be read as text.
    *
    * Several accents are around 3.6:1 on white — fine as a 10% tint behind an
-   * emoji, below AA the moment they carry words.
+   * icon, below AA the moment they carry words.
    */
   accentText: string;
   tagline: string;
@@ -60,8 +73,7 @@ export interface SportDef {
 const lacrosse: SportDef = {
   id: "lacrosse",
   name: "라크로스",
-  emoji: "🥍",
-  gradient: "from-emerald-500 to-teal-600",
+  gradient: "from-teal-700 to-teal-900",
   accent: "#0d9488",
   accentText: "#0f766e",
   tagline: "스틱 핸들링부터 1대1까지, 단계별 훈련 방식",
@@ -147,10 +159,9 @@ const lacrosse: SportDef = {
 const soccer: SportDef = {
   id: "soccer",
   name: "축구",
-  emoji: "⚽",
-  gradient: "from-sky-500 to-indigo-600",
+  gradient: "from-indigo-700 to-indigo-900",
   accent: "#4f46e5",
-  accentText: "#4f46e5",
+  accentText: "#4338ca",
   tagline: "터치, 패스, 드리블, 마무리까지 포지션 불문 기본 연습",
   features: ["guide"],
   guides: [
@@ -233,10 +244,9 @@ const soccer: SportDef = {
 const swimming: SportDef = {
   id: "swimming",
   name: "수영",
-  emoji: "🏊",
-  gradient: "from-cyan-500 to-blue-600",
-  accent: "#0891b2",
-  accentText: "#0e7490",
+  gradient: "from-sky-700 to-blue-900",
+  accent: "#0284c7",
+  accentText: "#0369a1",
   tagline: "영법·거리별 랩 타임을 측정하고 기록으로 남기세요",
   features: ["measure"],
   metrics: [
@@ -255,10 +265,9 @@ const swimming: SportDef = {
 const track: SportDef = {
   id: "track",
   name: "육상",
-  emoji: "🏃",
-  gradient: "from-orange-500 to-amber-600",
-  accent: "#ea580c",
-  accentText: "#c2410c",
+  gradient: "from-violet-700 to-violet-900",
+  accent: "#7c3aed",
+  accentText: "#6d28d9",
   tagline: "세계 최고 스프린터들의 훈련법을 만나보세요",
   features: [],
 };
@@ -269,10 +278,9 @@ const track: SportDef = {
 const basketball: SportDef = {
   id: "basketball",
   name: "농구",
-  emoji: "🏀",
-  gradient: "from-red-500 to-rose-600",
-  accent: "#dc2626",
-  accentText: "#b91c1c",
+  gradient: "from-fuchsia-700 to-purple-900",
+  accent: "#a21caf",
+  accentText: "#a21caf",
   tagline: "세계적인 농구 선수들의 훈련법을 만나보세요",
   features: [],
 };

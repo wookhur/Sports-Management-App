@@ -16,7 +16,7 @@ export default function WeekCalendar({ lang, days }: { lang: Lang; days: WeekDay
   return (
     <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold">📅 {s.activity}</p>
+        <p className="text-sm font-semibold">{s.activity}</p>
         <p className="text-xs text-white/70">
           {activeCount}/7 · {s.activity}
         </p>

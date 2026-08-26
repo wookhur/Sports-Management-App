@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ClipboardIcon } from "@/components/navIcons";
+import { RunnerIcon } from "@/components/sportIcons";
+import SportIcon from "@/components/sportIcons";
 import { SPORTS } from "@/lib/sports";
 import { formatDate, formatDuration, formatPace } from "@/lib/format";
 import type { RecordView } from "@/lib/types";
@@ -152,7 +155,11 @@ function RecordItem({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="flex items-center gap-2 font-semibold">
-            <span>{sport?.emoji}</span>
+            {sport && (
+              <span style={{ color: sport.accentText }}>
+                <SportIcon sportId={sport.id} className="h-4 w-4" />
+              </span>
+            )}
             {metricLabel(record.metricKey, record.metricName, lang)}
             {mode === "coach" && record.ownerName && (
               <span className="badge bg-slate-100 text-slate-600">{record.ownerName}</span>
@@ -206,8 +213,13 @@ function RecordItem({
           {comments.map((c) => (
             <div key={c.id} className="rounded-xl bg-slate-50 px-3.5 py-2.5">
               <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                <span className={c.authorRole === "COACH" ? "text-brand" : ""}>
-                  {c.authorRole === "COACH" ? "📋" : "🏃"} {c.authorName}
+                <span className={`inline-flex items-center gap-1.5 ${c.authorRole === "COACH" ? "text-brand" : ""}`}>
+                  {c.authorRole === "COACH" ? (
+                    <ClipboardIcon className="h-3.5 w-3.5" />
+                  ) : (
+                    <RunnerIcon className="h-3.5 w-3.5" />
+                  )}
+                  {c.authorName}
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="text-slate-500">{formatDate(c.createdAt, lang)}</span>

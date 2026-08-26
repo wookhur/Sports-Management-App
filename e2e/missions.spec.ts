@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, failOnPageErrors, api } from "./helpers";
+import { login, failOnPageErrors, api, resetPet } from "./helpers";
 
 // Regression guard for a real outage: the care list and mission tier are
 // derived from pet growth on the server, but the hub kept a client-side copy.
@@ -8,6 +8,10 @@ import { login, failOnPageErrors, api } from "./helpers";
 // These tests drive the flow far enough past that boundary to catch it again.
 
 test("caring repeatedly grows the pet across care windows and hatches it", async ({ page }) => {
+  // This test hatches the pet, and the next one depends on it having done so.
+  // Put the account back on a fresh egg first: without this the pair passes
+  // once against a newly seeded database and fails on every run after that.
+  await resetPet();
   const errors = failOnPageErrors(page);
   const rejected: number[] = [];
   page.on("response", (r) => {

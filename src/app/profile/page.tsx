@@ -156,7 +156,6 @@ export default async function ProfilePage() {
             sportOptions={SPORT_LIST.map((s) => ({
               id: s.id,
               name: SPORT_I18N[s.id]?.[lang]?.name ?? s.name,
-              emoji: s.emoji,
             }))}
           />
         </section>

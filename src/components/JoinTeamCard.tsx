@@ -25,7 +25,7 @@ const L: Record<
   }
 > = {
   ko: {
-    title: "👥 내 팀",
+    title: "내 팀",
     empty: "코치에게 받은 초대 코드로 팀에 참여하세요.",
     teamMeta: (coach, n) => `${coach} 코치 · ${n}명`,
     codePlaceholder: "초대 코드",
@@ -34,7 +34,7 @@ const L: Record<
     errFallback: "팀에 참여하지 못했습니다",
   },
   en: {
-    title: "👥 My teams",
+    title: "My teams",
     empty: "Join a team with the invite code from your coach.",
     teamMeta: (coach, n) => `Coach ${coach} · ${n} member${n === 1 ? "" : "s"}`,
     codePlaceholder: "Invite code",
@@ -43,7 +43,7 @@ const L: Record<
     errFallback: "Couldn't join the team",
   },
   es: {
-    title: "👥 Mis equipos",
+    title: "Mis equipos",
     empty: "Únete a un equipo con el código de invitación de tu entrenador.",
     teamMeta: (coach, n) => `Entrenador ${coach} · ${n} miembro${n === 1 ? "" : "s"}`,
     codePlaceholder: "Código de invitación",

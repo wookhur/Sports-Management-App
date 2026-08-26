@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
 import { actorName, type NotificationView } from "@/lib/notify";
 import { formatRelative } from "@/lib/format";
+import { BellIcon } from "./navIcons";
 
 export default function NotificationBell({ lang, initialUnread }: { lang: Lang; initialUnread: number }) {
   const s = t(lang).notifications;
@@ -58,7 +59,7 @@ export default function NotificationBell({ lang, initialUnread }: { lang: Lang; 
         aria-expanded={open}
         className="relative rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
       >
-        <span aria-hidden="true">🔔</span>
+        <BellIcon className="h-5 w-5" />
         {unread > 0 && (
           <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
             {unread > 9 ? "9+" : unread}

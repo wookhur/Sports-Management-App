@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
 
 export const ATHLETE = { email: "athlete@example.com", password: "password123" };
 export const COACH = { email: "coach@example.com", password: "password123" };
@@ -39,4 +40,24 @@ export async function api(page: Page, path: string, body?: unknown) {
     },
     [path, body] as const,
   );
+}
+
+/**
+ * Put the fixture athlete back on a fresh egg with beans to spend.
+ *
+ * The pet tests hatch the pet, which is the whole point of them — and left the
+ * account hatched afterwards, so they only passed against a database that had
+ * just been seeded and failed on every run after that. The state they need is
+ * theirs to set up, not the seed's to happen to provide.
+ */
+export async function resetPet(beans = 200) {
+  const db = new PrismaClient();
+  try {
+    await db.user.update({
+      where: { email: ATHLETE.email },
+      data: { petGrowth: 0, beans },
+    });
+  } finally {
+    await db.$disconnect();
+  }
 }

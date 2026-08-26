@@ -38,7 +38,7 @@ const L: Record<
   }
 > = {
   ko: {
-    heading: "⏱️ 기록 측정",
+    heading: "기록 측정",
     timerTab: "타이머",
     manualTab: "직접 입력",
     metricLabel: "측정 항목",
@@ -49,7 +49,7 @@ const L: Record<
     pause: "정지",
     reset: "초기화",
     saving: "저장 중…",
-    save: "💾 저장",
+    save: "저장",
     manualTitle: "기록 시간 직접 입력",
     minutes: "분",
     seconds: "초",
@@ -64,7 +64,7 @@ const L: Record<
     savedFlash: "✓ 기록이 저장되었습니다",
   },
   en: {
-    heading: "⏱️ Time a Record",
+    heading: "Time a Record",
     timerTab: "Timer",
     manualTab: "Manual entry",
     metricLabel: "Metric",
@@ -75,7 +75,7 @@ const L: Record<
     pause: "Pause",
     reset: "Reset",
     saving: "Saving…",
-    save: "💾 Save",
+    save: "Save",
     manualTitle: "Enter your time manually",
     minutes: "min",
     seconds: "sec",
@@ -90,7 +90,7 @@ const L: Record<
     savedFlash: "✓ Record saved",
   },
   es: {
-    heading: "⏱️ Cronometrar una marca",
+    heading: "Cronometrar una marca",
     timerTab: "Cronómetro",
     manualTab: "Entrada manual",
     metricLabel: "Prueba",
@@ -101,7 +101,7 @@ const L: Record<
     pause: "Pausar",
     reset: "Reiniciar",
     saving: "Guardando…",
-    save: "💾 Guardar",
+    save: "Guardar",
     manualTitle: "Ingresa tu tiempo manualmente",
     minutes: "min",
     seconds: "seg",

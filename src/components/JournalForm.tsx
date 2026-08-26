@@ -57,7 +57,7 @@ export default function JournalForm({ lang }: { lang: Lang }) {
 
   return (
     <form onSubmit={submit} className="card space-y-4 p-5">
-      <h2 className="text-base font-bold">✏️ {s.addTitle}</h2>
+      <h2 className="text-base font-bold">{s.addTitle}</h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -65,7 +65,7 @@ export default function JournalForm({ lang }: { lang: Lang }) {
           <select id="journal-sport" className="input" value={sport} onChange={(e) => setSport(e.target.value)}>
             {SPORT_LIST.map((sp) => (
               <option key={sp.id} value={sp.id}>
-                {sp.emoji} {SPORT_I18N[sp.id]?.[lang]?.name ?? sp.name}
+                {SPORT_I18N[sp.id]?.[lang]?.name ?? sp.name}
               </option>
             ))}
           </select>

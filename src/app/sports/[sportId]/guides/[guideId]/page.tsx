@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { getSport, getGuide } from "@/lib/sports";
+import SportIcon from "@/components/sportIcons";
+import { TargetIcon, TimerIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import { getLang } from "@/lib/getLang";
 import { SPORT_I18N, guideCopy, guideLevelLabel, guideBody, type Lang } from "@/lib/i18n";
@@ -23,17 +25,17 @@ const L: Record<
   ko: {
     minutes: (n) => `${n}분`,
     steps: "단계별 훈련",
-    coachingPoints: "💡 코칭 포인트",
+    coachingPoints: "코칭 포인트",
   },
   en: {
     minutes: (n) => `${n} min`,
     steps: "Step-by-step training",
-    coachingPoints: "💡 Coaching points",
+    coachingPoints: "Coaching points",
   },
   es: {
     minutes: (n) => `${n} min`,
     steps: "Entrenamiento paso a paso",
-    coachingPoints: "💡 Puntos de entrenamiento",
+    coachingPoints: "Puntos de entrenamiento",
   },
 };
 
@@ -63,11 +65,20 @@ export default async function GuidePage({
         <header className="mt-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`badge ${levelColors[guide.level]}`}>{guideLevelLabel(guide.level, lang)}</span>
-            <span className="badge bg-slate-100 text-slate-600">⏱ {s.minutes(guide.durationMin)}</span>
-            <span className="badge bg-slate-100 text-slate-600">🎯 {guideCopy(guide.id, lang, guide).focus}</span>
+            <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+              <TimerIcon className="h-3.5 w-3.5" />
+              {s.minutes(guide.durationMin)}
+            </span>
+            <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+              <TargetIcon className="h-3.5 w-3.5" />
+              {guideCopy(guide.id, lang, guide).focus}
+            </span>
           </div>
-          <h1 className="mt-3 text-2xl font-bold sm:text-3xl">
-            {sport.emoji} {guideCopy(guide.id, lang, guide).title}
+          <h1 className="mt-3 flex items-center gap-2.5 text-2xl font-bold sm:text-3xl">
+            <span style={{ color: sport.accentText }}>
+              <SportIcon sportId={sport.id} className="h-7 w-7 shrink-0" />
+            </span>
+            {guideCopy(guide.id, lang, guide).title}
           </h1>
           <p className="mt-2 text-slate-600">{guideCopy(guide.id, lang, guide).summary}</p>
         </header>

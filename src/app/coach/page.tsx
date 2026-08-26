@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { MailIcon, FileTextIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import RosterHeatmap from "@/components/RosterHeatmap";
 import AttentionList from "@/components/AttentionList";
@@ -168,11 +169,13 @@ export default async function CoachPage() {
             <p className="mt-1 text-slate-500">{s.sub}</p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Link href="/coach/digest" className="btn-ghost">
-              📬 {t(lang).digest.navCta}
+            <Link href="/coach/digest" className="btn-ghost inline-flex items-center gap-2">
+              <MailIcon className="h-4 w-4" />
+              {t(lang).digest.navCta}
             </Link>
-            <Link href="/coach/report" className="btn-ghost">
-              📄 {t(lang).report.navCta}
+            <Link href="/coach/report" className="btn-ghost inline-flex items-center gap-2">
+              <FileTextIcon className="h-4 w-4" />
+              {t(lang).report.navCta}
             </Link>
           </div>
         </div>

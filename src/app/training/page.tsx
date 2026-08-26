@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { SPORTS } from "@/lib/sports";
 import { getWorkoutCount, getVideoCount } from "@/lib/swimming";
 import { DRILLS } from "@/lib/soccerDrills";
+import SportIcon from "@/components/sportIcons";
 import NavBar from "@/components/NavBar";
 import { ChevronRightIcon, StarIcon } from "@/components/navIcons";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
@@ -253,11 +254,10 @@ export default async function TrainingLibraryPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="flex items-center gap-2.5 text-lg font-bold">
                   <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-base"
-                    style={{ backgroundColor: `${sport.accent}1a` }}
-                    aria-hidden="true"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: `${sport.accent}1a`, color: sport.accentText }}
                   >
-                    {sport.emoji}
+                    <SportIcon sportId={sportId} className="h-5 w-5" />
                   </span>
                   {SPORT_I18N[sportId]?.[lang]?.name ?? sport.name}
                 </h2>

@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { TimerIcon, UsersIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import DrillDiagram from "@/components/DrillDiagram";
 import { getLang } from "@/lib/getLang";
@@ -33,7 +34,7 @@ const L: Record<
     legendPass: "패스",
     legendRun: "런/드리블",
     steps: "진행 방법",
-    coachingPoints: "💡 코칭 포인트",
+    coachingPoints: "코칭 포인트",
   },
   en: {
     back: "← Soccer drills",
@@ -45,7 +46,7 @@ const L: Record<
     legendPass: "Pass",
     legendRun: "Run/dribble",
     steps: "How to run it",
-    coachingPoints: "💡 Coaching points",
+    coachingPoints: "Coaching points",
   },
   es: {
     back: "← Ejercicios de fútbol",
@@ -57,7 +58,7 @@ const L: Record<
     legendPass: "Pase",
     legendRun: "Carrera/regate",
     steps: "Cómo se realiza",
-    coachingPoints: "💡 Puntos de entrenamiento",
+    coachingPoints: "Puntos de entrenamiento",
   },
 };
 
@@ -90,11 +91,17 @@ export default async function DrillDetailPage({
                 {ageLabel(a, lang)}
               </span>
             ))}
-            <span className="badge bg-slate-100 text-slate-600">⏱ {s.minutes(drill.durationMin)}</span>
+            <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+              <TimerIcon className="h-3.5 w-3.5" />
+              {s.minutes(drill.durationMin)}
+            </span>
           </div>
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{loc(drill.title, lang)}</h1>
           <p className="mt-2 text-slate-600">{loc(drill.summary, lang)}</p>
-          <p className="mt-1 text-sm text-slate-500">👥 {loc(drill.players, lang)}</p>
+          <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-slate-500">
+            <UsersIcon className="h-4 w-4" />
+            {loc(drill.players, lang)}
+          </p>
         </header>
 
         {/* Diagram */}

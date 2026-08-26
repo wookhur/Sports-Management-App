@@ -55,7 +55,7 @@ const L: Record<
     totalDistance: (m) => `총 ${m.toLocaleString()}m`,
     phaseCount: (n) => `${n}단계`,
     skillsLabel: "향상 포인트",
-    trackRecords: "⏱️ 이 종목에서 기록 측정하기",
+    trackRecords: "이 종목에서 기록 측정하기",
   },
   en: {
     back: "← Training programs",
@@ -63,7 +63,7 @@ const L: Record<
     totalDistance: (m) => `${m.toLocaleString()}m total`,
     phaseCount: (n) => `${n} phases`,
     skillsLabel: "Skills improved",
-    trackRecords: "⏱️ Track your times in this sport",
+    trackRecords: "Track your times in this sport",
   },
   es: {
     back: "← Programas de entrenamiento",
@@ -71,7 +71,7 @@ const L: Record<
     totalDistance: (m) => `${m.toLocaleString()}m en total`,
     phaseCount: (n) => `${n} fases`,
     skillsLabel: "Habilidades que mejora",
-    trackRecords: "⏱️ Registra tus tiempos en este deporte",
+    trackRecords: "Registra tus tiempos en este deporte",
   },
 };
 

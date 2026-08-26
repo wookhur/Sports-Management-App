@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { PenIcon } from "@/components/navIcons";
 import NavBar from "@/components/NavBar";
 import { formatRelative } from "@/lib/format";
 import { isBoardCategory } from "@/lib/board";
@@ -48,14 +49,15 @@ export default async function BoardPage({
       <main className="mx-auto max-w-2xl px-4 py-8">
         <header className="mb-4 flex items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold sm:text-3xl">💬 {s.title}</h1>
+            <h1 className="text-2xl font-bold sm:text-3xl">{s.title}</h1>
             <p className="mt-1 text-slate-500">{s.subtitle}</p>
           </div>
           <Link
             href="/board/new"
-            className="shrink-0 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand/90"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand/90"
           >
-            ✏️ {s.newPost}
+            <PenIcon className="h-4 w-4" />
+            {s.newPost}
           </Link>
         </header>
 

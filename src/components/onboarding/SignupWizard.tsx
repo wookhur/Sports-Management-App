@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactElement } from "react";
+import { useMemo, useState } from "react";
 import { SPORT_LIST } from "@/lib/sports";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
 import { t, SPORT_I18N, EXPERIENCE_I18N, GRADE_I18N_EN, GRADE_I18N_ES, type Lang, type SignupDict } from "@/lib/i18n";
@@ -15,12 +15,10 @@ import {
   ClipboardIcon,
   EyeIcon,
   EyeOffIcon,
-  LacrosseIcon,
   RunnerIcon,
   ShuffleIcon,
-  SoccerBallIcon,
-  SwimIcon,
 } from "./icons";
+import { sportIcon } from "../sportIcons";
 
 // Barlow is the app's typeface now, loaded once in the root layout without
 // blocking render. These names stay because the wizard sets them inline; the
@@ -28,14 +26,6 @@ import {
 // render-blocking <link>, which is exactly what was costing a page load.
 const BODY_FONT = "'Barlow', ui-sans-serif, system-ui, sans-serif";
 const HEADING_FONT = "'Barlow Condensed', ui-sans-serif, system-ui, sans-serif";
-
-const SPORT_ICONS: Record<string, (props: { className?: string }) => ReactElement> = {
-  lacrosse: LacrosseIcon,
-  soccer: SoccerBallIcon,
-  swimming: SwimIcon,
-};
-// Sports without their own mark fall back rather than rendering an empty tile.
-const SPORT_ICON_FALLBACK = RunnerIcon;
 
 const ADJ = ["Swift", "Mighty", "Brave", "Clever", "Bold", "Quick", "Fierce", "Steady"];
 const NOUN = ["Falcon", "Tiger", "Wave", "Comet", "Blaze", "Storm", "Panther", "Ranger"];
@@ -404,7 +394,7 @@ function SportInterestsStep({
       <div className="space-y-3">
         {SPORT_LIST.map((sport) => {
           const isSelected = selected.includes(sport.id);
-          const Icon = SPORT_ICONS[sport.id] ?? SPORT_ICON_FALLBACK;
+          const Icon = sportIcon(sport.id);
           const label = SPORT_I18N[sport.id]?.[lang] ?? { name: sport.name, tagline: sport.tagline };
           return (
             <button
