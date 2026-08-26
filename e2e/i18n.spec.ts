@@ -12,6 +12,12 @@ const HANGUL = /[가-힣]/;
 // stay in whatever language the author wrote them in. So are /records and
 // /stars: the first shows athletes' own notes, the second deliberately prints
 // each athlete's name in their native script.
+//
+// That rule is about content *people* write. It was also sheltering content we
+// ship: every seeded board post was Korean, so an English visitor opened
+// Community and found the entire page in a language they could not read. The
+// sweep still cannot run over /board without failing on genuine Korean posts,
+// so the seeded content is checked on its own below.
 const ROUTES = [
   "/",
   "/journal",
@@ -97,4 +103,15 @@ test.describe("first visit falls back to the browser's language", () => {
   test("a malformed quality value drops that entry only", () => {
     expect(langFromAcceptLanguage("en;q=abc,es")).toBe("es");
   });
+});
+
+
+test("the community board ships English seed content", async ({ page, context }) => {
+  // Not a sweep for Hangul — a real Korean post from a real user is fine and
+  // must not fail this. It pins the posts we seed, by their English titles.
+  await login(page);
+  await setLang(context, page, "en");
+  await page.goto("/board", { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Welcome to the community board");
+  await expect(page.locator("main")).not.toContainText("자유게시판을 열었어요");
 });

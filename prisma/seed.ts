@@ -59,7 +59,7 @@ async function main() {
           userId: athlete.id,
           sport: "swimming",
           metricKey: "freestyle_50m",
-          metricName: "자유형 50m",
+          metricName: "Freestyle 50m",
           distanceM: 50,
           durationMs: 34120,
           notes: "Good reaction off the start",
@@ -69,7 +69,7 @@ async function main() {
           userId: athlete.id,
           sport: "swimming",
           metricKey: "freestyle_50m",
-          metricName: "자유형 50m",
+          metricName: "Freestyle 50m",
           distanceM: 50,
           durationMs: 33480,
           notes: "Better turn",
@@ -79,7 +79,7 @@ async function main() {
           userId: athlete.id,
           sport: "swimming",
           metricKey: "backstroke_50m",
-          metricName: "배영 50m",
+          metricName: "Backstroke 50m",
           distanceM: 50,
           durationMs: 39900,
           shared: false,
@@ -501,32 +501,37 @@ async function main() {
     data: { authorId: clareNam.id },
   });
 
-  // Community board ("자유게시판") starter posts. Fixed ids keep the upsert
-  // idempotent across re-seeds so we never duplicate the welcome content.
+  // Community board starter posts. Fixed ids keep the upsert idempotent across
+  // re-seeds so we never duplicate the welcome content.
+  //
+  // English, like the rest of the seed. The board is excluded from the i18n
+  // sweep because posts people write stay in whatever language they wrote them
+  // in — but that rule is about *their* content, and it was quietly sheltering
+  // ours: an English visitor opened Community and found every post in Korean.
   const boardSeed: { id: string; authorId: string; title: string | null; body: string }[] = [
     {
       id: "seed-board-welcome",
       authorId: coach.id,
-      title: "자유게시판을 열었어요 🎉",
-      body: "훈련 이야기, 식단, 오늘의 컨디션까지 무엇이든 자유롭게 나눠요. 서로에게 따뜻한 선플 댓글도 남겨주세요! 게시글을 올리고 댓글을 달면 미션에서 완두콩도 받을 수 있어요 🌱",
+      title: "Welcome to the community board 🎉",
+      body: "Training, food, how your body feels today — anything goes here. Be kind in the comments. Posting and commenting both count toward your daily missions, so there are beans in it for you too 🌱",
     },
     {
       id: "seed-board-poke",
       authorId: athlete.id,
-      title: "연어 아보카도 포케 최애 메뉴 🥗",
-      body: "최애 메뉴🧡 진짜 엄청 자주 먹음ㅋ 곡물밥 포케로! 원래 걍 다 먹는데 어니언 후레이크가 칼로리 쩐데서 빼구.. 스윗콘도 칼로리·당·탄수니까 빼고..ㅎ 훈련 후 회복식으로 딱 좋아요.",
+      title: "Salmon and avocado poke, my go-to 🥗",
+      body: "I eat this far too often 😅 Brown rice base, and I skip the onion crisps — they are heavier than they look. Sweetcorn too. Genuinely good after a hard session.",
     },
     {
       id: "seed-board-sleep",
       authorId: athlete.id,
-      title: "요즘 수면 루틴 챙기는 중",
-      body: "일찍 자고 일찍 일어나니까 오전 훈련 컨디션이 확실히 달라요. 자기 전 스트레칭 10분 + 물 한 잔이 제 루틴! 다들 회복 어떻게 챙기시나요?",
+      title: "Actually sticking to a sleep routine",
+      body: "Going to bed earlier has made a real difference to morning training. Ten minutes of stretching and a glass of water before bed — that is the whole thing. How does everyone else handle recovery?",
     },
   ];
   for (const b of boardSeed) {
     await prisma.boardPost.upsert({
       where: { id: b.id },
-      update: {},
+      update: { title: b.title, body: b.body },
       create: { id: b.id, authorId: b.authorId, title: b.title, body: b.body },
     });
   }
