@@ -62,13 +62,18 @@ export default function StreakCard({
   return (
     <div className="grid gap-4 sm:grid-cols-[1fr_1.2fr]">
       {/* Personal streak */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-700 to-rose-700 p-5 text-white">
-        <p className="text-sm text-white/85">{s.streakLabel}</p>
+      {/* Orange, not the crimson this used to be: a streak is a flame, and the
+          card was reading as the loudest alarm on the athlete's home screen for
+          what is meant to be a reward. The two small lines are full white
+          rather than white/85 — at 85% they miss AA against the gradient's
+          lightest stop (4.15:1), and the softening was only ever cosmetic. */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-700 to-orange-900 p-5 text-white">
+        <p className="text-sm text-white">{s.streakLabel}</p>
         <div className="mt-1 flex items-end gap-2">
           <span className="text-4xl font-extrabold tabular-nums">{streak.current}</span>
           <span className="mb-1 text-lg font-semibold">{s.daysUnit(streak.current)}</span>
         </div>
-        <p className="mt-2 text-sm text-white/85">
+        <p className="mt-2 text-sm text-white">
           {s.best(streak.longest)}
           {streak.advancedToday && streak.current > 1 ? s.todayDone : ""}
         </p>
