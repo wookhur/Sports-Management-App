@@ -27,7 +27,7 @@ const CRITICAL_RULES = [
   "select-name",
 ];
 
-const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/games/bullseye"];
+const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/sports/soccer/program", "/games/bullseye"];
 const COACH_ROUTES = ["/coach", "/coach/report", "/coach/digest"];
 const PUBLIC_ROUTES = ["/login", "/signup", "/forgot"];
 
@@ -95,4 +95,17 @@ test("text meets AA contrast everywhere an athlete goes", async ({ page }) => {
 test("text meets AA contrast on the coach routes too", async ({ page }) => {
   await login(page, COACH);
   expect(await contrastProblems(page, COACH_ROUTES), "contrast violations").toEqual([]);
+});
+
+// A team page has no fixed URL, so it sits outside the route lists above — and
+// so went unchecked while it grew a roster, a remove button and a copy button.
+test("a team page is accessible and readable", async ({ page }) => {
+  await login(page, COACH);
+  await page.goto("/coach", { waitUntil: "networkidle" });
+  const href = await page.locator('a[href^="/teams/"]').first().getAttribute("href");
+  test.skip(!href, "the coach has no teams to open");
+
+  expect(await contrastProblems(page, [href!]), "contrast violations").toEqual([]);
+  await page.goto(href!, { waitUntil: "networkidle" });
+  expect(await violations(page, CRITICAL_RULES), "accessibility violations").toEqual([]);
 });

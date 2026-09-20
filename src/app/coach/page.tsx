@@ -204,6 +204,7 @@ export default async function CoachPage() {
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <AssignmentPanel
             athletes={athletes.map((a) => ({ id: a.id, name: a.name }))}
+            teams={teamRows}
             assignments={assignmentRows}
             lang={lang}
           />

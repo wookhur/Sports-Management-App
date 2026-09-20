@@ -32,6 +32,9 @@ const COACH_EMAIL = "coach@example.com";
 /** The seeded athlete, who has shared records but no training sessions. */
 const SEEDED_ATHLETE_EMAIL = "athlete@example.com";
 const DEMO_PREFIX = "demo.athlete";
+/** The demo squad's team. Fixed code so a demo script can quote it. */
+const DEMO_TEAM_NAME = "Varsity Squad";
+const DEMO_TEAM_CODE = "DEMOSQ";
 
 const day = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
 const at = (n: number) => new Date(Date.now() - n * 86_400_000);
@@ -137,6 +140,11 @@ async function clean(ids: string[]) {
   await prisma.missionClaim.deleteMany({ where: { userId: { in: ids } } });
 }
 
+/** The demo team, separately — it outlives any one athlete row. */
+async function cleanTeam() {
+  await prisma.team.deleteMany({ where: { code: DEMO_TEAM_CODE } });
+}
+
 async function main() {
   const removeOnly = process.argv.includes("--clean");
 
@@ -148,6 +156,7 @@ async function main() {
 
   if (removeOnly) {
     await clean(existingIds);
+    await cleanTeam();
     await prisma.user.deleteMany({ where: { id: { in: existingIds } } });
     // The seeded athlete is not ours to delete — only the sessions we gave them.
     const seeded = await prisma.user.findUnique({ where: { email: SEEDED_ATHLETE_EMAIL } });
@@ -257,9 +266,26 @@ async function main() {
     sessionCount += days.length;
   }
 
+  // A team, so the Teams panel demonstrates itself rather than showing its
+  // empty state to every prospect. Everyone in the squad is on it.
+  await cleanTeam();
+  const squadIds = await prisma.user.findMany({
+    where: { email: { startsWith: DEMO_PREFIX } },
+    select: { id: true },
+  });
+  const team = await prisma.team.create({
+    data: {
+      name: DEMO_TEAM_NAME,
+      code: DEMO_TEAM_CODE,
+      coachId: coach.id,
+      members: { create: squadIds.map((u) => ({ userId: u.id })) },
+    },
+  });
+
   console.log(
     `[demo] ${SQUAD.length} athletes, ${sessionCount} sessions, ${recordCount} records attached to ${COACH_EMAIL}.`,
   );
+  console.log(`[demo] team "${team.name}" (code ${team.code}) with ${squadIds.length} members.`);
   console.log("[demo] re-run before a demo — the dates are relative to today.");
 }
 

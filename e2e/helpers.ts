@@ -61,3 +61,17 @@ export async function resetPet(beans = 200) {
     await db.$disconnect();
   }
 }
+
+/** The seeded athlete's user id — needed to address them in team member URLs. */
+export async function athleteUserId(): Promise<string> {
+  const db = new PrismaClient();
+  try {
+    const user = await db.user.findUniqueOrThrow({
+      where: { email: ATHLETE.email },
+      select: { id: true },
+    });
+    return user.id;
+  } finally {
+    await db.$disconnect();
+  }
+}

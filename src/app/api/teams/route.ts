@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 
-const schema = z.object({ name: z.string().min(2, "팀 이름을 입력하세요").max(40) });
+const schema = z.object({ name: z.string().min(2, "Team name is too short").max(40) });
 
 // Unambiguous alphabet (no 0/O or 1/I) so codes are easy to read aloud.
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -16,11 +16,11 @@ function makeCode(): string {
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
-  if (session.role !== "COACH") return fail("코치만 팀을 만들 수 있습니다", 403);
+  if (!session) return fail("Sign in to continue", 401);
+  if (session.role !== "COACH") return fail("Only coaches can create a team", 403);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
 
   // Retry on the (astronomically unlikely) code collision.
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -34,5 +34,5 @@ export async function POST(req: Request) {
       if (!unique || attempt === 2) throw e;
     }
   }
-  return fail("팀을 만들지 못했습니다");
+  return fail("Couldn't create the team");
 }

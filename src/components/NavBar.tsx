@@ -22,7 +22,10 @@ export default async function NavBar() {
   const { unread } = await getShellData(session.userId);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    // no-print, like the sidebar: search, the language switcher and a log-out
+    // button are app chrome, and a session plan carried onto a pitch should be
+    // the plan and nothing else.
+    <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center">
           <SidebarToggleButton label={sb.openMenu} />
