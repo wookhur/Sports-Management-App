@@ -216,3 +216,13 @@ export function FileTextIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** A pennant: the mark for a team, distinct from the two-person Connections icon. */
+export function PennantIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden="true">
+      <path d="M5 21V4" />
+      <path d="M5 4h13l-3 4.5 3 4.5H5" />
+    </svg>
+  );
+}

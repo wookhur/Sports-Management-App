@@ -142,7 +142,11 @@ async function clean(ids: string[]) {
 
 /** The demo team, separately — it outlives any one athlete row. */
 async function cleanTeam() {
-  await prisma.team.deleteMany({ where: { code: DEMO_TEAM_CODE } });
+  const team = await prisma.team.findUnique({ where: { code: DEMO_TEAM_CODE }, select: { id: true } });
+  if (!team) return;
+  // Assignments only SET NULL on team delete; the demo's own go with it.
+  await prisma.assignment.deleteMany({ where: { teamId: team.id } });
+  await prisma.team.delete({ where: { id: team.id } });
 }
 
 async function main() {
@@ -273,19 +277,41 @@ async function main() {
     where: { email: { startsWith: DEMO_PREFIX } },
     select: { id: true },
   });
+  // The seeded athlete joins too, so *their* Teams page has something on it.
+  const seededAthlete = await prisma.user.findUnique({
+    where: { email: SEEDED_ATHLETE_EMAIL },
+    select: { id: true },
+  });
+  const memberIds = [...squadIds.map((u) => u.id), ...(seededAthlete ? [seededAthlete.id] : [])];
   const team = await prisma.team.create({
     data: {
       name: DEMO_TEAM_NAME,
       code: DEMO_TEAM_CODE,
       coachId: coach.id,
-      members: { create: squadIds.map((u) => ({ userId: u.id })) },
+      members: { create: memberIds.map((userId) => ({ userId })) },
     },
+  });
+
+  // One assignment handed to the whole team, part-done, so the team page's
+  // completion view has a real shape: most have finished, a few haven't.
+  const givenAt = at(3);
+  await prisma.assignment.createMany({
+    data: memberIds.map((athleteId, i) => ({
+      coachId: coach.id,
+      athleteId,
+      teamId: team.id,
+      title: "Freestyle intervals 8×50m",
+      linkHref: "/sports/swimming/workouts",
+      createdAt: givenAt,
+      // Roughly two thirds done; the seeded athlete is among the stragglers.
+      completedAt: i % 3 === 2 || athleteId === seededAthlete?.id ? null : at(1),
+    })),
   });
 
   console.log(
     `[demo] ${SQUAD.length} athletes, ${sessionCount} sessions, ${recordCount} records attached to ${COACH_EMAIL}.`,
   );
-  console.log(`[demo] team "${team.name}" (code ${team.code}) with ${squadIds.length} members.`);
+  console.log(`[demo] team "${team.name}" (code ${team.code}) with ${memberIds.length} members and one part-done assignment.`);
   console.log("[demo] re-run before a demo — the dates are relative to today.");
 }
 

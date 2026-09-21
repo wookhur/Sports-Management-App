@@ -135,9 +135,16 @@ model Assignment {
   dueDate     DateTime?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
+  // Set when the assignment was given to a whole team. One row is still
+  // created per athlete — completion is personal — but the rows remember
+  // which team they were sent to, so a team page can show "6 of 9 done"
+  // exactly, rather than guessing from matching titles and timestamps.
+  team        Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  teamId      String?
 
   @@index([athleteId])
   @@index([coachId])
+  @@index([teamId])
 }
 
 // A coach-owned squad. Athletes join with the invite code.
@@ -146,9 +153,10 @@ model Team {
   name      String
   code      String       @unique
   coach     User         @relation("TeamCoach", fields: [coachId], references: [id], onDelete: Cascade)
-  coachId   String
-  members   TeamMember[]
-  createdAt DateTime     @default(now())
+  coachId     String
+  members     TeamMember[]
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
 }
 
 model TeamMember {

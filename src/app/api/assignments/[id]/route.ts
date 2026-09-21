@@ -10,14 +10,14 @@ const patchSchema = z.object({ completed: z.boolean() });
 /** The assigned athlete checks the homework off (or back on). */
 export async function PATCH(req: Request, { params }: Params) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return fail("Sign in to continue", 401);
 
   const { id } = await params;
   const assignment = await prisma.assignment.findUnique({ where: { id } });
-  if (!assignment || assignment.athleteId !== session.userId) return fail("과제를 찾을 수 없습니다", 404);
+  if (!assignment || assignment.athleteId !== session.userId) return fail("Assignment not found", 404);
 
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("잘못된 요청입니다");
+  if (!parsed.success) return fail("Invalid request");
 
   await prisma.assignment.update({
     where: { id },
@@ -29,11 +29,11 @@ export async function PATCH(req: Request, { params }: Params) {
 /** The assigning coach withdraws the homework. */
 export async function DELETE(_req: Request, { params }: Params) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return fail("Sign in to continue", 401);
 
   const { id } = await params;
   const assignment = await prisma.assignment.findUnique({ where: { id } });
-  if (!assignment || assignment.coachId !== session.userId) return fail("과제를 찾을 수 없습니다", 404);
+  if (!assignment || assignment.coachId !== session.userId) return fail("Assignment not found", 404);
 
   await prisma.assignment.delete({ where: { id } });
   return ok({ ok: true });

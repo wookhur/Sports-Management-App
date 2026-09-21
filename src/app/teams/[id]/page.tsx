@@ -5,6 +5,11 @@ import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import TeamMemberList from "@/components/TeamMemberList";
 import CopyCodeButton from "@/components/CopyCodeButton";
+import RegenerateCodeButton from "@/components/RegenerateCodeButton";
+import TeamAssignments, { type TeamAssignmentGroup } from "@/components/TeamAssignments";
+import RosterHeatmap from "@/components/RosterHeatmap";
+import AttentionList from "@/components/AttentionList";
+import { buildTeamSquad } from "@/lib/squad";
 import { formatDate, formatDuration } from "@/lib/format";
 import { metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
@@ -25,7 +30,7 @@ const L: Record<
   }
 > = {
   ko: {
-    backHome: "← 홈",
+    backHome: "← 팀",
     coachLabel: "코치",
     memberCount: (n) => `멤버 ${n}명`,
     inviteCode: "초대 코드",
@@ -35,7 +40,7 @@ const L: Record<
     noRecords: "아직 공유된 기록이 없어요.",
   },
   en: {
-    backHome: "← Home",
+    backHome: "← Teams",
     coachLabel: "Coach",
     memberCount: (n) => `${n} member${n === 1 ? "" : "s"}`,
     inviteCode: "Invite code",
@@ -45,7 +50,7 @@ const L: Record<
     noRecords: "No shared records yet.",
   },
   es: {
-    backHome: "← Inicio",
+    backHome: "← Equipos",
     coachLabel: "Entrenador",
     memberCount: (n) => `${n} miembro${n === 1 ? "" : "s"}`,
     inviteCode: "Código de invitación",
@@ -92,11 +97,16 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
 
   const byStreak = [...team.members].sort((a, b) => b.user.currentStreak - a.user.currentStreak);
 
+  // Coach-only views. An athlete on the team sees the roster and the records,
+  // not their teammates' load status or who hasn't done their homework.
+  const squad = isOwner && memberIds.length ? await buildTeamSquad(team.id) : null;
+  const assignmentGroups: TeamAssignmentGroup[] = isOwner ? await teamAssignmentGroups(team.id) : [];
+
   return (
     <>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href="/" className="text-sm text-slate-500 hover:text-slate-600">
+        <Link href="/teams" className="text-sm text-slate-500 hover:text-slate-600">
           {s.backHome}
         </Link>
 
@@ -120,9 +130,23 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
               <p className="text-xs text-slate-300">{s.inviteCode}</p>
               <p className="font-mono text-xl font-bold tracking-widest">{team.code}</p>
               <CopyCodeButton code={team.code} lang={lang} />
+              <RegenerateCodeButton teamId={team.id} lang={lang} />
             </div>
           )}
         </header>
+
+        {squad && (
+          <div className="mt-6 space-y-6">
+            {squad.roster.rows.length > 0 && <AttentionList lang={lang} triage={squad.triage} />}
+            <RosterHeatmap lang={lang} roster={squad.roster} />
+          </div>
+        )}
+
+        {isOwner && (
+          <div className="mt-6">
+            <TeamAssignments groups={assignmentGroups} lang={lang} />
+          </div>
+        )}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
           <section>
@@ -175,4 +199,47 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
       </main>
     </>
   );
+}
+
+/**
+ * Assignments given to this team, one line per fan-out.
+ *
+ * A team assignment is written as one row per member in a single createMany,
+ * so every row of one fan-out shares a createdAt to the millisecond — that plus
+ * the title is the group key. Rows are then read back per athlete for the
+ * done/outstanding split.
+ */
+async function teamAssignmentGroups(teamId: string): Promise<TeamAssignmentGroup[]> {
+  const rows = await prisma.assignment.findMany({
+    where: { teamId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      title: true,
+      linkHref: true,
+      createdAt: true,
+      completedAt: true,
+      athlete: { select: { name: true } },
+    },
+  });
+  const groups = new Map<string, TeamAssignmentGroup>();
+  for (const r of rows) {
+    const key = `${r.createdAt.toISOString()}|${r.title}`;
+    let g = groups.get(key);
+    if (!g) {
+      g = {
+        key,
+        title: r.title,
+        linkHref: r.linkHref,
+        givenAt: r.createdAt.toISOString(),
+        total: 0,
+        done: 0,
+        outstanding: [],
+      };
+      groups.set(key, g);
+    }
+    g.total += 1;
+    if (r.completedAt) g.done += 1;
+    else g.outstanding.push(r.athlete.name);
+  }
+  return [...groups.values()];
 }

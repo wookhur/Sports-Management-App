@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Lang } from "@/lib/i18n";
+import { ChevronRightIcon } from "./navIcons";
 
 export interface MyTeam {
   id: string;
@@ -57,9 +58,12 @@ const L: Record<
 export default function JoinTeamCard({
   teams,
   lang = "en",
+  standalone = false,
 }: {
   teams: MyTeam[];
   lang?: Lang;
+  /** True when the page already carries the heading, so the card doesn't repeat it. */
+  standalone?: boolean;
 }) {
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -88,12 +92,12 @@ export default function JoinTeamCard({
 
   return (
     <div className="card p-5">
-      <h2 className="font-bold">{s.title}</h2>
+      {!standalone && <h2 className="font-bold">{s.title}</h2>}
 
       {teams.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-500">{s.empty}</p>
+        <p className={`${standalone ? "" : "mt-2"} text-sm text-slate-600`}>{s.empty}</p>
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className={`${standalone ? "" : "mt-3"} space-y-2`}>
           {teams.map((team) => (
             <li key={team.id}>
               <Link
@@ -106,7 +110,7 @@ export default function JoinTeamCard({
                     {s.teamMeta(team.coachName, team.memberCount)}
                   </p>
                 </div>
-                <span className="text-slate-300">→</span>
+                <ChevronRightIcon className="h-4 w-4 shrink-0 text-slate-400" />
               </Link>
             </li>
           ))}

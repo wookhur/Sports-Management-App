@@ -27,8 +27,8 @@ const CRITICAL_RULES = [
   "select-name",
 ];
 
-const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/sports/soccer/program", "/games/bullseye"];
-const COACH_ROUTES = ["/coach", "/coach/report", "/coach/digest"];
+const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/sports/soccer/program", "/teams", "/games/bullseye"];
+const COACH_ROUTES = ["/coach", "/coach/report", "/coach/digest", "/teams"];
 const PUBLIC_ROUTES = ["/login", "/signup", "/forgot"];
 
 // axe is not cheap on a large dashboard, and it walks every frame it can

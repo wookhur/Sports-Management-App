@@ -165,3 +165,87 @@ test("a coach removes a member; the athlete can leave on their own", async ({ pa
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
 });
+
+test("Teams is in the menu and has a page, for both roles", async ({ page, browser }) => {
+  await login(page, COACH);
+  await page.locator("nav").getByRole("link", { name: "Teams" }).first().click();
+  await expect(page).toHaveURL(/\/teams$/);
+  await expect(page.locator("main")).toContainText("Teams");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  await athletePage.locator("nav").getByRole("link", { name: "Teams" }).first().click();
+  await expect(athletePage).toHaveURL(/\/teams$/);
+  await expect(athletePage.locator("main")).toContainText("My teams");
+  await other.close();
+});
+
+test("a new invite code retires the old one; only the owner can issue it", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Leaked Code");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await send(athletePage, `/api/teams/${team.id}/code`, "POST")).status).toBe(404);
+
+  const fresh = await send(page, `/api/teams/${team.id}/code`, "POST");
+  expect(fresh.status).toBe(200);
+  expect(fresh.data.code).not.toBe(team.code);
+  expect(fresh.data.code).toMatch(/^[A-Z2-9]{6}$/);
+
+  // The old code is dead; the new one works.
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(400);
+  expect((await api(athletePage, "/api/teams/join", { code: fresh.data.code })).status).toBe(200);
+  await other.close();
+
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("the team page counts homework done, and names who hasn't", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Homework Squad");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+
+  const given = await api(page, "/api/assignments", { teamId: team.id, title: "Wall passes x50" });
+  expect(given.status).toBe(201);
+
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Wall passes x50");
+  await expect(page.locator("main")).toContainText("0 of 1 done");
+  await expect(page.locator("main")).toContainText("Still to do: Alex Lee");
+
+  // The athlete ticks it off; the team page follows.
+  await athletePage.goto("/", { waitUntil: "networkidle" });
+  await athletePage.getByRole("button", { name: /Wall passes x50/ }).first().click();
+  await expect
+    .poll(async () => {
+      await page.reload({ waitUntil: "networkidle" });
+      return page.locator("main").innerText();
+    })
+    .toContain("Everyone's done");
+  await other.close();
+
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("deleting a team keeps the homework it handed out", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Short Lived");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+  expect((await api(page, "/api/assignments", { teamId: team.id, title: "Survives the team" })).status).toBe(201);
+
+  expect((await send(page, `/api/teams/${team.id}`, "DELETE")).status).toBe(200);
+  await athletePage.goto("/", { waitUntil: "networkidle" });
+  await expect(athletePage.locator("main")).toContainText("Survives the team");
+  await other.close();
+});

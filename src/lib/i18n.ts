@@ -484,6 +484,7 @@ export interface SidebarDict {
   games: string;
   sports: string;
   myActivity: string;
+  teams: string;
   connections: string;
   myRecords: string;
   coachDashboard: string;
@@ -507,6 +508,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "미니게임",
     sports: "스포츠",
     myActivity: "내 활동",
+    teams: "팀",
     connections: "연결 관리",
     myRecords: "내 기록",
     coachDashboard: "코치 대시보드",
@@ -528,6 +530,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "Mini-games",
     sports: "Sports",
     myActivity: "My Activity",
+    teams: "Teams",
     connections: "Connections",
     myRecords: "My Records",
     coachDashboard: "Coach Dashboard",
@@ -549,6 +552,7 @@ const sidebar: Record<Lang, SidebarDict> = {
     games: "Minijuegos",
     sports: "Deportes",
     myActivity: "Mi actividad",
+    teams: "Equipos",
     connections: "Conexiones",
     myRecords: "Mis marcas",
     coachDashboard: "Panel del entrenador",

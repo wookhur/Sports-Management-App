@@ -57,7 +57,8 @@ export async function POST(req: Request) {
     dueDate: dueDate ? new Date(dueDate) : null,
   };
   await prisma.assignment.createMany({
-    data: targets.athleteIds.map((id) => ({ ...common, athleteId: id })),
+    // Rows given to a team remember the team, so its page can count them.
+    data: targets.athleteIds.map((id) => ({ ...common, athleteId: id, teamId: teamId ?? null })),
   });
   await Promise.all(
     targets.athleteIds.map((id) => notify(id, "assignmentGiven", { name: session.name }, "/")),

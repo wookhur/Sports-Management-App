@@ -135,7 +135,16 @@ const L: Record<
 };
 
 // Coach side: create teams, share the invite code, and keep the list tidy.
-export default function TeamPanel({ teams, lang = "en" }: { teams: TeamRow[]; lang?: Lang }) {
+export default function TeamPanel({
+  teams,
+  lang = "en",
+  standalone = false,
+}: {
+  teams: TeamRow[];
+  lang?: Lang;
+  /** True when the page already carries the heading, so the card doesn't repeat it. */
+  standalone?: boolean;
+}) {
   const s = L[lang];
   const router = useRouter();
   const [name, setName] = useState("");
@@ -207,13 +216,17 @@ export default function TeamPanel({ teams, lang = "en" }: { teams: TeamRow[]; la
 
   return (
     <div className="card p-5">
-      <h2 className="font-bold">{s.heading}</h2>
-      <p className="mt-0.5 text-xs text-slate-500">{s.sub}</p>
+      {!standalone && (
+        <>
+          <h2 className="font-bold">{s.heading}</h2>
+          <p className="mt-0.5 text-xs text-slate-500">{s.sub}</p>
+        </>
+      )}
 
       {teams.length === 0 ? (
         // The panel used to be an empty white box with a text field floating in
         // it, which told a coach nothing about why they would want a team.
-        <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
+        <div className={`${standalone ? "" : "mt-4"} rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center`}>
           <UsersIcon className="mx-auto h-6 w-6 text-slate-400" />
           <p className="mt-2 text-sm font-semibold text-slate-700">{s.emptyTitle}</p>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-slate-600">
@@ -221,7 +234,7 @@ export default function TeamPanel({ teams, lang = "en" }: { teams: TeamRow[]; la
           </p>
         </div>
       ) : (
-        <ul className="mt-4 space-y-3">
+        <ul className={`${standalone ? "" : "mt-4"} space-y-3`}>
           {teams.map((team) => (
             <li key={team.id} className="rounded-xl border border-slate-200 p-3.5">
               <div className="flex items-start justify-between gap-3">

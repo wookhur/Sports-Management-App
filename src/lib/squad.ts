@@ -80,13 +80,38 @@ export async function buildTeamReport(coachId: string, weeks: number): Promise<T
 
 /** The roster for one coach, worst-first. */
 export async function buildRoster(coachId: string): Promise<Roster> {
-  const today = seoulDayKey();
-
   const links = await prisma.coachAthlete.findMany({
     where: { coachId, status: "ACCEPTED" },
     select: { athlete: { select: { id: true, name: true, currentStreak: true } } },
   });
-  const athletes = links.map((l) => l.athlete);
+  return rosterFor(links.map((l) => l.athlete));
+}
+
+/**
+ * Roster + triage for one team.
+ *
+ * Same computation as the coach dashboard, scoped to the team's members rather
+ * than everyone the coach is connected to. A coach running two squads wants
+ * each squad's status on its own page, not the union of both on one.
+ */
+export async function buildTeamSquad(teamId: string): Promise<{ roster: Roster; triage: Triage }> {
+  const members = await prisma.teamMember.findMany({
+    where: { teamId },
+    select: { user: { select: { id: true, name: true, currentStreak: true } } },
+  });
+  const roster = await rosterFor(members.map((m) => m.user));
+  if (roster.rows.length === 0) {
+    return { roster, triage: { items: [], counts: { injuryRisk: 0, disengaged: 0, plateau: 0, breakthrough: 0 }, actionable: 0 } };
+  }
+  const records = await timedRecords(roster.rows.map((r) => r.athleteId));
+  return { roster, triage: triageSquad(roster.rows, pbSignals(records, seoulDayKey())) };
+}
+
+/** The roster for any set of athletes, worst-first. */
+async function rosterFor(
+  athletes: { id: string; name: string; currentStreak: number }[],
+): Promise<Roster> {
+  const today = seoulDayKey();
   if (athletes.length === 0) return { days: dayWindow(today, HEATMAP_DAYS), rows: [], peak: 0 };
 
   const ids = athletes.map((a) => a.id);
