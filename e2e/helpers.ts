@@ -75,3 +75,20 @@ export async function athleteUserId(): Promise<string> {
     await db.$disconnect();
   }
 }
+
+/**
+ * Remove assignments the tests handed out.
+ *
+ * Deleting a team keeps the homework it gave (on purpose — see the SET NULL
+ * on Assignment.teamId), so a test that fans an assignment out and then
+ * deletes its team leaves that assignment on the seeded athlete for good.
+ * Tests clean up by title; the titles are theirs.
+ */
+export async function cleanupAssignments(titles: string[]) {
+  const db = new PrismaClient();
+  try {
+    await db.assignment.deleteMany({ where: { title: { in: titles } } });
+  } finally {
+    await db.$disconnect();
+  }
+}

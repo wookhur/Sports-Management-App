@@ -28,7 +28,7 @@ const L: Record<
   ko: {
     title: "내 팀",
     empty: "코치에게 받은 초대 코드로 팀에 참여하세요.",
-    teamMeta: (coach, n) => `${coach} 코치 · ${n}명`,
+    teamMeta: (coach, n) => `${coach} · ${n}명`,
     codePlaceholder: "초대 코드",
     join: "참여",
     joining: "확인 중…",
@@ -37,7 +37,7 @@ const L: Record<
   en: {
     title: "My teams",
     empty: "Join a team with the invite code from your coach.",
-    teamMeta: (coach, n) => `Coach ${coach} · ${n} member${n === 1 ? "" : "s"}`,
+    teamMeta: (coach, n) => `${coach} · ${n} member${n === 1 ? "" : "s"}`,
     codePlaceholder: "Invite code",
     join: "Join",
     joining: "Checking…",
@@ -46,7 +46,7 @@ const L: Record<
   es: {
     title: "Mis equipos",
     empty: "Únete a un equipo con el código de invitación de tu entrenador.",
-    teamMeta: (coach, n) => `Entrenador ${coach} · ${n} miembro${n === 1 ? "" : "s"}`,
+    teamMeta: (coach, n) => `${coach} · ${n} miembro${n === 1 ? "" : "s"}`,
     codePlaceholder: "Código de invitación",
     join: "Unirme",
     joining: "Verificando…",

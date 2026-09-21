@@ -8,6 +8,7 @@ export const NOTIFICATION_KINDS = [
   "connectionAccepted",
   "assignmentGiven",
   "recordComment",
+  "teamAnnouncement",
 ] as const;
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];

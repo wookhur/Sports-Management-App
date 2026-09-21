@@ -1016,6 +1016,7 @@ const notifications: Record<Lang, NotifyDict> = {
       connectionAccepted: (name) => `${name} 님이 연결을 수락했어요.`,
       assignmentGiven: (name) => `${name} 코치가 새 과제를 냈어요.`,
       recordComment: (name) => `${name} 님이 내 기록에 피드백을 남겼어요.`,
+      teamAnnouncement: (name) => `${name} 코치가 팀 공지를 올렸어요.`,
     },
   },
   en: {
@@ -1028,6 +1029,7 @@ const notifications: Record<Lang, NotifyDict> = {
       connectionAccepted: (name) => `${name} accepted your connection request.`,
       assignmentGiven: (name) => `Coach ${name} set you a new assignment.`,
       recordComment: (name) => `${name} left feedback on your record.`,
+      teamAnnouncement: (name) => `Coach ${name} posted a team announcement.`,
     },
   },
   es: {
@@ -1040,6 +1042,7 @@ const notifications: Record<Lang, NotifyDict> = {
       connectionAccepted: (name) => `${name} ha aceptado tu solicitud de conexión.`,
       assignmentGiven: (name) => `El entrenador ${name} te ha puesto una tarea nueva.`,
       recordComment: (name) => `${name} ha comentado tu marca.`,
+      teamAnnouncement: (name) => `El entrenador ${name} publicó un aviso para el equipo.`,
     },
   },
 };
@@ -1316,6 +1319,9 @@ export interface ReportDict {
   subtitle: (coach: string) => string;
   periodLabel: string;
   periodOption: (weeks: number) => string;
+  scopeLabel: string;
+  scopeAll: string;
+  subtitleTeam: (team: string, coach: string) => string;
   generated: (date: string) => string;
   print: string;
   back: string;
@@ -1357,6 +1363,9 @@ const report: Record<Lang, ReportDict> = {
     title: "팀 훈련 리포트",
     subtitle: (coach) => `${coach} 지도`,
     periodLabel: "기간",
+    scopeLabel: "범위",
+    scopeAll: "연결된 선수 전체",
+    subtitleTeam: (team, coach) => `${team} · ${coach} 지도`,
     periodOption: (w) => `최근 ${w}주`,
     generated: (d) => `${d} 생성`,
     print: "인쇄 · PDF 저장",
@@ -1398,6 +1407,9 @@ const report: Record<Lang, ReportDict> = {
     title: "Team training report",
     subtitle: (coach) => `Coached by ${coach}`,
     periodLabel: "Period",
+    scopeLabel: "Scope",
+    scopeAll: "All connected athletes",
+    subtitleTeam: (team, coach) => `${team} · coached by ${coach}`,
     periodOption: (w) => `Last ${w} weeks`,
     generated: (d) => `Generated ${d}`,
     print: "Print · Save as PDF",
@@ -1439,6 +1451,9 @@ const report: Record<Lang, ReportDict> = {
     title: "Informe de entrenamiento del equipo",
     subtitle: (coach) => `Dirigido por ${coach}`,
     periodLabel: "Periodo",
+    scopeLabel: "Ámbito",
+    scopeAll: "Todos los atletas conectados",
+    subtitleTeam: (team, coach) => `${team} · entrenado por ${coach}`,
     periodOption: (w) => `Últimas ${w} semanas`,
     generated: (d) => `Generado el ${d}`,
     print: "Imprimir · Guardar en PDF",

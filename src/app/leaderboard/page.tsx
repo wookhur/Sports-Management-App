@@ -18,6 +18,8 @@ const L: Record<
   Lang,
   {
     title: string;
+    scopeLabel: string;
+    scopeAll: string;
     sub: string;
     empty: (metricName: string) => string;
     noMetrics: string;
@@ -27,6 +29,8 @@ const L: Record<
 > = {
   ko: {
     title: "리더보드",
+    scopeLabel: "범위",
+    scopeAll: "전체",
     sub: "공유된 기록 기준, 종목·항목별 최고 기록 순위예요.",
     empty: (metricName) => `아직 ${metricName} 공유 기록이 없어요. 기록을 측정하고 공유해보세요!`,
     noMetrics: "이 종목은 아직 기록 측정을 지원하지 않아요.",
@@ -35,6 +39,8 @@ const L: Record<
   },
   en: {
     title: "Leaderboard",
+    scopeLabel: "Scope",
+    scopeAll: "Everyone",
     sub: "Best-time rankings per sport and event, based on shared records.",
     empty: (metricName) => `No shared ${metricName} records yet. Track a time and share it!`,
     noMetrics: "This sport doesn't support time tracking yet.",
@@ -43,6 +49,8 @@ const L: Record<
   },
   es: {
     title: "Clasificación",
+    scopeLabel: "Ámbito",
+    scopeAll: "Todos",
     sub: "Ranking de mejores tiempos por deporte y prueba, según las marcas compartidas.",
     empty: (metricName) => `Todavía no hay marcas compartidas de ${metricName}. ¡Registra un tiempo y compártelo!`,
     noMetrics: "Este deporte aún no admite medición de tiempos.",
@@ -54,7 +62,7 @@ const L: Record<
 export default async function LeaderboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sport?: string; metric?: string }>;
+  searchParams: Promise<{ sport?: string; metric?: string; team?: string }>;
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -62,7 +70,26 @@ export default async function LeaderboardPage({
   const lang = await getLang();
   const t = L[lang];
 
-  const { sport, metric } = await searchParams;
+  const { sport, metric, team: teamParam } = await searchParams;
+
+  // Teams this person may scope the board to: ones they coach, ones they're on.
+  // Anyone else's team id is ignored rather than honoured — a board scoped to
+  // a squad you're not part of would leak who is on it.
+  const [owned, joined] = await Promise.all([
+    prisma.team.findMany({ where: { coachId: session.userId }, select: { id: true, name: true } }),
+    prisma.teamMember.findMany({
+      where: { userId: session.userId },
+      select: { team: { select: { id: true, name: true } } },
+    }),
+  ]);
+  const scopeTeams = [...owned, ...joined.map((j) => j.team)];
+  const scopeTeam = scopeTeams.find((t) => t.id === teamParam) ?? null;
+  const scopeIds = scopeTeam
+    ? (await prisma.teamMember.findMany({ where: { teamId: scopeTeam.id }, select: { userId: true } })).map(
+        (m) => m.userId,
+      )
+    : null;
+  const teamQs = scopeTeam ? `&team=${scopeTeam.id}` : "";
   // Default to the first sport that actually has timed metrics (swimming),
   // so the leaderboard opens on a rankable board rather than an empty one.
   const defaultSport =
@@ -75,7 +102,13 @@ export default async function LeaderboardPage({
   const bests = activeKey
     ? await prisma.record.groupBy({
         by: ["userId"],
-        where: { sport: activeSport, metricKey: activeKey, shared: true, durationMs: { not: null } },
+        where: {
+          sport: activeSport,
+          metricKey: activeKey,
+          shared: true,
+          durationMs: { not: null },
+          ...(scopeIds ? { userId: { in: scopeIds } } : {}),
+        },
         _min: { durationMs: true },
       })
     : [];
@@ -117,6 +150,34 @@ export default async function LeaderboardPage({
         <h1 className="text-2xl font-bold">{t.title}</h1>
         <p className="mt-1 text-slate-500">{t.sub}</p>
 
+        {/* Scope: everyone, or one of your teams */}
+        {scopeTeams.length > 0 && (
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t.scopeLabel}</span>
+            <Link
+              href={`/leaderboard?sport=${activeSport}&metric=${activeKey}`}
+              aria-current={scopeTeam ? undefined : "page"}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                scopeTeam ? "bg-slate-100 text-slate-600 hover:bg-slate-200" : "bg-brand text-white"
+              }`}
+            >
+              {t.scopeAll}
+            </Link>
+            {scopeTeams.map((tm) => (
+              <Link
+                key={tm.id}
+                href={`/leaderboard?sport=${activeSport}&metric=${activeKey}&team=${tm.id}`}
+                aria-current={scopeTeam?.id === tm.id ? "page" : undefined}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                  scopeTeam?.id === tm.id ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {tm.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
         {/* Sport tabs */}
         <div className="mt-5 flex flex-wrap gap-2 border-b border-slate-200 pb-4">
           {SPORT_LIST.map((sp) => {
@@ -125,7 +186,7 @@ export default async function LeaderboardPage({
             return (
               <Link
                 key={sp.id}
-                href={`/leaderboard?sport=${sp.id}`}
+                href={`/leaderboard?sport=${sp.id}${teamQs}`}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
                   isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -146,7 +207,7 @@ export default async function LeaderboardPage({
               return (
                 <Link
                   key={m.key}
-                  href={`/leaderboard?sport=${activeSport}&metric=${m.key}`}
+                  href={`/leaderboard?sport=${activeSport}&metric=${m.key}${teamQs}`}
                   aria-current={isActive ? "page" : undefined}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                     isActive ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"

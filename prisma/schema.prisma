@@ -98,6 +98,9 @@ model User {
   assignmentsReceived Assignment[] @relation("AssignmentAthlete")
   teamsOwned          Team[]       @relation("TeamCoach")
   teamMemberships     TeamMember[]
+  announcements       TeamAnnouncement[] @relation("AnnouncementAuthor")
+  attendance          Attendance[] @relation("AttendanceAthlete")
+  attendanceMarked    Attendance[] @relation("AttendanceMarker")
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
@@ -153,10 +156,47 @@ model Team {
   name      String
   code      String       @unique
   coach     User         @relation("TeamCoach", fields: [coachId], references: [id], onDelete: Cascade)
-  coachId     String
-  members     TeamMember[]
-  assignments Assignment[]
-  createdAt   DateTime     @default(now())
+  coachId       String
+  members       TeamMember[]
+  assignments   Assignment[]
+  announcements TeamAnnouncement[]
+  attendance    Attendance[]
+  createdAt     DateTime     @default(now())
+}
+
+// A note from the coach to the whole team. Every member is notified when it
+// is posted; the team page keeps the recent ones.
+model TeamAnnouncement {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  author    User     @relation("AnnouncementAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([teamId, createdAt])
+}
+
+// Who turned up to a team's session on a given day. One row per athlete per
+// day; absent is a row with present=false, so "not marked" and "marked absent"
+// stay distinct.
+model Attendance {
+  id         String   @id @default(cuid())
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId     String
+  user       User     @relation("AttendanceAthlete", fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  day        String // YYYY-MM-DD in the team's local calendar
+  present    Boolean
+  markedBy   User     @relation("AttendanceMarker", fields: [markedById], references: [id], onDelete: Cascade)
+  markedById String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([teamId, day, userId])
+  @@index([teamId, day])
+  @@index([userId, day])
 }
 
 model TeamMember {

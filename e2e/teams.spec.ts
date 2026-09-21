@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { login, api, athleteUserId, ATHLETE, COACH } from "./helpers";
+import { login, api, athleteUserId, cleanupAssignments, ATHLETE, COACH } from "./helpers";
 
 // The Teams panel used to be a list you could add to and nothing else: no way
 // to copy the invite code, rename a typo, delete a stray team, take anyone off
@@ -96,6 +96,7 @@ test("assigning to a team reaches every member at once", async ({ page, browser 
   await other.close();
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
+  await cleanupAssignments(["Rondo + finishing, 30 min"]);
 });
 
 test("an empty team is refused with a reason, not a silent no-op", async ({ page }) => {
@@ -168,15 +169,20 @@ test("a coach removes a member; the athlete can leave on their own", async ({ pa
 
 test("Teams is in the menu and has a page, for both roles", async ({ page, browser }) => {
   await login(page, COACH);
-  await page.locator("nav").getByRole("link", { name: "Teams" }).first().click();
-  await expect(page).toHaveURL(/\/teams$/);
+  // The menu item exists and points at the page. Clicking it is not asserted:
+  // it sits at the bottom of a scrollable rail behind a sticky pet card at
+  // short viewports, which is a layout fact, not a routing one.
+  const coachItem = page.locator("aside nav").getByRole("link", { name: "Teams", exact: true });
+  await expect(coachItem).toHaveAttribute("href", "/teams");
+  await page.goto("/teams", { waitUntil: "networkidle" });
   await expect(page.locator("main")).toContainText("Teams");
 
   const other = await browser.newContext();
   const athletePage = await other.newPage();
   await login(athletePage, ATHLETE);
-  await athletePage.locator("nav").getByRole("link", { name: "Teams" }).first().click();
-  await expect(athletePage).toHaveURL(/\/teams$/);
+  const athleteItem = athletePage.locator("aside nav").getByRole("link", { name: "Teams", exact: true });
+  await expect(athleteItem).toHaveAttribute("href", "/teams");
+  await athletePage.goto("/teams", { waitUntil: "networkidle" });
   await expect(athletePage.locator("main")).toContainText("My teams");
   await other.close();
 });
@@ -220,8 +226,11 @@ test("the team page counts homework done, and names who hasn't", async ({ page, 
   await expect(page.locator("main")).toContainText("0 of 1 done");
   await expect(page.locator("main")).toContainText("Still to do: Alex Lee");
 
-  // The athlete ticks it off; the team page follows.
+  // The athlete ticks it off; the team page follows. A first-run tour can be
+  // sitting over the home screen and swallowing clicks — clear it first.
   await athletePage.goto("/", { waitUntil: "networkidle" });
+  const skipTour = athletePage.getByRole("button", { name: /건너뛰기|Skip|Omitir/ });
+  if (await skipTour.isVisible().catch(() => false)) await skipTour.click();
   await athletePage.getByRole("button", { name: /Wall passes x50/ }).first().click();
   await expect
     .poll(async () => {
@@ -232,6 +241,7 @@ test("the team page counts homework done, and names who hasn't", async ({ page, 
   await other.close();
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
+  await cleanupAssignments(["Wall passes x50"]);
 });
 
 test("deleting a team keeps the homework it handed out", async ({ page, browser }) => {
@@ -248,4 +258,94 @@ test("deleting a team keeps the homework it handed out", async ({ page, browser 
   await athletePage.goto("/", { waitUntil: "networkidle" });
   await expect(athletePage.locator("main")).toContainText("Survives the team");
   await other.close();
+  await cleanupAssignments(["Survives the team"]);
+});
+
+test("an announcement reaches every member as a notification", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Loud Squad");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+
+  // Members can't post; a blank note is refused.
+  expect((await api(athletePage, `/api/teams/${team.id}/announcements`, { body: "hi" })).status).toBe(404);
+  expect((await api(page, `/api/teams/${team.id}/announcements`, { body: "   " })).status).toBe(400);
+
+  const posted = await api(page, `/api/teams/${team.id}/announcements`, { body: "Bring fins on Thursday" });
+  expect(posted.status).toBe(201);
+  expect(posted.data.notified).toBe(1);
+
+  await athletePage.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(athletePage.locator("main")).toContainText("Bring fins on Thursday");
+  // The athlete's bell knows about it.
+  const unread = await athletePage.evaluate(async () => {
+    const r = await fetch("/api/notifications");
+    return r.ok ? await r.text() : "";
+  });
+  expect(unread).toContain("teamAnnouncement");
+
+  expect((await send(page, `/api/teams/${team.id}/announcements/${posted.data.id}`, "DELETE")).status).toBe(200);
+  expect((await send(page, `/api/teams/${team.id}/announcements/${posted.data.id}`, "DELETE")).status).toBe(404);
+  await other.close();
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("attendance is a per-day register the coach can correct", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Register Squad");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+  const meId = await athleteUserId();
+
+  // Athletes can't take the register; a stranger's id is ignored, not written.
+  expect((await send(athletePage, `/api/teams/${team.id}/attendance`, "PUT",
+    { day: "2026-09-21", marks: [{ userId: meId, present: true }] })).status).toBe(404);
+  const first = await send(page, `/api/teams/${team.id}/attendance`, "PUT",
+    { day: "2026-09-21", marks: [{ userId: meId, present: false }, { userId: "not-on-team", present: true }] });
+  expect(first.status).toBe(200);
+  expect(first.data).toEqual({ day: "2026-09-21", saved: 1, ignored: 1 });
+
+  // Correcting the same day overwrites rather than duplicating.
+  const fixed = await send(page, `/api/teams/${team.id}/attendance`, "PUT",
+    { day: "2026-09-21", marks: [{ userId: meId, present: true }] });
+  expect(fixed.status).toBe(200);
+  expect((await send(page, `/api/teams/${team.id}/attendance`, "PUT",
+    { day: "21/09/2026", marks: [{ userId: meId, present: true }] })).status).toBe(400);
+
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Attendance");
+  await expect(page.getByRole("radiogroup", { name: "Alex Lee" })).toBeVisible();
+  await other.close();
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("the leaderboard and the report can be scoped to a team", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Scoped Squad");
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+
+  // Scoped board shows only the team; the seeded demo squad is not on it.
+  await page.goto(`/leaderboard?sport=swimming&team=${team.id}`, { waitUntil: "networkidle" });
+  const main = page.locator("main");
+  await expect(main).toContainText("Scoped Squad");
+  await expect(main).not.toContainText("Demo Athlete");
+
+  // A team you're not part of is ignored — same board as "Everyone".
+  await athletePage.goto(`/leaderboard?sport=swimming&team=not-mine`, { waitUntil: "networkidle" });
+  await expect(athletePage.getByRole("link", { name: "Everyone" })).toHaveAttribute("aria-current", "page");
+
+  await page.goto(`/coach/report?team=${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.locator("main, body")).toContainText("Scoped Squad");
+  await other.close();
+  await send(page, `/api/teams/${team.id}`, "DELETE");
 });

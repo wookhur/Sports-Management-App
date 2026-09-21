@@ -308,9 +308,48 @@ async function main() {
     })),
   });
 
+  // Two announcements and three weeks of attendance, so the team page has
+  // something to show in every section rather than a stack of empty states.
+  await prisma.teamAnnouncement.createMany({
+    data: [
+      {
+        teamId: team.id,
+        authorId: coach.id,
+        body: "Thursday's session moves to 4:30pm — pool is booked until then. Bring fins.",
+        createdAt: at(1),
+      },
+      {
+        teamId: team.id,
+        authorId: coach.id,
+        body: "Great week. Two personal bests and nobody missed a session. Keep the sleep up before Saturday.",
+        createdAt: at(5),
+      },
+    ],
+  });
+  // Sessions on Mon / Wed / Fri for the last three weeks. Most people make most
+  // sessions; a couple of regulars miss one, and one athlete misses a lot.
+  // The one who barely turns up is the one who stopped logging — the same
+  // athlete the triage list flags as "dropping off", so the two views agree.
+  const quiet = await prisma.user.findUnique({
+    where: { email: `${DEMO_PREFIX}2@example.com` },
+    select: { id: true },
+  });
+  const attendanceRows: { teamId: string; userId: string; day: string; present: boolean; markedById: string }[] = [];
+  for (let d = 1; d <= 21; d++) {
+    const dow = new Date(Date.now() - d * 86_400_000).getDay();
+    if (![1, 3, 5].includes(dow)) continue;
+    memberIds.forEach((userId, i) => {
+      const flaky = userId === quiet?.id;
+      const present = flaky ? d % 4 === 0 : (d + i) % 7 !== 0;
+      attendanceRows.push({ teamId: team.id, userId, day: day(d), present, markedById: coach.id });
+    });
+  }
+  await prisma.attendance.createMany({ data: attendanceRows });
+
   console.log(
     `[demo] ${SQUAD.length} athletes, ${sessionCount} sessions, ${recordCount} records attached to ${COACH_EMAIL}.`,
   );
+  console.log(`[demo] 2 announcements, ${attendanceRows.length} attendance marks.`);
   console.log(`[demo] team "${team.name}" (code ${team.code}) with ${memberIds.length} members and one part-done assignment.`);
   console.log("[demo] re-run before a demo — the dates are relative to today.");
 }

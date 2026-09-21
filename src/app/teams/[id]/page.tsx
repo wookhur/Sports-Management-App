@@ -10,6 +10,10 @@ import TeamAssignments, { type TeamAssignmentGroup } from "@/components/TeamAssi
 import RosterHeatmap from "@/components/RosterHeatmap";
 import AttentionList from "@/components/AttentionList";
 import { buildTeamSquad } from "@/lib/squad";
+import TeamAnnouncements, { type AnnouncementRow } from "@/components/TeamAnnouncements";
+import AttendanceSheet, { type AttendanceMember } from "@/components/AttendanceSheet";
+import { seoulDayKey } from "@/lib/format";
+import { TrophyIcon, FileTextIcon } from "@/components/navIcons";
 import { formatDate, formatDuration } from "@/lib/format";
 import { metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
@@ -27,6 +31,8 @@ const L: Record<
     noMembers: string;
     recentHeading: string;
     noRecords: string;
+    teamBoard: string;
+    teamReport: string;
   }
 > = {
   ko: {
@@ -38,6 +44,8 @@ const L: Record<
     noMembers: "아직 멤버가 없어요. 초대 코드를 공유해보세요!",
     recentHeading: "팀 최근 기록",
     noRecords: "아직 공유된 기록이 없어요.",
+    teamBoard: "팀 리더보드",
+    teamReport: "팀 리포트 인쇄",
   },
   en: {
     backHome: "← Teams",
@@ -48,6 +56,8 @@ const L: Record<
     noMembers: "No members yet. Share the invite code!",
     recentHeading: "Recent team records",
     noRecords: "No shared records yet.",
+    teamBoard: "Team leaderboard",
+    teamReport: "Print team report",
   },
   es: {
     backHome: "← Equipos",
@@ -58,6 +68,8 @@ const L: Record<
     noMembers: "Aún no hay miembros. ¡Comparte el código de invitación!",
     recentHeading: "Marcas recientes del equipo",
     noRecords: "Aún no hay marcas compartidas.",
+    teamBoard: "Clasificación del equipo",
+    teamReport: "Imprimir informe del equipo",
   },
 };
 
@@ -102,6 +114,18 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
   const squad = isOwner && memberIds.length ? await buildTeamSquad(team.id) : null;
   const assignmentGroups: TeamAssignmentGroup[] = isOwner ? await teamAssignmentGroups(team.id) : [];
 
+  const announcements: AnnouncementRow[] = (
+    await prisma.teamAnnouncement.findMany({
+      where: { teamId: team.id },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: { author: { select: { name: true } } },
+    })
+  ).map((a) => ({ id: a.id, body: a.body, authorName: a.author.name, createdAt: a.createdAt.toISOString() }));
+
+  const today = seoulDayKey();
+  const attendance: AttendanceMember[] = isOwner ? await attendanceFor(team.id, memberIds, today) : [];
+
   return (
     <>
       <NavBar />
@@ -134,6 +158,46 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
             </div>
           )}
         </header>
+
+        <div className="no-print mt-4 flex flex-wrap gap-2">
+          <Link
+            href={`/leaderboard?team=${team.id}`}
+            className="btn-ghost inline-flex items-center gap-2 text-sm"
+          >
+            <TrophyIcon className="h-4 w-4" />
+            {s.teamBoard}
+          </Link>
+          {isOwner && (
+            <Link
+              href={`/coach/report?team=${team.id}`}
+              className="btn-ghost inline-flex items-center gap-2 text-sm"
+            >
+              <FileTextIcon className="h-4 w-4" />
+              {s.teamReport}
+            </Link>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <TeamAnnouncements
+            teamId={team.id}
+            announcements={announcements}
+            canPost={isOwner}
+            lang={lang}
+          />
+        </div>
+
+        {isOwner && attendance.length > 0 && (
+          <div className="mt-6">
+            <AttendanceSheet
+              teamId={team.id}
+              day={today}
+              windowDays={ATTENDANCE_WINDOW_DAYS}
+              members={attendance}
+              lang={lang}
+            />
+          </div>
+        )}
 
         {squad && (
           <div className="mt-6 space-y-6">
@@ -242,4 +306,40 @@ async function teamAssignmentGroups(teamId: string): Promise<TeamAssignmentGroup
     else g.outstanding.push(r.athlete.name);
   }
   return [...groups.values()];
+}
+
+/** How far back the attendance rate looks. */
+const ATTENDANCE_WINDOW_DAYS = 30;
+
+/** Today's register plus each member's rate over the recent window. */
+async function attendanceFor(teamId: string, memberIds: string[], today: string): Promise<AttendanceMember[]> {
+  if (memberIds.length === 0) return [];
+  const from = new Date(Date.now() - ATTENDANCE_WINDOW_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const [members, rows] = await Promise.all([
+    prisma.user.findMany({ where: { id: { in: memberIds } }, select: { id: true, name: true } }),
+    prisma.attendance.findMany({
+      where: { teamId, userId: { in: memberIds }, day: { gte: from } },
+      select: { userId: true, day: true, present: true },
+    }),
+  ]);
+  const byUser = new Map<string, { today: boolean | null; marked: number; present: number }>();
+  for (const r of rows) {
+    const u = byUser.get(r.userId) ?? { today: null, marked: 0, present: 0 };
+    u.marked += 1;
+    if (r.present) u.present += 1;
+    if (r.day === today) u.today = r.present;
+    byUser.set(r.userId, u);
+  }
+  return members
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((m) => {
+      const u = byUser.get(m.id);
+      return {
+        userId: m.id,
+        name: m.name,
+        present: u?.today ?? null,
+        recentMarked: u?.marked ?? 0,
+        recentPresent: u?.present ?? 0,
+      };
+    });
 }

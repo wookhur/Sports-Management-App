@@ -46,15 +46,35 @@ export async function buildSquad(coachId: string): Promise<{ roster: Roster; tri
   return { roster, triage: triageSquad(roster.rows, pbSignals(records, seoulDayKey())) };
 }
 
-/** The printable team report for one coach, over the last `weeks` weeks. */
-export async function buildTeamReport(coachId: string, weeks: number): Promise<TeamReport> {
+/**
+ * The printable team report for one coach, over the last `weeks` weeks.
+ *
+ * With `teamId`, the report covers that team's members instead of everyone
+ * the coach is connected to — the version a coach hands to a school or a
+ * parent group, who care about one squad, not the coach's whole caseload.
+ * The team must be the coach's own; anything else reports on nobody.
+ */
+export async function buildTeamReport(
+  coachId: string,
+  weeks: number,
+  teamId?: string,
+): Promise<TeamReport> {
   const today = seoulDayKey();
 
-  const links = await prisma.coachAthlete.findMany({
-    where: { coachId, status: "ACCEPTED" },
-    select: { athlete: { select: { id: true, name: true } } },
-  });
-  const athletes = links.map((l) => l.athlete);
+  let athletes: { id: string; name: string }[];
+  if (teamId) {
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      select: { coachId: true, members: { select: { user: { select: { id: true, name: true } } } } },
+    });
+    athletes = team && team.coachId === coachId ? team.members.map((m) => m.user) : [];
+  } else {
+    const links = await prisma.coachAthlete.findMany({
+      where: { coachId, status: "ACCEPTED" },
+      select: { athlete: { select: { id: true, name: true } } },
+    });
+    athletes = links.map((l) => l.athlete);
+  }
   if (athletes.length === 0) return buildReport([], [], [], new Map(), today, weeks);
 
   const ids = athletes.map((a) => a.id);

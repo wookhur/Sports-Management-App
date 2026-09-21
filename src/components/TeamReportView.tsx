@@ -28,12 +28,19 @@ export default function TeamReportView({
   report,
   coachName,
   weeks,
+  teams = [],
+  team = null,
 }: {
   lang: Lang;
   report: TeamReport;
   coachName: string;
   weeks: number;
+  /** The coach's teams, for the scope picker. */
+  teams?: { id: string; name: string }[];
+  /** The team in scope, or null for every connected athlete. */
+  team?: { id: string; name: string } | null;
 }) {
+  const teamQs = team ? `&team=${team.id}` : "";
   const s = t(lang).report;
 
   return (
@@ -48,7 +55,7 @@ export default function TeamReportView({
           {REPORT_WEEK_OPTIONS.map((w) => (
             <Link
               key={w}
-              href={`/coach/report?weeks=${w}`}
+              href={`/coach/report?weeks=${w}${teamQs}`}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                 w === weeks ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
@@ -59,6 +66,32 @@ export default function TeamReportView({
           <PrintButton label={s.print} />
         </div>
       </div>
+      {teams.length > 0 && (
+        <div className="no-print mb-6 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-slate-500">{s.scopeLabel}</span>
+          <Link
+            href={`/coach/report?weeks=${weeks}`}
+            aria-current={team ? undefined : "page"}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+              team ? "bg-slate-100 text-slate-600 hover:bg-slate-200" : "bg-brand text-white"
+            }`}
+          >
+            {s.scopeAll}
+          </Link>
+          {teams.map((tm) => (
+            <Link
+              key={tm.id}
+              href={`/coach/report?weeks=${weeks}&team=${tm.id}`}
+              aria-current={team?.id === tm.id ? "page" : undefined}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                team?.id === tm.id ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {tm.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {report.squadSize === 0 ? (
         <div className="card p-10 text-center text-sm text-slate-500">{s.empty}</div>
@@ -68,7 +101,7 @@ export default function TeamReportView({
           <header className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-slate-900 pb-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">{s.title}</h1>
-              <p className="mt-1 text-sm text-slate-500">{s.subtitle(coachName)}</p>
+              <p className="mt-1 text-sm text-slate-500">{team ? s.subtitleTeam(team.name, coachName) : s.subtitle(coachName)}</p>
             </div>
             <div className="text-right text-xs text-slate-500">
               <p className="font-semibold text-slate-700">
