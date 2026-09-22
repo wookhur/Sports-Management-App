@@ -9,6 +9,8 @@ import BadgeRow from "@/components/BadgeRow";
 import ProfileEditor, { type ProfileData } from "@/components/ProfileEditor";
 import HomeSettings from "@/components/HomeSettings";
 import ResearchConsent from "@/components/ResearchConsent";
+import ConsentSummary from "@/components/ConsentSummary";
+import { privacyContact } from "@/lib/consent";
 import { HOME_WIDGETS } from "@/lib/homeWidgets";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
@@ -81,6 +83,11 @@ export default async function ProfilePage() {
       school: true,
       grade: true,
       dob: true,
+      termsAcceptedAt: true,
+      isMinor: true,
+      guardianName: true,
+      guardianEmail: true,
+      guardianConsentAt: true,
       experienceLevel: true,
       sportInterests: true,
       currentStreak: true,
@@ -165,6 +172,15 @@ export default async function ProfilePage() {
         </section>
 
         <ResearchConsent lang={lang} consent={user.researchConsent} />
+        <ConsentSummary
+          lang={lang}
+          contact={privacyContact()}
+          termsAcceptedAt={user.termsAcceptedAt}
+          isMinor={user.isMinor}
+          guardianName={user.guardianName}
+          guardianEmail={user.guardianEmail}
+          guardianConsentAt={user.guardianConsentAt}
+        />
       </main>
     </>
   );

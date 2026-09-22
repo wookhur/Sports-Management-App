@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { SPORT_LIST } from "@/lib/sports";
 import { ok, fail } from "@/lib/api";
+import { minorFromDob } from "@/lib/consent";
+import { sendGuardianNotice } from "@/lib/guardianEmail";
+import { getLang } from "@/lib/getLang";
 
 const sportIds = SPORT_LIST.map((s) => s.id) as [string, ...string[]];
 
@@ -23,6 +26,14 @@ const schema = z.object({
   // Optional in the schema so an older client, or any caller that omits it,
   // creates an account recorded as never asked rather than as declining.
   researchConsent: z.boolean().optional(),
+  // Required, and checked below rather than here so the message is ours.
+  termsAccepted: z.boolean().optional(),
+  // The person's own answer to "under 18?". Only consulted when there is no
+  // birth date to decide from; a birth date always wins over this.
+  minor: z.boolean().optional(),
+  guardianName: z.string().trim().min(1).max(100).optional(),
+  guardianEmail: z.string().trim().email("Enter a valid email for the parent or guardian").optional(),
+  guardianConsent: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -31,8 +42,12 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
   }
-  const { username, email, password, role, school, sportInterests, experienceLevel, dob, grade, researchConsent } =
-    parsed.data;
+  const {
+    username, email, password, role, school, sportInterests, experienceLevel, dob, grade, researchConsent,
+    termsAccepted, minor, guardianName, guardianEmail, guardianConsent,
+  } = parsed.data;
+
+  if (termsAccepted !== true) return fail("You need to accept the Terms of Use and Privacy Notice to sign up");
 
   const [existingEmail, existingUsername] = await Promise.all([
     prisma.user.findUnique({ where: { email } }),
@@ -43,6 +58,16 @@ export async function POST(req: Request) {
 
   const parsedDob = dob ? new Date(dob) : undefined;
   if (dob && Number.isNaN(parsedDob?.getTime())) return fail("생년월일 형식이 올바르지 않습니다");
+
+  // Under 18 by birth date when we have one, otherwise by their own answer.
+  // No answer at all is refused: an account for a child must never be
+  // created on the assumption that they are an adult.
+  const isMinor = minorFromDob(parsedDob ?? null) ?? minor;
+  if (isMinor === undefined) return fail("Tell us whether you are under 18");
+  if (isMinor && !(guardianName && guardianEmail && guardianConsent === true)) {
+    return fail("A parent or guardian must consent before anyone under 18 can sign up");
+  }
+  const now = new Date();
 
   const user = await prisma.user.create({
     data: {
@@ -60,7 +85,12 @@ export async function POST(req: Request) {
       // answer too, and is worth being able to prove. Omitted entirely leaves
       // both columns null, which reads as "never asked".
       researchConsent: researchConsent ?? null,
-      researchConsentAt: researchConsent === undefined ? null : new Date(),
+      researchConsentAt: researchConsent === undefined ? null : now,
+      termsAcceptedAt: now,
+      isMinor,
+      guardianName: isMinor ? guardianName : null,
+      guardianEmail: isMinor ? guardianEmail : null,
+      guardianConsentAt: isMinor ? now : null,
       // The onboarding wizard itself explains the app, so there's no need
       // to also auto-show the post-login feature tour for these users.
       onboarded: true,
@@ -68,5 +98,12 @@ export async function POST(req: Request) {
   });
 
   await createSession({ userId: user.id, role: user.role, name: user.name });
+
+  if (isMinor && guardianName && guardianEmail) {
+    // The guardian's copy. The consent itself is already on the row above;
+    // this is a courtesy that must not hold up or fail the sign-up.
+    const lang = await getLang();
+    void sendGuardianNotice({ lang, guardianName, guardianEmail, childName: user.name, childEmail: email });
+  }
   return ok({ id: user.id, name: user.name, role: user.role }, 201);
 }

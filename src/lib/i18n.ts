@@ -170,6 +170,28 @@ export interface SignupDict {
     researchDetail: string;
     researchOptional: string;
   };
+  // Sign-up agreements. Terms are required for everyone; the guardian block
+  // appears for anyone under 18, whether their birth date says so or they do.
+  consent: {
+    heading: string;
+    termsLabelPrefix: string;
+    termsLink: string;
+    termsAnd: string;
+    privacyLink: string;
+    termsLabelSuffix: string;
+    ageQuestion: string;
+    ageUnder: string;
+    ageOver: string;
+    minorFromDob: string;
+    guardianHeading: string;
+    guardianIntro: string;
+    guardianName: string;
+    guardianNamePlaceholder: string;
+    guardianEmail: string;
+    guardianEmailPlaceholder: string;
+    guardianConsent: string;
+    guardianNotice: string;
+  };
 }
 
 const signup: Record<Lang, SignupDict> = {
@@ -227,6 +249,26 @@ const signup: Record<Lang, SignupDict> = {
         "훈련·기록 데이터가 개인을 식별할 수 없는 형태로 처리되어 연구와 서비스 개선에 쓰일 수 있습니다. 동의하지 않아도 모든 기능을 그대로 사용할 수 있고, 프로필에서 언제든지 철회할 수 있습니다.",
       researchOptional: "선택 항목",
     },
+    consent: {
+      heading: "약관 동의",
+      termsLabelPrefix: "",
+      termsLink: "이용약관",
+      termsAnd: "과 ",
+      privacyLink: "개인정보 처리방침",
+      termsLabelSuffix: "을 읽었고 동의합니다. (필수)",
+      ageQuestion: "만 18세 미만인가요?",
+      ageUnder: "네, 18세 미만이에요",
+      ageOver: "아니요, 18세 이상이에요",
+      minorFromDob: "입력한 생년월일 기준으로 만 18세 미만이에요. 보호자의 동의가 필요합니다.",
+      guardianHeading: "보호자 동의",
+      guardianIntro: "18세 미만 사용자는 부모 또는 법정 보호자가 개인정보 수집·이용에 동의해야 가입할 수 있어요. 보호자에게 안내 메일을 보내드립니다.",
+      guardianName: "보호자 이름",
+      guardianNamePlaceholder: "부모 또는 법정 보호자",
+      guardianEmail: "보호자 이메일",
+      guardianEmailPlaceholder: "guardian@example.com",
+      guardianConsent: "저는 이 사용자의 부모 또는 법정 보호자이며, 개인정보 처리방침의 미성년자 항목에 따라 자녀의 개인정보를 수집·이용하는 데 동의합니다. (필수)",
+      guardianNotice: "보호자는 언제든지 자녀의 정보 열람과 삭제를 요청할 수 있어요.",
+    },
   },
   en: {
     common: { skip: "Skip", next: "Next", back: "Back" },
@@ -282,6 +324,26 @@ const signup: Record<Lang, SignupDict> = {
         "Training and performance data may be used in a de-identified form for research and to improve the service. Every feature works the same if you decline, and you can withdraw at any time from your profile.",
       researchOptional: "Optional",
     },
+    consent: {
+      heading: "Agreements",
+      termsLabelPrefix: "I have read and agree to the ",
+      termsLink: "Terms of Use",
+      termsAnd: " and the ",
+      privacyLink: "Privacy Notice",
+      termsLabelSuffix: ". (required)",
+      ageQuestion: "Are you under 18?",
+      ageUnder: "Yes, I'm under 18",
+      ageOver: "No, I'm 18 or older",
+      minorFromDob: "Your date of birth says you're under 18, so a parent or guardian needs to consent.",
+      guardianHeading: "Parent or guardian consent",
+      guardianIntro: "Anyone under 18 needs a parent or legal guardian to consent to the collection and use of their personal information. We'll email them a copy of this notice.",
+      guardianName: "Parent or guardian's name",
+      guardianNamePlaceholder: "Parent or legal guardian",
+      guardianEmail: "Parent or guardian's email",
+      guardianEmailPlaceholder: "guardian@example.com",
+      guardianConsent: "I am this user's parent or legal guardian, and I consent to the collection and use of their personal information as described in the Minors section of the Privacy Notice. (required)",
+      guardianNotice: "A parent or guardian can ask to see or delete their child's information at any time.",
+    },
   },
   es: {
     common: { skip: "Omitir", next: "Siguiente", back: "Atrás" },
@@ -336,6 +398,26 @@ const signup: Record<Lang, SignupDict> = {
       researchDetail:
         "Los datos de entrenamiento y de marcas podrán usarse de forma anonimizada para investigación y para mejorar el servicio. Todas las funciones siguen igual si no aceptas, y puedes retirar el consentimiento cuando quieras desde tu perfil.",
       researchOptional: "Opcional",
+    },
+    consent: {
+      heading: "Acuerdos",
+      termsLabelPrefix: "He leído y acepto los ",
+      termsLink: "Términos de uso",
+      termsAnd: " y el ",
+      privacyLink: "Aviso de privacidad",
+      termsLabelSuffix: ". (obligatorio)",
+      ageQuestion: "¿Tienes menos de 18 años?",
+      ageUnder: "Sí, tengo menos de 18",
+      ageOver: "No, tengo 18 o más",
+      minorFromDob: "Según tu fecha de nacimiento tienes menos de 18 años, así que un padre, madre o tutor debe dar su consentimiento.",
+      guardianHeading: "Consentimiento del padre, madre o tutor",
+      guardianIntro: "Toda persona menor de 18 años necesita que su padre, madre o tutor legal autorice la recopilación y el uso de su información personal. Les enviaremos una copia de este aviso por correo.",
+      guardianName: "Nombre del padre, madre o tutor",
+      guardianNamePlaceholder: "Padre, madre o tutor legal",
+      guardianEmail: "Correo del padre, madre o tutor",
+      guardianEmailPlaceholder: "tutor@ejemplo.com",
+      guardianConsent: "Soy el padre, la madre o el tutor legal de este usuario y autorizo la recopilación y el uso de su información personal según la sección Menores del Aviso de privacidad. (obligatorio)",
+      guardianNotice: "El padre, madre o tutor puede pedir ver o eliminar la información de su hijo o hija en cualquier momento.",
     },
   },
 };
@@ -2103,6 +2185,8 @@ export interface LandingDict {
   finalTitle: string;
   finalSub: string;
   finalCta: string;
+  privacy: string;
+  terms: string;
 }
 
 const landing: Record<Lang, LandingDict> = {
@@ -2148,6 +2232,8 @@ const landing: Record<Lang, LandingDict> = {
     finalTitle: "오늘, 첫 기록을 남겨보세요",
     finalSub: "가입은 1분이면 충분해요.",
     finalCta: "지금 시작하기",
+    privacy: "개인정보 처리방침",
+    terms: "이용약관",
   },
   en: {
     kicker: "The training platform for athletes and coaches",
@@ -2191,6 +2277,8 @@ const landing: Record<Lang, LandingDict> = {
     finalTitle: "Log your first time today",
     finalSub: "Signing up takes a minute.",
     finalCta: "Get started now",
+    privacy: "Privacy Notice",
+    terms: "Terms of Use",
   },
   es: {
     kicker: "La plataforma de entrenamiento para atletas y entrenadores",
@@ -2234,6 +2322,8 @@ const landing: Record<Lang, LandingDict> = {
     finalTitle: "Registra tu primer tiempo hoy",
     finalSub: "Registrarse toma un minuto.",
     finalCta: "Empieza ahora",
+    privacy: "Aviso de privacidad",
+    terms: "Términos de uso",
   },
 };
 

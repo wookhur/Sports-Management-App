@@ -19,6 +19,8 @@ async function signUp(page: import("@playwright/test").Page, tick: boolean) {
       email: `${username}@example.com`,
       password: "password123",
       role: "ATHLETE",
+      termsAccepted: true,
+      minor: false,
       ...(tick === undefined ? {} : { researchConsent: tick }),
     },
   });
@@ -43,6 +45,8 @@ test("a caller that omits consent is not recorded as agreeing", async ({ page })
       email: `${username}@example.com`,
       password: "password123",
       role: "ATHLETE",
+      termsAccepted: true,
+      minor: false,
     },
   });
   expect(res.status()).toBe(201);

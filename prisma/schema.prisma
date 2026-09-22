@@ -78,6 +78,18 @@ model User {
   researchConsent   Boolean?
   researchConsentAt DateTime?
 
+  // Sign-up agreements. termsAcceptedAt is when this person accepted the
+  // Terms and the Privacy Notice. isMinor is what they told us at sign-up, or
+  // what their birth date implied. For a minor the guardian columns record
+  // who consented on their behalf and when. All nullable: accounts from
+  // before this shipped were never asked, and a minor row whose
+  // guardianConsentAt is null is one no guardian has consented for.
+  termsAcceptedAt   DateTime?
+  isMinor           Boolean?
+  guardianName      String?
+  guardianEmail     String?
+  guardianConsentAt DateTime?
+
   records          Record[]
   resetTokens      PasswordResetToken[]
   comments         Comment[]
@@ -101,6 +113,7 @@ model User {
   announcements       TeamAnnouncement[] @relation("AnnouncementAuthor")
   attendance          Attendance[] @relation("AttendanceAthlete")
   attendanceMarked    Attendance[] @relation("AttendanceMarker")
+  customDrills        CustomDrill[]
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
@@ -176,6 +189,29 @@ model TeamAnnouncement {
   createdAt DateTime @default(now())
 
   @@index([teamId, createdAt])
+}
+
+// A drill someone drew elsewhere (soccerdrive.com/draw, a photo of the
+// whiteboard) and brought in. The image lives in the row: the app has no file
+// store on Netlify, the client shrinks every upload before sending it, and one
+// query serves the page. Visible to the owner and to everyone on the teams
+// they coach or play on.
+model CustomDrill {
+  id          String   @id @default(cuid())
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+  sport       String   @default("soccer")
+  title       String
+  description String?
+  ageLevels   String[] @default([])
+  durationMin Int?
+  image       Bytes
+  imageType   String
+  width       Int
+  height      Int
+  createdAt   DateTime @default(now())
+
+  @@index([ownerId, sport])
 }
 
 // Who turned up to a team's session on a given day. One row per athlete per

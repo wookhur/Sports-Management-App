@@ -189,11 +189,19 @@ export default function Landing({ lang }: { lang: Lang }) {
         </div>
       </section>
 
-      <footer className="mx-auto max-w-6xl px-5 py-8 text-sm text-slate-500">
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-8 text-sm text-slate-500">
         <div className="flex items-center gap-2">
           <BrandMark className="h-5 w-5" />
           <span>Sideline365</span>
         </div>
+        <nav aria-label="Legal" className="flex gap-4">
+          <Link href="/privacy" className="hover:text-slate-700">
+            {s.privacy}
+          </Link>
+          <Link href="/terms" className="hover:text-slate-700">
+            {s.terms}
+          </Link>
+        </nav>
       </footer>
 
       <style>{`

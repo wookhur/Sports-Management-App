@@ -8,6 +8,9 @@ import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
 import { getDrill, ageLabel } from "@/lib/soccerDrills";
 import { L as loc } from "@/lib/localized";
+import { visibleDrill } from "@/lib/customDrills";
+import DeleteDrillButton from "@/components/CustomDrillDetail";
+import { formatRelative } from "@/lib/format";
 
 const L: Record<
   Lang,
@@ -22,6 +25,9 @@ const L: Record<
     legendRun: string;
     steps: string;
     coachingPoints: string;
+    uploadedBy: (name: string, when: string) => string;
+    teamDrill: string;
+    notes: string;
   }
 > = {
   ko: {
@@ -35,6 +41,9 @@ const L: Record<
     legendRun: "런/드리블",
     steps: "진행 방법",
     coachingPoints: "코칭 포인트",
+    uploadedBy: (name, when) => `${name} 올림 · ${when}`,
+    teamDrill: "우리 팀 드릴",
+    notes: "설명",
   },
   en: {
     back: "← Soccer drills",
@@ -47,6 +56,9 @@ const L: Record<
     legendRun: "Run/dribble",
     steps: "How to run it",
     coachingPoints: "Coaching points",
+    uploadedBy: (name, when) => `Uploaded by ${name} · ${when}`,
+    teamDrill: "Team drill",
+    notes: "Notes",
   },
   es: {
     back: "← Ejercicios de fútbol",
@@ -59,6 +71,9 @@ const L: Record<
     legendRun: "Carrera/regate",
     steps: "Cómo se realiza",
     coachingPoints: "Puntos de entrenamiento",
+    uploadedBy: (name, when) => `Subido por ${name} · ${when}`,
+    teamDrill: "Ejercicio del equipo",
+    notes: "Notas",
   },
 };
 
@@ -67,13 +82,70 @@ export default async function DrillDetailPage({
 }: {
   params: Promise<{ sportId: string; drillId: string }>;
 }) {
-  if (!(await getSession())) redirect("/login");
+  const session = await getSession();
+  if (!session) redirect("/login");
   const { sportId, drillId } = await params;
   if (sportId !== "soccer") notFound();
-  const drill = getDrill(drillId);
-  if (!drill) notFound();
   const lang = await getLang();
   const s = L[lang];
+  const drill = getDrill(drillId);
+  if (!drill) {
+    // Not in the library: maybe one the team uploaded.
+    const custom = await visibleDrill(session.userId, drillId);
+    if (!custom) notFound();
+    return (
+      <>
+        <NavBar />
+        <main className="mx-auto max-w-3xl px-4 py-8">
+          <Link href={`/sports/${sportId}/drills`} className="text-sm text-slate-500 hover:text-slate-600">
+            {s.back}
+          </Link>
+          <header className="mt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="badge bg-emerald-50 text-emerald-700">{s.teamDrill}</span>
+              {custom.ageLevels.map((a) => (
+                <span key={a} className="badge bg-slate-100 text-slate-600">
+                  {ageLabel(a, lang)}
+                </span>
+              ))}
+              {custom.durationMin !== null && (
+                <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+                  <TimerIcon className="h-3.5 w-3.5" />
+                  {s.minutes(custom.durationMin)}
+                </span>
+              )}
+            </div>
+            <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{custom.title}</h1>
+            <p className="mt-2 text-sm text-slate-500">{s.uploadedBy(custom.ownerName, formatRelative(custom.createdAt, lang))}</p>
+          </header>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/drills/${custom.id}/image`}
+              alt={custom.title}
+              width={custom.width}
+              height={custom.height}
+              className="block h-auto w-full"
+            />
+          </div>
+
+          {custom.description && (
+            <section className="mt-6">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">{s.notes}</h2>
+              <p className="card whitespace-pre-line p-4 text-sm leading-relaxed text-slate-700">{custom.description}</p>
+            </section>
+          )}
+
+          {custom.ownerId === session.userId && (
+            <div className="mt-8 flex justify-end">
+              <DeleteDrillButton id={custom.id} sportId={sportId} lang={lang} />
+            </div>
+          )}
+        </main>
+      </>
+    );
+  }
 
   return (
     <>

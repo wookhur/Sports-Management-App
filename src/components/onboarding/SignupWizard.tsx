@@ -19,6 +19,8 @@ import {
   ShuffleIcon,
 } from "./icons";
 import { sportIcon } from "../sportIcons";
+import ConsentBlock, { EMPTY_CONSENT, consentComplete, type ConsentState } from "./ConsentBlock";
+import { minorFromDob } from "@/lib/consent";
 
 // Barlow is the app's typeface now, loaded once in the root layout without
 // blocking render. These names stay because the wizard sets them inline; the
@@ -65,6 +67,7 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [researchConsent, setResearchConsent] = useState(false);
+  const [consent, setConsent] = useState<ConsentState>(EMPTY_CONSENT);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -103,6 +106,13 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
           // Always sent, so the server records a real answer either way
           // rather than leaving the account looking like it was never asked.
           researchConsent,
+          termsAccepted: consent.termsAccepted,
+          // The server decides from the birth date when there is one; this
+          // is the person's own answer for when there isn't.
+          minor: consent.minorAnswer ?? undefined,
+          guardianName: consent.guardianName.trim() || undefined,
+          guardianEmail: consent.guardianEmail.trim() || undefined,
+          guardianConsent: consent.guardianConsent,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -224,6 +234,9 @@ export default function SignupWizard({ lang }: { lang: Lang }) {
               loading={loading}
               error={error}
               researchConsent={researchConsent}
+              consent={consent}
+              onConsentChange={setConsent}
+              minorFromDob={minorFromDob(dob || null)}
               onResearchConsentChange={setResearchConsent}
             />
           )}
@@ -583,6 +596,9 @@ function AccountStep({
   error,
   researchConsent,
   onResearchConsentChange,
+  consent,
+  onConsentChange,
+  minorFromDob,
 }: {
   s: SignupDict;
   email: string;
@@ -594,6 +610,9 @@ function AccountStep({
   error: string | null;
   researchConsent: boolean;
   onResearchConsentChange: (v: boolean) => void;
+  consent: ConsentState;
+  onConsentChange: (v: ConsentState) => void;
+  minorFromDob: boolean | null;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -658,6 +677,8 @@ function AccountStep({
         </p>
       </div>
 
+      <ConsentBlock s={s} value={consent} minorFromDob={minorFromDob} onChange={onConsentChange} />
+
       {error && (
         <p role="alert" className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
@@ -665,7 +686,7 @@ function AccountStep({
       )}
       <NextButton
         onClick={onSubmit}
-        disabled={loading || email.trim().length < 3 || password.length < 6}
+        disabled={loading || email.trim().length < 3 || password.length < 6 || !consentComplete(consent, minorFromDob)}
         label={loading ? s.account.starting : s.account.start}
         icon={!loading && <ArrowRightIcon className="h-5 w-5" />}
       />

@@ -27,9 +27,9 @@ const CRITICAL_RULES = [
   "select-name",
 ];
 
-const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/sports/soccer/program", "/teams", "/games/bullseye"];
+const ATHLETE_ROUTES = ["/", "/journal", "/missions", "/records", "/board", "/connections", "/leaderboard", "/training", "/blog", "/profile", "/sports/swimming", "/sports/soccer/program", "/sports/soccer/drills", "/teams", "/games/bullseye"];
 const COACH_ROUTES = ["/coach", "/coach/report", "/coach/digest", "/teams"];
-const PUBLIC_ROUTES = ["/login", "/signup", "/forgot"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/forgot", "/privacy", "/terms"];
 
 // axe is not cheap on a large dashboard, and it walks every frame it can
 // reach. The digest preview is a deliberately sandboxed iframe holding email
