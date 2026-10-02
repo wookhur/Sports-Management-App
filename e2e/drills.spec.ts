@@ -64,20 +64,31 @@ function png(width: number, height: number, rgb: [number, number, number]): Buff
 
 /**
  * A PDF shaped like soccerdrive.com's export: one page, a small logo image,
- * and the drawing as an uncompressed RGB image with a Flate-compressed,
- * PNG-predicted soft mask. Same object layout jsPDF writes.
+ * and the drawing as an uncompressed RGB image with a soft mask.
+ *
+ * The real export (checked against a file from the site) stores that mask
+ * RAW — no /Filter — yet still declares /DecodeParms with Predictor 12. That
+ * is the shape that broke the first version of the reader, so it is the
+ * default here. `compressedMask` gives the other shape jsPDF can write: the
+ * mask Flate-compressed with real PNG row filters.
  */
-function soccerDrivePdf(width: number, height: number): Buffer {
+function soccerDrivePdf(width: number, height: number, compressedMask = false): Buffer {
   const rgb = Buffer.alloc(width * height * 3);
   for (let i = 0; i < width * height; i += 1) rgb.set([0x22, 0x8b, 0x22], i * 3); // pitch green
-  // Predictor 12 = PNG "Up" filter on every row; a flat mask makes every
-  // row after the first all zeros, which is what jsPDF's output looks like.
-  const maskRows = Buffer.alloc((width + 1) * height);
-  for (let y = 0; y < height; y += 1) {
-    maskRows[y * (width + 1)] = 2;
-    if (y === 0) maskRows.fill(255, 1, width + 1);
+  let mask: Buffer;
+  if (compressedMask) {
+    // Predictor 12 = PNG "Up" filter on every row; a flat mask makes every
+    // row after the first all zeros.
+    const maskRows = Buffer.alloc((width + 1) * height);
+    for (let y = 0; y < height; y += 1) {
+      maskRows[y * (width + 1)] = 2;
+      if (y === 0) maskRows.fill(255, 1, width + 1);
+    }
+    mask = deflateSync(maskRows);
+  } else {
+    // Raw opaque alpha, width*height bytes, exactly as the site writes it.
+    mask = Buffer.alloc(width * height).fill(255);
   }
-  const mask = deflateSync(maskRows);
   const logo = Buffer.alloc(20 * 20).fill(128);
 
   const objs: Buffer[] = [];
@@ -94,7 +105,7 @@ function soccerDrivePdf(width: number, height: number): Buffer {
   obj(4, "", content);
   obj(20, "\n/Type /XObject\n/Subtype /Image\n/Width 20\n/Height 20\n/ColorSpace /DeviceGray\n/BitsPerComponent 8", logo);
   obj(22, `\n/Type /XObject\n/Subtype /Image\n/Width ${width}\n/Height ${height}\n/ColorSpace /DeviceRGB\n/BitsPerComponent 8\n/DecodeParms <</Colors 3 /BitsPerComponent 8 /Columns ${width}>>\n/SMask 23 0 R`, rgb);
-  obj(23, `\n/Type /XObject\n/Subtype /Image\n/Width ${width}\n/Height ${height}\n/ColorSpace /DeviceGray\n/BitsPerComponent 8\n/DecodeParms <</Predictor 12 /Colors 1 /BitsPerComponent 8 /Columns ${width}>>\n/Filter /FlateDecode`, mask);
+  obj(23, `\n/Type /XObject\n/Subtype /Image\n/Width ${width}\n/Height ${height}\n/ColorSpace /DeviceGray\n/BitsPerComponent 8\n/DecodeParms <</Predictor 12 /Colors 1 /BitsPerComponent 8 /Columns ${width}>>${compressedMask ? "\n/Filter /FlateDecode" : ""}`, mask);
   obj(5, "/Type /Catalog\n/Pages 1 0 R");
   return Buffer.concat([Buffer.from("%PDF-1.3\n"), ...objs, Buffer.from("trailer\n<</Root 5 0 R>>\n%%EOF\n")]);
 }
@@ -241,6 +252,19 @@ test("a soccerdrive PDF is unpacked in the browser and uploaded as a small PNG",
   } finally {
     await db.$disconnect();
   }
+});
+
+test("the other mask shape jsPDF writes, Flate-compressed with PNG predictors, reads too", async ({ page }) => {
+  await login(page, COACH);
+  await page.goto("/sports/soccer/drills", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Upload your own drill|내 드릴 올리기|Subir mi propio ejercicio/ }).click();
+  await page.setInputFiles("#drill-file", {
+    name: "Drill.pdf",
+    mimeType: "application/pdf",
+    buffer: soccerDrivePdf(800, 500, true),
+  });
+  await expect(page.getByRole("status").filter({ hasText: /800×500/ })).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("form [role='alert']")).toHaveCount(0);
 });
 
 test("a PDF with no image in it is explained, not uploaded", async ({ page }) => {

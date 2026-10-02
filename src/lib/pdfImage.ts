@@ -147,7 +147,11 @@ async function samples(img: ImageObj): Promise<Uint8Array> {
   if (img.filter === null) data = img.data;
   else if (img.filter === "FlateDecode") data = await inflate(img.data);
   else throw new PdfImageError("unsupported");
-  if (img.predictor >= 10) data = unpredict(data, img.columns, img.colors, img.bpc);
+  // DecodeParms parameterise a filter. soccerdrive.com's export carries a
+  // Predictor on its soft mask while storing the mask raw, with no filter:
+  // the bytes are plain pixels, and running the PNG un-filter over them reads
+  // pixel values as row-filter types and fails. With no filter, ignore it.
+  if (img.filter !== null && img.predictor >= 10) data = unpredict(data, img.columns, img.colors, img.bpc);
   if (data.length < img.width * img.height * img.colors) throw new PdfImageError("corrupt");
   return data;
 }
@@ -189,7 +193,9 @@ export async function pdfToCanvas(file: Blob): Promise<HTMLCanvasElement> {
 
   const px = await samples(main);
   const mask = main.smask !== null ? images.get(main.smask) : undefined;
-  const alpha = mask && mask.colors === 1 ? await samples(mask) : null;
+  // The mask only rounds off transparent edges. If it can't be read, the
+  // drawing on white is still the drawing, so it must not sink the import.
+  const alpha = mask && mask.colors === 1 ? await samples(mask).catch(() => null) : null;
 
   canvas.width = main.width;
   canvas.height = main.height;
