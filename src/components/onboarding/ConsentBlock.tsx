@@ -135,6 +135,9 @@ export default function ConsentBlock({
           <input
             id="guardianEmail"
             type="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
             className={`${INPUT} mt-1`}
             value={value.guardianEmail}
             onChange={(e) => set({ guardianEmail: e.target.value })}

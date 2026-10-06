@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "./db";
+import { usersByEmail } from "./email";
 import { hashPassword } from "./auth";
 import { sendMail, appUrl } from "./mailer";
 import { resolveLang, t, type Lang } from "./i18n";
@@ -52,12 +53,13 @@ function resetEmail(name: string, url: string, lang: Lang) {
  * is per address so nobody can be mail-bombed through it.
  */
 export async function requestPasswordReset(email: string): Promise<void> {
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase().trim() },
-    select: { id: true, name: true, email: true, lang: true },
-  });
-  if (!user) return;
+  // Ignoring case: an account stored as "Yeonju@…" must still be reachable
+  // from "yeonju@…". Two accounts that differ only in case each get a link.
+  const users = await usersByEmail(email);
+  for (const user of users) await resetOne(user);
+}
 
+async function resetOne(user: { id: string; name: string; email: string; lang: string | null }): Promise<void> {
   const since = new Date(Date.now() - RESET_WINDOW_MINUTES * 60_000);
   const recent = await prisma.passwordResetToken.findMany({
     where: { userId: user.id, createdAt: { gt: since } },

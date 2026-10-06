@@ -6,6 +6,7 @@ import { ok, fail } from "@/lib/api";
 import { minorFromDob } from "@/lib/consent";
 import { sendGuardianNotice } from "@/lib/guardianEmail";
 import { getLang } from "@/lib/getLang";
+import { normalizeEmail, usersByEmail } from "@/lib/email";
 
 const sportIds = SPORT_LIST.map((s) => s.id) as [string, ...string[]];
 
@@ -15,7 +16,7 @@ const schema = z.object({
     .min(3, "아이디는 3자 이상이어야 합니다")
     .max(20, "아이디는 20자 이하여야 합니다")
     .regex(/^[a-zA-Z0-9_]+$/, "아이디는 영문/숫자/밑줄만 사용할 수 있습니다"),
-  email: z.string().email("올바른 이메일을 입력하세요"),
+  email: z.string().trim().email("올바른 이메일을 입력하세요"),
   password: z.string().min(6, "비밀번호는 6자 이상이어야 합니다").max(100),
   role: z.enum(["ATHLETE", "COACH"]),
   school: z.string().max(100).optional(),
@@ -36,6 +37,12 @@ const schema = z.object({
   guardianConsent: z.boolean().optional(),
 });
 
+const DUPLICATE: Record<"ko" | "en" | "es", { email: string; username: string }> = {
+  ko: { email: "이미 가입된 이메일입니다", username: "이미 사용 중인 아이디입니다" },
+  en: { email: "An account with this email already exists. Try logging in.", username: "That username is taken. Try another." },
+  es: { email: "Ya existe una cuenta con este correo. Prueba a iniciar sesión.", username: "Ese nombre de usuario ya está en uso. Prueba otro." },
+};
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
@@ -49,12 +56,13 @@ export async function POST(req: Request) {
 
   if (termsAccepted !== true) return fail("You need to accept the Terms of Use and Privacy Notice to sign up");
 
+  const lang = await getLang();
   const [existingEmail, existingUsername] = await Promise.all([
-    prisma.user.findUnique({ where: { email } }),
+    usersByEmail(email),
     prisma.user.findUnique({ where: { username } }),
   ]);
-  if (existingEmail) return fail("이미 가입된 이메일입니다", 409);
-  if (existingUsername) return fail("이미 사용 중인 아이디입니다", 409);
+  if (existingEmail.length) return fail(DUPLICATE[lang].email, 409);
+  if (existingUsername) return fail(DUPLICATE[lang].username, 409);
 
   const parsedDob = dob ? new Date(dob) : undefined;
   if (dob && Number.isNaN(parsedDob?.getTime())) return fail("생년월일 형식이 올바르지 않습니다");
@@ -73,7 +81,8 @@ export async function POST(req: Request) {
     data: {
       name: username,
       username,
-      email,
+      // Stored lower-cased so the address matches however it is typed later.
+      email: normalizeEmail(email),
       password: await hashPassword(password),
       role,
       school: school || null,
@@ -102,7 +111,6 @@ export async function POST(req: Request) {
   if (isMinor && guardianName && guardianEmail) {
     // The guardian's copy. The consent itself is already on the row above;
     // this is a courtesy that must not hold up or fail the sign-up.
-    const lang = await getLang();
     void sendGuardianNotice({ lang, guardianName, guardianEmail, childName: user.name, childEmail: email });
   }
   return ok({ id: user.id, name: user.name, role: user.role }, 201);

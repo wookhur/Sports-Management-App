@@ -48,6 +48,9 @@ export default function ResetRequestForm({ lang }: { lang: Lang }) {
       <input
         id="reset-email"
         type="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
         required
         autoComplete="email"
         className="input"

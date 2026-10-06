@@ -127,6 +127,9 @@ export default function ConnectionManager({
         <input
           className="input"
           type="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={role === "COACH" ? s.emailPlaceholderAthlete : s.emailPlaceholderCoach}

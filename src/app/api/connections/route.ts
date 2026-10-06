@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { usersByEmail } from "@/lib/email";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { notify } from "@/lib/notifyServer";
@@ -25,9 +26,7 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
 
-  const counterpart = await prisma.user.findUnique({
-    where: { email: parsed.data.email.toLowerCase().trim() },
-  });
+  const [counterpart] = await usersByEmail(parsed.data.email);
   if (!counterpart) return fail("해당 이메일의 사용자를 찾을 수 없습니다", 404);
   if (counterpart.id === session.userId) return fail("자기 자신은 연결할 수 없습니다");
 

@@ -624,6 +624,9 @@ function AccountStep({
       <input
         id="email"
         type="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
         className={INPUT_CLASS}
         value={email}
         onChange={(e) => onEmailChange(e.target.value)}

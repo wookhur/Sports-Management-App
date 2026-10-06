@@ -108,3 +108,37 @@ test("consent can be withdrawn after agreeing", async ({ page }) => {
   await page.reload({ waitUntil: "networkidle" });
   await expect(box, "withdrawal must survive a reload").not.toBeChecked();
 });
+
+test("an email logs in however it is capitalised or padded", async ({ page }) => {
+  // Phones capitalise the first letter of a field. Someone who signed up as
+  // "Mixed@…" and logs in as "mixed@…" (or the other way) is the same person.
+  const username = unique("Case");
+  const typed = `${username}@Example.com`;
+  const res = await page.request.post("/api/auth/signup", {
+    data: { username, email: typed, password: "password123", role: "ATHLETE", termsAccepted: true, minor: false },
+  });
+  expect(res.status()).toBe(201);
+
+  for (const variant of [typed.toLowerCase(), typed.toUpperCase(), `  ${typed}  `]) {
+    const login = await page.request.post("/api/auth/login", { data: { email: variant, password: "password123" } });
+    expect(login.status(), `logging in as "${variant}"`).toBe(200);
+  }
+  const wrong = await page.request.post("/api/auth/login", { data: { email: typed.toLowerCase(), password: "nope" } });
+  expect(wrong.status()).toBe(401);
+
+  // And the same address in another case can't open a second account.
+  const dup = await page.request.post("/api/auth/signup", {
+    data: { username: unique("Dupe"), email: typed.toUpperCase(), password: "password123", role: "ATHLETE", termsAccepted: true, minor: false },
+  });
+  expect(dup.status()).toBe(409);
+});
+
+test("a login error is in the language on screen", async ({ page }) => {
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.context().addCookies([{ name: "lang", value: "en", url: page.url() }]);
+  await page.reload({ waitUntil: "networkidle" });
+  await page.fill('input[type="email"]', "nobody-here@example.com");
+  await page.fill('input[type="password"]', "wrong-password");
+  await page.click('button[type="submit"]');
+  await expect(page.locator("main")).toContainText("That email and password don't match an account.");
+});

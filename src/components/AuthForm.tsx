@@ -45,6 +45,9 @@ export default function AuthForm({ lang }: { lang: Lang }) {
         <input
           className="input"
           type="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={s.emailPlaceholder}
