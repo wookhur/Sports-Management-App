@@ -349,3 +349,55 @@ test("the leaderboard and the report can be scoped to a team", async ({ page, br
   await other.close();
   await send(page, `/api/teams/${team.id}`, "DELETE");
 });
+
+test("from the team page, one form sends homework to every member", async ({ page, browser }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Whole Squad Homework");
+  const title = `Team homework ${process.pid}`;
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBe(200);
+
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  // The button at the top jumps to the form, which names who it will reach.
+  await page.getByRole("link", { name: /Assign to whole team|팀 전체에 과제 내기|Asignar a todo el equipo/ }).click();
+  const form = page.locator("#team-assign");
+  await expect(form).toBeVisible();
+  const send1 = form.getByRole("button", { name: /Send to all 1 members|팀원 1명 모두에게 보내기|Enviar a los 1 miembros/ });
+  await expect(send1, "nothing to send without a title").toBeDisabled();
+
+  // Picking a drill links it and, with no title typed yet, names the homework after it.
+  await form.locator("#team-assign-link").selectOption("/sports/soccer/drills/dribble-gates");
+  await expect(form.locator("#team-assign-title")).toHaveValue(/Dribble gates|드리블 게이트|Puertas de regate/);
+  await form.locator("#team-assign-title").fill(title);
+  await form.locator("#team-assign-note").fill("Three rounds of two minutes.");
+  await send1.click();
+  await expect(form.getByRole("status")).toContainText(/Sent to 1 members|1명에게 보냈어요|Enviada a 1 miembros/);
+
+  // It shows up on the team's progress list, linked to the drill, and on the athlete's home page.
+  const row = page.locator("main li").filter({ hasText: title });
+  await expect(row).toContainText(/0 of 1 done|1명 중 0명 완료|0 de 1 completadas/);
+  await expect(row.getByRole("link", { name: title })).toHaveAttribute("href", "/sports/soccer/drills/dribble-gates");
+  await athletePage.goto("/", { waitUntil: "networkidle" });
+  await expect(athletePage.locator("main")).toContainText(title);
+
+  // A member opening the same page gets no form: assigning is the coach's.
+  await athletePage.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(athletePage.locator("#team-assign")).toHaveCount(0);
+  await other.close();
+
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+  await cleanupAssignments([title]);
+});
+
+test("an empty team's form says to share the code instead of offering to send", async ({ page }) => {
+  await login(page, COACH);
+  const team = await newTeam(page, "Nobody Here Yet");
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  const form = page.locator("#team-assign");
+  await expect(form).toContainText(/Share the invite code|초대 코드를 공유|Comparte el código/);
+  await expect(form.getByRole("button")).toHaveCount(0);
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});

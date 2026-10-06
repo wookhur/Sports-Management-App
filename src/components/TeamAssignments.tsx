@@ -27,7 +27,7 @@ const L: Record<
 > = {
   ko: {
     heading: "팀 과제",
-    empty: "아직 이 팀에 배정한 과제가 없어요. 코치 대시보드의 과제 배정에서 팀을 고르면 여기에 나타납니다.",
+    empty: "아직 이 팀에 낸 과제가 없어요. 위에서 보내면 여기서 누가 끝냈는지 볼 수 있어요.",
     progress: (done, total) => `${total}명 중 ${done}명 완료`,
     allDone: "전원 완료",
     outstanding: (names) => `아직: ${names}`,
@@ -35,7 +35,7 @@ const L: Record<
   },
   en: {
     heading: "Team assignments",
-    empty: "Nothing assigned to this team yet. Pick the team in the assignment form on your dashboard and it shows up here.",
+    empty: "Nothing assigned to this team yet. Send one above and you'll see who has finished it here.",
     progress: (done, total) => `${done} of ${total} done`,
     allDone: "Everyone's done",
     outstanding: (names) => `Still to do: ${names}`,
@@ -43,7 +43,7 @@ const L: Record<
   },
   es: {
     heading: "Tareas del equipo",
-    empty: "Todavía no hay tareas para este equipo. Elige el equipo en el formulario de tareas del panel y aparecerán aquí.",
+    empty: "Todavía no hay tareas para este equipo. Envía una arriba y aquí verás quién la ha terminado.",
     progress: (done, total) => `${done} de ${total} completadas`,
     allDone: "Todos la han terminado",
     outstanding: (names) => `Pendientes: ${names}`,
@@ -63,14 +63,18 @@ const MAX_NAMES = 4;
 export default function TeamAssignments({
   groups,
   lang = "en",
+  children,
 }: {
   groups: TeamAssignmentGroup[];
   lang?: Lang;
+  /** The way to add one (the team page's form), shown above the list. */
+  children?: React.ReactNode;
 }) {
   const s = L[lang];
   return (
     <section>
       <h2 className="mb-3 text-lg font-bold">{s.heading}</h2>
+      {children && <div className="mb-4">{children}</div>}
       {groups.length === 0 ? (
         <div className="card p-6 text-sm leading-relaxed text-slate-600">{s.empty}</div>
       ) : (

@@ -7,13 +7,17 @@ import TeamMemberList from "@/components/TeamMemberList";
 import CopyCodeButton from "@/components/CopyCodeButton";
 import RegenerateCodeButton from "@/components/RegenerateCodeButton";
 import TeamAssignments, { type TeamAssignmentGroup } from "@/components/TeamAssignments";
+import TeamAssignForm, { type LinkGroup } from "@/components/TeamAssignForm";
+import { DRILLS } from "@/lib/soccerDrills";
+import { visibleDrills } from "@/lib/customDrills";
+import { L as loc } from "@/lib/localized";
 import RosterHeatmap from "@/components/RosterHeatmap";
 import AttentionList from "@/components/AttentionList";
 import { buildTeamSquad } from "@/lib/squad";
 import TeamAnnouncements, { type AnnouncementRow } from "@/components/TeamAnnouncements";
 import AttendanceSheet, { type AttendanceMember } from "@/components/AttendanceSheet";
 import { seoulDayKey } from "@/lib/format";
-import { TrophyIcon, FileTextIcon } from "@/components/navIcons";
+import { TrophyIcon, FileTextIcon, ClipboardIcon } from "@/components/navIcons";
 import { formatDate, formatDuration } from "@/lib/format";
 import { metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
@@ -33,6 +37,15 @@ const L: Record<
     noRecords: string;
     teamBoard: string;
     teamReport: string;
+    assignAll: string;
+    linkSoccer: string;
+    linkTeamDrills: string;
+    linkOther: string;
+    soccerProgram: string;
+    soccerDrillLibrary: string;
+    swimWorkouts: string;
+    laxProgram: string;
+    journal: string;
   }
 > = {
   ko: {
@@ -46,6 +59,15 @@ const L: Record<
     noRecords: "아직 공유된 기록이 없어요.",
     teamBoard: "팀 리더보드",
     teamReport: "팀 리포트 인쇄",
+    assignAll: "팀 전체에 과제 내기",
+    linkSoccer: "축구",
+    linkTeamDrills: "우리 팀 드릴",
+    linkOther: "다른 훈련",
+    soccerProgram: "축구 훈련 프로그램",
+    soccerDrillLibrary: "축구 드릴 라이브러리",
+    swimWorkouts: "수영 훈련 프로그램",
+    laxProgram: "라크로스 엘리트 프로그램",
+    journal: "훈련 일지 쓰기",
   },
   en: {
     backHome: "← Teams",
@@ -58,6 +80,15 @@ const L: Record<
     noRecords: "No shared records yet.",
     teamBoard: "Team leaderboard",
     teamReport: "Print team report",
+    assignAll: "Assign to whole team",
+    linkSoccer: "Soccer",
+    linkTeamDrills: "Our team's drills",
+    linkOther: "Other training",
+    soccerProgram: "Soccer training program",
+    soccerDrillLibrary: "Soccer drill library",
+    swimWorkouts: "Swim training programs",
+    laxProgram: "Lacrosse elite program",
+    journal: "Write in the training journal",
   },
   es: {
     backHome: "← Equipos",
@@ -70,6 +101,15 @@ const L: Record<
     noRecords: "Aún no hay marcas compartidas.",
     teamBoard: "Clasificación del equipo",
     teamReport: "Imprimir informe del equipo",
+    assignAll: "Asignar a todo el equipo",
+    linkSoccer: "Fútbol",
+    linkTeamDrills: "Ejercicios de nuestro equipo",
+    linkOther: "Otros entrenamientos",
+    soccerProgram: "Programa de entrenamiento de fútbol",
+    soccerDrillLibrary: "Biblioteca de ejercicios de fútbol",
+    swimWorkouts: "Programas de natación",
+    laxProgram: "Programa élite de lacrosse",
+    journal: "Escribir en el diario de entrenamiento",
   },
 };
 
@@ -113,6 +153,35 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
   // not their teammates' load status or who hasn't done their homework.
   const squad = isOwner && memberIds.length ? await buildTeamSquad(team.id) : null;
   const assignmentGroups: TeamAssignmentGroup[] = isOwner ? await teamAssignmentGroups(team.id) : [];
+  // What a team assignment can point at: the soccer program and drills first
+  // (library and the team's own uploads), then the other sports' programs.
+  const linkGroups: LinkGroup[] = isOwner
+    ? [
+        {
+          label: s.linkSoccer,
+          options: [
+            { href: "/sports/soccer/program", label: s.soccerProgram },
+            { href: "/sports/soccer/drills", label: s.soccerDrillLibrary },
+            ...DRILLS.map((d) => ({ href: `/sports/soccer/drills/${d.id}`, label: loc(d.title, lang) })),
+          ],
+        },
+        {
+          label: s.linkTeamDrills,
+          options: (await visibleDrills(session.userId, "soccer")).map((d) => ({
+            href: `/sports/soccer/drills/${d.id}`,
+            label: d.title,
+          })),
+        },
+        {
+          label: s.linkOther,
+          options: [
+            { href: "/sports/swimming/workouts", label: s.swimWorkouts },
+            { href: "/sports/lacrosse/program", label: s.laxProgram },
+            { href: "/journal", label: s.journal },
+          ],
+        },
+      ]
+    : [];
 
   const announcements: AnnouncementRow[] = (
     await prisma.teamAnnouncement.findMany({
@@ -168,6 +237,12 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
             {s.teamBoard}
           </Link>
           {isOwner && (
+            <a href="#team-assign" className="btn-primary inline-flex items-center gap-2 text-sm">
+              <ClipboardIcon className="h-4 w-4" />
+              {s.assignAll}
+            </a>
+          )}
+          {isOwner && (
             <Link
               href={`/coach/report?team=${team.id}`}
               className="btn-ghost inline-flex items-center gap-2 text-sm"
@@ -187,6 +262,21 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
           />
         </div>
 
+        {/* Homework for everyone, right under the notes: the two things a
+            coach does to the whole team at once sit together. */}
+        {isOwner && (
+          <div className="mt-6 space-y-4">
+            <TeamAssignments groups={assignmentGroups} lang={lang}>
+              <TeamAssignForm
+                teamId={team.id}
+                memberCount={team.members.length}
+                linkGroups={linkGroups}
+                lang={lang}
+              />
+            </TeamAssignments>
+          </div>
+        )}
+
         {isOwner && attendance.length > 0 && (
           <div className="mt-6">
             <AttendanceSheet
@@ -203,12 +293,6 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
           <div className="mt-6 space-y-6">
             {squad.roster.rows.length > 0 && <AttentionList lang={lang} triage={squad.triage} />}
             <RosterHeatmap lang={lang} roster={squad.roster} />
-          </div>
-        )}
-
-        {isOwner && (
-          <div className="mt-6">
-            <TeamAssignments groups={assignmentGroups} lang={lang} />
           </div>
         )}
 

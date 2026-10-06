@@ -25,7 +25,7 @@ const L: Record<
     coachHow: [
       "팀을 만들면 초대 코드가 생깁니다. 선수들에게 코드를 알려주세요.",
       "선수가 코드를 입력하면 팀에 들어옵니다 — 이메일로 연결할 필요가 없어요.",
-      "코치 대시보드의 과제 배정에서 팀을 고르면 모든 멤버에게 한 번에 갑니다.",
+      "팀 페이지에서 '팀 전체에 과제 내기'를 누르면 모든 멤버에게 한 번에 갑니다.",
       "팀 페이지에서 누가 과제를 끝냈는지, 누구를 살펴봐야 하는지 볼 수 있어요.",
     ],
     athleteTitle: "내 팀",
@@ -37,7 +37,7 @@ const L: Record<
     coachHow: [
       "Create a team and it gets an invite code. Give the code to your athletes.",
       "An athlete types the code and they're on the team — no email linking needed.",
-      "Pick the team in the assignment form on your dashboard and it goes to every member.",
+      "On the team's page, 'Assign to whole team' sends one assignment to every member.",
       "The team's page shows who has finished the homework and who needs a look.",
     ],
     athleteTitle: "My teams",
@@ -49,7 +49,7 @@ const L: Record<
     coachHow: [
       "Crea un equipo y recibe un código de invitación. Dáselo a tus atletas.",
       "El atleta escribe el código y ya está en el equipo, sin vincular por correo.",
-      "Elige el equipo en el formulario de tareas del panel y llega a todos los miembros.",
+      "En la página del equipo, «Asignar a todo el equipo» envía una tarea a todos los miembros.",
       "La página del equipo muestra quién terminó la tarea y a quién hay que revisar.",
     ],
     athleteTitle: "Mis equipos",
