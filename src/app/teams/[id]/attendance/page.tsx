@@ -8,6 +8,8 @@ import TermPicker, { readPeriod } from "@/components/teamlog/TermPicker";
 
 export const dynamic = "force-dynamic";
 
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
 /**
  * Attendance month by month, the way a school register is kept: for each
  * player, how many sessions they attended each month, and over the period the
@@ -76,12 +78,12 @@ export default async function AttendanceHistoryPage({
                 <th className="px-4 py-2 text-left font-semibold">{s.common.player}</th>
                 {months.map((m) => (
                   <th key={m} className="px-2 py-2 text-center font-semibold">
-                    {monthLabel(m, lang, "short")}
+                    {cap(monthLabel(m, lang, "short"))}
                   </th>
                 ))}
                 <th className="px-2 py-2 text-center font-semibold text-emerald-700">{s.attendance.present}</th>
                 <th className="px-2 py-2 text-center font-semibold">{s.attendance.absent}</th>
-                <th className="px-2 py-2 text-center font-semibold text-amber-700">{s.attendance.excused}</th>
+                <th className="px-2 py-2 text-center font-semibold text-amber-700">{s.attendance.excusedCol}</th>
                 <th className="px-3 py-2 text-right font-semibold">{s.attendance.rate}</th>
               </tr>
             </thead>

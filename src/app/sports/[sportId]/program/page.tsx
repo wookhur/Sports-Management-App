@@ -8,7 +8,7 @@ import SportIcon from "@/components/sportIcons";
 import { getSport } from "@/lib/sports";
 import { getLang } from "@/lib/getLang";
 import type { Lang } from "@/lib/i18n";
-import { soccerProgram, PHASE_I18N, SESSION_I18N } from "@/lib/soccerProgram";
+import { soccerProgram, PHASE_I18N, SESSION_I18N, programItem } from "@/lib/soccerProgram";
 import { sessionSpans } from "@/lib/programTime";
 import { L as loc } from "@/lib/localized";
 
@@ -141,12 +141,14 @@ export default async function ProgramPage({
             subtitle={s.warmupSub}
             items={soccerProgram.warmup}
             accentText={accentText}
+            lang={lang}
           />
           <StretchCard
             title={s.cooldownTitle}
             subtitle={s.cooldownSub}
             items={soccerProgram.cooldown}
             accentText={accentText}
+            lang={lang}
           />
         </div>
       </main>
@@ -244,7 +246,7 @@ function SessionPlan({
                   <span aria-hidden="true" className="select-none text-slate-300">
                     –
                   </span>
-                  <span className="min-w-0">{item}</span>
+                  <span className="min-w-0">{programItem(item, lang)}</span>
                 </li>
               ))}
             </ul>
@@ -263,11 +265,13 @@ function StretchCard({
   subtitle,
   items,
   accentText,
+  lang,
 }: {
   title: string;
   subtitle: string;
   items: { name: string; variations: string[] }[];
   accentText: string;
+  lang: Lang;
 }) {
   return (
     <div className="card break-inside-avoid p-5">
@@ -284,9 +288,9 @@ function StretchCard({
               {i + 1}
             </span>
             <span className="min-w-0 text-slate-700">
-              {it.name}
+              {programItem(it.name, lang)}
               {it.variations.length > 0 && (
-                <span className="text-slate-500"> · {it.variations.join(", ")}</span>
+                <span className="text-slate-500"> · {it.variations.map((v) => programItem(v, lang)).join(", ")}</span>
               )}
             </span>
           </li>

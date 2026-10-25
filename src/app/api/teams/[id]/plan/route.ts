@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT, failIssue } from "@/lib/apiText";
 import { teamRole, teamTimeZone } from "@/lib/teamAccess";
 import { isDayKey, mondayOf, schoolYearOf } from "@/lib/season";
 import { weeksFor } from "@/lib/soccerSeasonPlan";
@@ -9,9 +10,9 @@ import { getLang } from "@/lib/getLang";
 import { dayKeyIn } from "@/lib/format";
 
 const weekSchema = z.object({
-  weekStart: z.string().refine(isDayKey, "Pick a date"),
-  unit: z.string().trim().min(1, "Add a unit").max(80),
-  objective: z.string().trim().min(1, "Add an objective").max(300),
+  weekStart: z.string().refine(isDayKey, "pickDate"),
+  unit: z.string().trim().min(1, "addUnit").max(80),
+  objective: z.string().trim().min(1, "addObjective").max(300),
   note: z.string().trim().max(300).optional(),
 });
 
@@ -22,8 +23,8 @@ const loadSchema = z.object({
 
 async function ownerOnly(id: string) {
   const session = await getSession();
-  if (!session) return { error: fail("Sign in to continue", 401) };
-  if ((await teamRole(id, session.userId)) !== "owner") return { error: fail("Team not found", 404) };
+  if (!session) return { error: await failT("signIn", 401) };
+  if ((await teamRole(id, session.userId)) !== "owner") return { error: await failT("teamNotFound", 404) };
   return { session };
 }
 
@@ -40,7 +41,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (error) return error;
 
   const parsed = loadSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
+  if (!parsed.success) return await failIssue(parsed.error.issues);
 
   const team = await prisma.team.findUnique({ where: { id }, select: { timeZone: true } });
   const year = parsed.data.year ?? schoolYearOf(dayKeyIn(teamTimeZone(team ?? { timeZone: null })));
@@ -59,7 +60,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (error) return error;
 
   const parsed = weekSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
+  if (!parsed.success) return await failIssue(parsed.error.issues);
 
   const weekStart = mondayOf(parsed.data.weekStart);
   const data = { unit: parsed.data.unit, objective: parsed.data.objective, note: parsed.data.note || null };
@@ -77,7 +78,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (error) return error;
 
   const weekStart = new URL(req.url).searchParams.get("weekStart") ?? "";
-  if (!isDayKey(weekStart)) return fail("Pick a week");
+  if (!isDayKey(weekStart)) return await failT("pickDate");
   await prisma.teamPlanWeek.deleteMany({ where: { teamId: id, weekStart } });
   return ok({ weekStart });
 }

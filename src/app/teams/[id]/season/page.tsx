@@ -91,7 +91,7 @@ export default async function SeasonReportPage({
                 <tr className="border-b border-slate-100 text-xs text-slate-500">
                   <th className="px-4 py-2 text-left font-semibold">{s.common.player}</th>
                   <th className="px-2 py-2 text-center font-semibold">{s.season.attended}</th>
-                  <th className="px-2 py-2 text-center font-semibold">{s.attendance.excused}</th>
+                  <th className="px-2 py-2 text-center font-semibold">{s.attendance.excusedCol}</th>
                   <th className="px-2 py-2 text-center font-semibold">{s.season.matches}</th>
                   <th className="px-2 py-2 text-center font-semibold">{s.season.evalT1}</th>
                   <th className="px-3 py-2 text-center font-semibold">{s.season.evalT2}</th>

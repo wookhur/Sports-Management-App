@@ -137,7 +137,7 @@ export default function MissionHub({ lang, beans, pet, care, missions }: Props) 
             <span className="rounded-full bg-white/30 px-2.5 py-0.5 text-xs font-semibold text-white">{pet.label}</span>
           </div>
           <div className="flex justify-center py-4">
-            <PetAvatar growth={pet.growth} className="h-36 w-36" />
+            <PetAvatar growth={pet.growth} className="h-36 w-36" lang={lang} />
           </div>
           <p className="text-center text-xs font-medium text-sky-900/70">{s.petSub}</p>
         </div>

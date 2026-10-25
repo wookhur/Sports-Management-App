@@ -78,7 +78,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   // Attendance register: one column per day the register was taken.
   const a = s.attendance;
   const days = data.sessionDays;
-  const reg = sheet(s.tabs.attendance, [s.common.player, ...days.map((d) => d.slice(5)), a.present, a.absent, a.excused, a.rate], [
+  const reg = sheet(s.tabs.attendance, [s.common.player, ...days.map((d) => d.slice(5)), a.present, a.absent, a.excusedCol, a.rate], [
     28, ...days.map(() => 6), 11, 9, 11, 9,
   ]);
   for (const p of data.players) {

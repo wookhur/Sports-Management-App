@@ -3,8 +3,8 @@ import { isDayKey } from "./season";
 import { MATCH_KINDS } from "./teamLogText";
 
 export const matchSchema = z.object({
-  day: z.string().refine(isDayKey, "Pick the date"),
-  opponent: z.string().trim().min(1, "Add the opponent").max(80),
+  day: z.string().refine(isDayKey, "pickDate"),
+  opponent: z.string().trim().min(1, "addOpponent").max(80),
   kind: z.enum(MATCH_KINDS),
   competition: z.string().trim().max(80).optional(),
   goalsFor: z.number().int().min(0).max(99),

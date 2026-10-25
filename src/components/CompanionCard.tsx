@@ -38,7 +38,7 @@ export default function CompanionCard({
       className="flex items-center gap-4 rounded-2xl border border-brand/15 bg-gradient-to-r from-sky-50 to-indigo-50 p-4 transition hover:border-brand/30 hover:shadow-md"
     >
       <div className="relative shrink-0">
-        <PetAvatar growth={growth} className="h-20 w-20" />
+        <PetAvatar growth={growth} className="h-20 w-20" lang={lang} />
         {needsCare && (
           <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] font-bold text-white shadow">
             !

@@ -2,9 +2,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT, failIssue } from "@/lib/apiText";
 
 const schema = z.object({
-  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Day must be YYYY-MM-DD"),
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "pickDate"),
   marks: z
     .array(z.object({ userId: z.string().min(1), present: z.boolean(), excused: z.boolean().optional() }))
     .min(1)
@@ -26,17 +27,17 @@ function excused(m: { present: boolean; excused?: boolean }): boolean {
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return await failT("signIn", 401);
 
   const { id } = await params;
   const team = await prisma.team.findUnique({
     where: { id },
     select: { coachId: true, members: { select: { userId: true } } },
   });
-  if (!team || team.coachId !== session.userId) return fail("Team not found", 404);
+  if (!team || team.coachId !== session.userId) return await failT("teamNotFound", 404);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
+  if (!parsed.success) return await failIssue(parsed.error.issues);
 
   const onTeam = new Set(team.members.map((m) => m.userId));
   const marks = parsed.data.marks.filter((m) => onTeam.has(m.userId));

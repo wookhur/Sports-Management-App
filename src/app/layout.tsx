@@ -8,13 +8,29 @@ import { getShellData } from "@/lib/shell";
 import { petState, careActions } from "@/lib/pet";
 import "./globals.css";
 
-// The browser tab and the description search engines show. Static, so it does
-// not follow the language switcher — English, like the rest of the defaults.
-export const metadata: Metadata = {
-  title: "Sideline365 · Training, tracked",
-  description:
-    "Athletes log their training; coaches see who to check on today, and why. Sideline365 turns what a squad already records into something a coach can act on.",
+// The browser tab and the description search engines show, in the visitor's
+// language: a Spanish-speaking coach saw "Training, tracked" on every tab.
+const META: Record<"ko" | "en" | "es", Metadata> = {
+  en: {
+    title: "Sideline365 · Training, tracked",
+    description:
+      "Athletes log their training; coaches see who to check on today, and why. Sideline365 turns what a squad already records into something a coach can act on.",
+  },
+  es: {
+    title: "Sideline365 · Entrenamiento registrado",
+    description:
+      "Los atletas registran su entrenamiento; los entrenadores ven a quién atender hoy y por qué. Sideline365 convierte lo que el equipo ya registra en algo con lo que el entrenador puede actuar.",
+  },
+  ko: {
+    title: "Sideline365 · 훈련을 기록으로",
+    description:
+      "선수는 훈련을 기록하고, 코치는 오늘 누구를 챙겨야 하는지와 그 이유를 봅니다. Sideline365는 팀이 이미 남기는 기록을 코치가 바로 쓸 수 있는 정보로 바꿉니다.",
+  },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return META[await getLang()];
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = await getLang();

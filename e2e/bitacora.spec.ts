@@ -198,3 +198,36 @@ test("evaluations score ten points into a percentage and come out in the Excel e
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
 });
+
+test("a team of roster-only players reads right in Spanish, from the home screen down", async ({ page }) => {
+  await login(page, COACH);
+  await setLang(page, "es");
+  const team = await newTeam(page, "Solo Plantilla");
+  await api(page, `/api/teams/${team.id}/roster`, { names: ["Mendoza Jesús", "García Sofía"] });
+
+  // The coach's home leads to the team and its register.
+  await page.goto("/", { waitUntil: "networkidle" });
+  const card = page.locator("section", { has: page.getByRole("heading", { name: "Tus equipos" }) });
+  await expect(card.getByRole("link", { name: "Solo Plantilla" })).toBeVisible();
+  await expect(card.getByRole("link", { name: "Pasar lista" }).first()).toBeVisible();
+
+  // No homework form or "no athletes connected" panel for players without
+  // accounts; an explanation instead.
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Tus 2 jugadores están en la plantilla sin cuenta");
+  await expect(page.locator("#team-assign")).toHaveCount(0);
+  await expect(page.getByText("Aún no hay atletas conectados")).toHaveCount(0);
+
+  // Server-side validation answers in Spanish too.
+  const bad = await send(page, `/api/teams/${team.id}/roster/nobody`, "PATCH", { number: 3 });
+  expect(bad.status).toBe(404);
+  expect(bad.data.error).toBe("Ese jugador no está en el equipo");
+
+  // The soccer program's drills are translated, not left in English.
+  await page.goto("/sports/soccer/program", { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Rondo avanzado");
+  await expect(page.locator("main")).not.toContainText("Juggling variation");
+  await expect(page).toHaveTitle(/Entrenamiento registrado/);
+
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});

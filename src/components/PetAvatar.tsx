@@ -2,20 +2,31 @@
 // cute blue bird that grows through sub-stages. Pure SVG, driven by `growth`.
 
 import { petState, HATCH } from "@/lib/pet";
+import type { Lang } from "@/lib/i18n";
 
-export default function PetAvatar({ growth, className = "h-32 w-32" }: { growth: number; className?: string }) {
+export default function PetAvatar({
+  growth,
+  className = "h-32 w-32",
+  lang = "en",
+}: {
+  growth: number;
+  className?: string;
+  lang?: Lang;
+}) {
   const st = petState(growth);
+  // Named for screen readers in the reader's language ("Huevo", "알").
+  const label = st.label[lang];
   return st.stage === "egg" ? (
-    <Egg pct={st.hatchPct} className={className} />
+    <Egg pct={st.hatchPct} className={className} label={label} />
   ) : (
-    <Bird sub={st.sub} className={className} />
+    <Bird sub={st.sub} className={className} label={label} />
   );
 }
 
-function Egg({ pct, className }: { pct: number; className: string }) {
+function Egg({ pct, className, label }: { pct: number; className: string; label: string }) {
   const near = pct >= 0.8; // wobble when almost ready
   return (
-    <svg viewBox="0 0 120 130" className={`${className} ${near ? "rb-wobble" : ""}`} role="img" aria-label="Egg">
+    <svg viewBox="0 0 120 130" className={`${className} ${near ? "rb-wobble" : ""}`} role="img" aria-label={label}>
       <defs>
         <linearGradient id="egg-g" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#fffef7" />
@@ -64,10 +75,10 @@ function Egg({ pct, className }: { pct: number; className: string }) {
   );
 }
 
-function Bird({ sub, className }: { sub: string; className: string }) {
+function Bird({ sub, className, label }: { sub: string; className: string; label: string }) {
   const k = sub === "baby" ? 0.82 : sub === "young" ? 0.95 : 1.08;
   return (
-    <svg viewBox="0 0 120 130" className={className} role="img" aria-label="Bird">
+    <svg viewBox="0 0 120 130" className={className} role="img" aria-label={label}>
       {/* shadow */}
       <ellipse cx="60" cy="122" rx="28" ry="5" fill="#0f172a" opacity="0.08" />
       <g transform={`translate(60 70) scale(${k}) translate(-60 -70)`}>

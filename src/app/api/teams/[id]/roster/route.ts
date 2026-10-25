@@ -4,10 +4,11 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT, failIssue } from "@/lib/apiText";
 import { teamRole } from "@/lib/teamAccess";
 
 const schema = z.object({
-  names: z.array(z.string().trim().min(1).max(60)).min(1, "Add at least one name").max(60),
+  names: z.array(z.string().trim().min(1).max(60, "nameTooLong")).min(1, "addName").max(60, "tooManyNames"),
 });
 
 /**
@@ -21,12 +22,12 @@ const schema = z.object({
  */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return await failT("signIn", 401);
   const { id } = await params;
-  if ((await teamRole(id, session.userId)) !== "owner") return fail("Team not found", 404);
+  if ((await teamRole(id, session.userId)) !== "owner") return await failT("teamNotFound", 404);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
+  if (!parsed.success) return await failIssue(parsed.error.issues);
 
   const password = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
   const created = await prisma.$transaction(

@@ -63,6 +63,7 @@ const ko = {
   },
   attendance: {
     excused: "사유 결석",
+    excusedCol: "사유 결석",
     changeDay: "날짜",
     history: "출석 기록",
     historySub: "월별로 출석·결석·사유 결석 횟수예요. 출석률은 체크한 날만 셉니다.",
@@ -146,6 +147,8 @@ const ko = {
     addPlayer: "계정 없는 선수 추가",
     addPlayerSub: "아직 앱에 가입하지 않은 선수도 이름만으로 명단에 넣고 출석·경기·평가를 기록할 수 있어요.",
     pasteNames: "이름을 한 줄에 한 명씩 붙여넣기",
+    namesExample: "홍길동\n김민준\n…",
+    noDetails: "아직 정보가 없어요 · 수정을 눌러 입력하세요",
     addPlayers: (n: number) => (n > 0 ? `${n}명 추가` : "추가"),
     added: (n: number) => `${n}명을 추가했어요`,
     details: "상세 정보",
@@ -227,6 +230,7 @@ const en: Dict = {
   },
   attendance: {
     excused: "Excused",
+    excusedCol: "Excused",
     changeDay: "Day",
     history: "Attendance history",
     historySub: "Present, absent and excused, month by month. The rate counts only days the register was taken.",
@@ -311,6 +315,8 @@ const en: Dict = {
     addPlayerSub:
       "Players who haven't joined the app yet can go on the roster by name, and you can record their attendance, matches and evaluations.",
     pasteNames: "Paste names, one per line",
+    namesExample: "Surname Name\nSurname Name\n…",
+    noDetails: "No details yet · tap Edit to add them",
     addPlayers: (n: number) => (n > 0 ? `Add ${n}` : "Add"),
     added: (n: number) => `Added ${n}`,
     details: "Details",
@@ -390,6 +396,7 @@ const es: Dict = {
   },
   attendance: {
     excused: "Justificada",
+    excusedCol: "Justificadas",
     changeDay: "Día",
     history: "Historial de asistencia",
     historySub: "Asistencias, faltas y justificadas por mes. El porcentaje solo cuenta los días en que se pasó lista.",
@@ -474,6 +481,8 @@ const es: Dict = {
     addPlayerSub:
       "Los jugadores que aún no usan la app pueden entrar a la plantilla solo con su nombre, y puedes registrar su asistencia, partidos y evaluaciones.",
     pasteNames: "Pega los nombres, uno por línea",
+    namesExample: "Apellido Nombre\nApellido Nombre\n…",
+    noDetails: "Sin datos todavía · toca Editar para agregarlos",
     addPlayers: (n: number) => (n > 0 ? `Agregar ${n}` : "Agregar"),
     added: (n: number) => `Se agregaron ${n}`,
     details: "Datos",

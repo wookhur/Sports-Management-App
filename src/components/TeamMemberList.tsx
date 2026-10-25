@@ -112,14 +112,13 @@ export default function TeamMemberList({
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand">
                 {m.name.slice(0, 1)}
               </span>
-              <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                {m.name}
-                {m.managed && (
-                  <span className="ml-2 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
-                    {m.noAccountLabel}
-                  </span>
-                )}
-              </p>
+              <p className="min-w-0 flex-1 break-words text-sm font-medium leading-snug">{m.name}</p>
+              {/* Outside the truncating name, so the badge is never cut to "Sin cue…". */}
+              {m.managed && (
+                <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                  {m.noAccountLabel}
+                </span>
+              )}
               {m.currentStreak > 0 && (
                 <span className="badge shrink-0 bg-orange-50 text-orange-700">
                   {s.streakBadge(m.currentStreak)}

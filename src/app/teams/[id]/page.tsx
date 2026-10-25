@@ -50,6 +50,7 @@ const L: Record<
     swimWorkouts: string;
     laxProgram: string;
     journal: string;
+    rosterOnlyHomework: (n: number, code: string) => string;
   }
 > = {
   ko: {
@@ -72,6 +73,8 @@ const L: Record<
     swimWorkouts: "수영 훈련 프로그램",
     laxProgram: "라크로스 엘리트 프로그램",
     journal: "훈련 일지 쓰기",
+    rosterOnlyHomework: (n, code) =>
+      `공지, 과제, 리더보드, 훈련 부하 리포트는 앱을 쓰는 선수에게만 전달돼요. 지금 선수 ${n}명은 모두 계정 없이 명단에만 있어요. 선수들이 받게 하려면 초대 코드 ${code}를 공유해 가입하게 하세요.`,
   },
   en: {
     backHome: "← Teams",
@@ -93,6 +96,8 @@ const L: Record<
     swimWorkouts: "Swim training programs",
     laxProgram: "Lacrosse elite program",
     journal: "Write in the training journal",
+    rosterOnlyHomework: (n, code) =>
+      `Announcements, homework, the leaderboard and the training-load report only reach players who use the app. All ${n} of your players are on the roster without an account. For them to get these, share the invite code ${code} so they can join.`,
   },
   es: {
     backHome: "← Equipos",
@@ -114,6 +119,8 @@ const L: Record<
     swimWorkouts: "Programas de natación",
     laxProgram: "Programa élite de lacrosse",
     journal: "Escribir en el diario de entrenamiento",
+    rosterOnlyHomework: (n, code) =>
+      `Los avisos, las tareas, la clasificación y el informe de carga solo llegan a jugadores que usan la app. Tus ${n} jugadores están en la plantilla sin cuenta. Si quieres que los reciban, comparte el código de invitación ${code} para que se unan.`,
   },
 };
 
@@ -144,6 +151,7 @@ export default async function TeamPage({
   if (!team) notFound();
 
   const isOwner = team.coachId === session.userId;
+  const accountMembers = team.members.filter((m) => !m.user.managed).length;
   const isMember = team.members.some((m) => m.userId === session.userId);
   if (!isOwner && !isMember) notFound();
 
@@ -270,6 +278,10 @@ export default async function TeamPage({
           )
         )}
 
+        {/* The leaderboard, homework and the load report all run on what
+            athletes log in the app. A team made only of roster players (no
+            accounts) gets nothing from them, so they aren't offered. */}
+        {(accountMembers > 0 || !isOwner) && (
         <div className="no-print mt-4 flex flex-wrap gap-2">
           <Link
             href={`/leaderboard?team=${team.id}`}
@@ -294,31 +306,10 @@ export default async function TeamPage({
             </Link>
           )}
         </div>
-
-        <div className="mt-6">
-          <TeamAnnouncements
-            teamId={team.id}
-            announcements={announcements}
-            canPost={isOwner}
-            lang={lang}
-          />
-        </div>
-
-        {/* Homework for everyone, right under the notes: the two things a
-            coach does to the whole team at once sit together. */}
-        {isOwner && (
-          <div className="mt-6 space-y-4">
-            <TeamAssignments groups={assignmentGroups} lang={lang}>
-              <TeamAssignForm
-                teamId={team.id}
-                memberCount={team.members.filter((m) => !m.user.managed).length}
-                linkGroups={linkGroups}
-                lang={lang}
-              />
-            </TeamAssignments>
-          </div>
         )}
 
+        {/* The register comes first: it is what a coach opens the page for at
+            the side of the pitch, several times a week. */}
         {isOwner && attendance.length > 0 && (
           <div className="mt-6">
             <AttendanceSheet
@@ -333,7 +324,35 @@ export default async function TeamPage({
           </div>
         )}
 
-        {squad && (
+
+        <div className="mt-6">
+          <TeamAnnouncements
+            teamId={team.id}
+            announcements={announcements}
+            canPost={isOwner}
+            lang={lang}
+          />
+        </div>
+
+        {/* Homework for everyone, right under the notes: the two things a
+            coach does to the whole team at once sit together. */}
+        {isOwner && accountMembers === 0 && team.members.length > 0 && (
+          <p className="card mt-6 p-5 text-sm text-slate-600">{s.rosterOnlyHomework(team.members.length, team.code)}</p>
+        )}
+        {isOwner && (accountMembers > 0 || team.members.length === 0) && (
+          <div className="mt-6 space-y-4">
+            <TeamAssignments groups={assignmentGroups} lang={lang}>
+              <TeamAssignForm
+                teamId={team.id}
+                memberCount={accountMembers}
+                linkGroups={linkGroups}
+                lang={lang}
+              />
+            </TeamAssignments>
+          </div>
+        )}
+
+        {squad && squad.roster.rows.length > 0 && (
           <div className="mt-6 space-y-6">
             {squad.roster.rows.length > 0 && <AttentionList lang={lang} triage={squad.triage} />}
             <RosterHeatmap lang={lang} roster={squad.roster} />

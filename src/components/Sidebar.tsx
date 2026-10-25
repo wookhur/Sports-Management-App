@@ -236,7 +236,7 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
           className="flex items-center gap-2.5 border-t border-slate-200 px-3 py-2.5 transition-colors hover:bg-slate-50"
         >
           <span className="relative shrink-0">
-            <PetAvatar growth={pet.growth} className="h-9 w-9" />
+            <PetAvatar growth={pet.growth} className="h-9 w-9" lang={lang} />
             {pet.needsCare && (
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-white" />
             )}

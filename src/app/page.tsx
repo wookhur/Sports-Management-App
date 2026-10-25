@@ -23,6 +23,7 @@ import { SPORT_I18N, metricLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
 import { firstRunState } from "@/lib/firstRun";
 import FirstRunCard from "@/components/FirstRunCard";
+import CoachTeamsCard from "@/components/teamlog/CoachTeamsCard";
 
 export const dynamic = "force-dynamic";
 
@@ -374,6 +375,8 @@ export default async function HomePage({
             {isCoach ? s.subCoach : s.subAthlete}
           </p>
         </section>
+
+        {isCoach && <CoachTeamsCard coachId={session.userId} lang={lang} />}
 
         {/* Above everything: a brand-new account has nothing else worth
             looking at, and this is the shortest path to it having something. */}

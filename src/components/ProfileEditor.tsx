@@ -94,6 +94,8 @@ const L: Record<
 };
 
 /** Display label for a stored Korean grade value (values stay Korean in the DB). */
+const USERNAME_EXAMPLE: Record<Lang, string> = { ko: "아이디", en: "username", es: "usuario" };
+
 function gradeLabel(g: string, lang: Lang): string {
   return lang === "en" ? GRADE_I18N_EN[g] ?? g : lang === "es" ? GRADE_I18N_ES[g] ?? g : g;
 }
@@ -162,7 +164,7 @@ export default function ProfileEditor({
         </div>
         <div>
           <label className="label" htmlFor="pf-username">{t.username}</label>
-          <input id="pf-username" className="input" value={form.username} onChange={(e) => set("username", e.target.value)} maxLength={30} placeholder="username" />
+          <input id="pf-username" className="input" value={form.username} onChange={(e) => set("username", e.target.value)} maxLength={30} placeholder={USERNAME_EXAMPLE[lang]} />
         </div>
         <div>
           <label className="label" htmlFor="pf-school">{t.school}</label>

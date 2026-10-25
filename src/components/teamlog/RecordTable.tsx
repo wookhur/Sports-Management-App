@@ -5,7 +5,7 @@ import type { TeamRecord } from "@/lib/matchStats";
 function RecordRow({ label, r }: { label: string; r: TeamRecord }) {
   return (
     <tr>
-      <th scope="row" className="px-4 py-2 text-left font-medium">
+      <th scope="row" className="whitespace-nowrap px-4 py-2 text-left font-medium">
         {label}
       </th>
       {[r.played, r.won, r.drawn, r.lost, r.goalsFor, r.goalsAgainst].map((v, i) => (

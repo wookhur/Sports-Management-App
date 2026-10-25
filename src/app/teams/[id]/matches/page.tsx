@@ -47,7 +47,7 @@ export default async function MatchesPage({
     <TeamLogShell team={team} active="matches" isOwner={isOwner} lang={lang} title={s.matches.title} sub={s.matches.sub}>
       <TermPicker basePath={`/teams/${id}/matches`} year={year} term={term} currentYear={currentYear} lang={lang} />
 
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <MatchBoard
           teamId={id}
           lang={lang}

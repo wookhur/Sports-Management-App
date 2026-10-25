@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT, failIssue } from "@/lib/apiText";
 import { memberIds, teamRole } from "@/lib/teamAccess";
 import { matchSchema } from "@/lib/matchSchema";
 
 async function ownedMatch(id: string, matchId: string) {
   const session = await getSession();
-  if (!session) return { error: fail("Sign in to continue", 401) };
-  if ((await teamRole(id, session.userId)) !== "owner") return { error: fail("Team not found", 404) };
+  if (!session) return { error: await failT("signIn", 401) };
+  if ((await teamRole(id, session.userId)) !== "owner") return { error: await failT("teamNotFound", 404) };
   const match = await prisma.match.findFirst({ where: { id: matchId, teamId: id }, select: { id: true } });
-  if (!match) return { error: fail("Match not found", 404) };
+  if (!match) return { error: await failT("matchNotFound", 404) };
   return {};
 }
 
@@ -24,7 +25,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (error) return error;
 
   const parsed = matchSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");
+  if (!parsed.success) return await failIssue(parsed.error.issues);
   const { players, competition, note, ...rest } = parsed.data;
   const onTeam = await memberIds(id);
   const keep = [...new Set(players)].filter((p) => onTeam.has(p));

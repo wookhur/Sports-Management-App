@@ -254,7 +254,7 @@ export default function MatchBoard({
   );
 
   return (
-    <section>
+    <section className="min-w-0">
       {canEdit && editing === null && (
         <div className="mb-3 flex justify-end">
           <button type="button" className="btn-primary text-sm" onClick={() => open()}>

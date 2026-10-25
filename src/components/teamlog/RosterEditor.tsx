@@ -130,7 +130,7 @@ export function AddPlayersForm({ teamId, lang }: { teamId: string; lang: Lang })
           className="input min-h-[96px]"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={"Mendoza Jesús\n…"}
+          placeholder={r.namesExample}
         />
       </label>
       <div className="mt-3 flex items-center justify-end gap-3">
@@ -234,7 +234,7 @@ export default function RosterEditor({ teamId, lang, rows }: { teamId: string; l
                 )}
               </p>
               <p className="truncate text-xs text-slate-500">
-                {[row.birthDate, row.guardian1Name, row.guardian1Phone, row.guardian1Email].filter(Boolean).join(" · ") || "—"}
+                {[row.birthDate, row.guardian1Name, row.guardian1Phone, row.guardian1Email].filter(Boolean).join(" · ") || r.noDetails}
               </p>
             </div>
             {open !== row.userId && (
