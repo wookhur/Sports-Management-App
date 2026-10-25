@@ -15,8 +15,12 @@ import RosterHeatmap from "@/components/RosterHeatmap";
 import AttentionList from "@/components/AttentionList";
 import { buildTeamSquad } from "@/lib/squad";
 import TeamAnnouncements, { type AnnouncementRow } from "@/components/TeamAnnouncements";
-import AttendanceSheet, { type AttendanceMember } from "@/components/AttendanceSheet";
-import { seoulDayKey } from "@/lib/format";
+import AttendanceSheet, { type AttendanceMember, type AttendanceMark } from "@/components/AttendanceSheet";
+import { dayKeyIn } from "@/lib/format";
+import { teamTimeZone } from "@/lib/teamAccess";
+import { TeamTabs } from "@/components/teamlog/TeamLogShell";
+import { tl } from "@/lib/teamLogText";
+import { addDays, isDayKey, mondayOf } from "@/lib/season";
 import { TrophyIcon, FileTextIcon, ClipboardIcon } from "@/components/navIcons";
 import { formatDate, formatDuration } from "@/lib/format";
 import { metricLabel, type Lang } from "@/lib/i18n";
@@ -113,7 +117,13 @@ const L: Record<
   },
 };
 
-export default async function TeamPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function TeamPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ day?: string }>;
+}) {
   const session = await getSession();
   if (!session) redirect("/login");
 
@@ -127,7 +137,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
       coach: { select: { id: true, name: true } },
       members: {
         orderBy: { createdAt: "asc" },
-        include: { user: { select: { id: true, name: true, currentStreak: true } } },
+        include: { user: { select: { id: true, name: true, currentStreak: true, managed: true } } },
       },
     },
   });
@@ -192,8 +202,18 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
     })
   ).map((a) => ({ id: a.id, body: a.body, authorName: a.author.name, createdAt: a.createdAt.toISOString() }));
 
-  const today = seoulDayKey();
-  const attendance: AttendanceMember[] = isOwner ? await attendanceFor(team.id, memberIds, today) : [];
+  // "Today" where the team trains, not where the server is. The coach can
+  // open an earlier day to fill in a register they missed; future days can't
+  // be taken.
+  const today = dayKeyIn(teamTimeZone(team));
+  const asked = (await searchParams).day;
+  const registerDay = asked && isDayKey(asked) && asked <= today ? asked : today;
+  const attendance: AttendanceMember[] = isOwner ? await attendanceFor(team.id, memberIds, registerDay) : [];
+  const thisWeek = await prisma.teamPlanWeek.findUnique({
+    where: { teamId_weekStart: { teamId: team.id, weekStart: mondayOf(today) } },
+  });
+  const planCount = thisWeek ? 1 : await prisma.teamPlanWeek.count({ where: { teamId: team.id } });
+  const pt = tl(lang).plan;
 
   return (
     <>
@@ -227,6 +247,28 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
             </div>
           )}
         </header>
+
+        <TeamTabs teamId={team.id} active="overview" isOwner={isOwner} lang={lang} />
+
+        {thisWeek ? (
+          <Link
+            href={`/teams/${team.id}/plan`}
+            className="mt-4 block rounded-2xl border border-emerald-200 bg-emerald-50 p-5 transition hover:border-emerald-300"
+          >
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">{pt.thisWeekFocus}</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-900">{thisWeek.unit}</p>
+            <p className="mt-0.5 text-base font-medium text-slate-900">{thisWeek.objective}</p>
+            {thisWeek.note && <p className="mt-1 text-xs font-medium text-amber-700">★ {thisWeek.note}</p>}
+            <p className="mt-2 text-xs font-semibold text-emerald-700">{pt.seeAll}</p>
+          </Link>
+        ) : (
+          isOwner &&
+          planCount === 0 && (
+            <Link href={`/teams/${team.id}/plan`} className="mt-4 block rounded-2xl border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-600 hover:border-slate-400">
+              {pt.planSeason}
+            </Link>
+          )
+        )}
 
         <div className="no-print mt-4 flex flex-wrap gap-2">
           <Link
@@ -269,7 +311,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
             <TeamAssignments groups={assignmentGroups} lang={lang}>
               <TeamAssignForm
                 teamId={team.id}
-                memberCount={team.members.length}
+                memberCount={team.members.filter((m) => !m.user.managed).length}
                 linkGroups={linkGroups}
                 lang={lang}
               />
@@ -280,8 +322,10 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
         {isOwner && attendance.length > 0 && (
           <div className="mt-6">
             <AttendanceSheet
+              key={registerDay}
               teamId={team.id}
-              day={today}
+              day={registerDay}
+              today={today}
               windowDays={ATTENDANCE_WINDOW_DAYS}
               members={attendance}
               lang={lang}
@@ -311,6 +355,8 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
                   userId: m.userId,
                   name: m.user.name,
                   currentStreak: m.user.currentStreak,
+                  managed: m.user.managed,
+                  noAccountLabel: tl(lang).roster.noAccount,
                 }))}
                 canManage={isOwner}
                 selfUserId={session.userId}
@@ -395,23 +441,23 @@ async function teamAssignmentGroups(teamId: string): Promise<TeamAssignmentGroup
 /** How far back the attendance rate looks. */
 const ATTENDANCE_WINDOW_DAYS = 30;
 
-/** Today's register plus each member's rate over the recent window. */
+/** One day's register plus each member's rate over the window ending that day. */
 async function attendanceFor(teamId: string, memberIds: string[], today: string): Promise<AttendanceMember[]> {
   if (memberIds.length === 0) return [];
-  const from = new Date(Date.now() - ATTENDANCE_WINDOW_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const from = addDays(today, -ATTENDANCE_WINDOW_DAYS);
   const [members, rows] = await Promise.all([
     prisma.user.findMany({ where: { id: { in: memberIds } }, select: { id: true, name: true } }),
     prisma.attendance.findMany({
-      where: { teamId, userId: { in: memberIds }, day: { gte: from } },
-      select: { userId: true, day: true, present: true },
+      where: { teamId, userId: { in: memberIds }, day: { gte: from, lte: today } },
+      select: { userId: true, day: true, present: true, excused: true },
     }),
   ]);
-  const byUser = new Map<string, { today: boolean | null; marked: number; present: number }>();
+  const byUser = new Map<string, { today: AttendanceMark | null; marked: number; present: number }>();
   for (const r of rows) {
     const u = byUser.get(r.userId) ?? { today: null, marked: 0, present: 0 };
     u.marked += 1;
     if (r.present) u.present += 1;
-    if (r.day === today) u.today = r.present;
+    if (r.day === today) u.today = r.present ? "present" : r.excused ? "excused" : "absent";
     byUser.set(r.userId, u);
   }
   return members

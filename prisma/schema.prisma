@@ -114,6 +114,16 @@ model User {
   attendance          Attendance[] @relation("AttendanceAthlete")
   attendanceMarked    Attendance[] @relation("AttendanceMarker")
   customDrills        CustomDrill[]
+  matchesPlayed       MatchPlayer[]
+  evaluations         PlayerEvaluation[]
+
+  // A roster-only player: someone the coach added to a team by name, without
+  // an account of their own. They can't sign in (the address is a reserved
+  // .invalid one and the password is random), never receive email, and are
+  // left out of the training-load views, which would otherwise report them as
+  // drifting for having logged nothing. Attendance, matches and evaluations
+  // treat them like any other member, which is the point of having them.
+  managed Boolean @default(false)
 
   // A coach can be linked to many athletes and vice-versa.
   coachLinks   CoachAthlete[] @relation("CoachSide")
@@ -174,6 +184,19 @@ model Team {
   assignments   Assignment[]
   announcements TeamAnnouncement[]
   attendance    Attendance[]
+  planWeeks     TeamPlanWeek[]
+  matches       Match[]
+  evaluations   PlayerEvaluation[]
+  // Free text the coach fills in: the age group (often birth years, like
+  // "2012-2013") and the branch ("Varonil", "Femenil", "Mixto"). Both feed the
+  // season report and the export, which is where a school asks for them.
+  category      String?
+  branch        String?
+  // Where the team trains, for deciding what "today" is when the register is
+  // taken. A team in Guadalajara marking attendance at 5 pm is already on the
+  // next day in Seoul, so a single app-wide zone files it under tomorrow.
+  // Null means Asia/Seoul, which is what every team used before.
+  timeZone      String?
   createdAt     DateTime     @default(now())
 }
 
@@ -225,6 +248,9 @@ model Attendance {
   userId     String
   day        String // YYYY-MM-DD in the team's local calendar
   present    Boolean
+  // An absence with a reason the coach accepts (illness, a school trip). Only
+  // meaningful when present is false; it is counted apart from plain absences.
+  excused    Boolean  @default(false)
   markedBy   User     @relation("AttendanceMarker", fields: [markedById], references: [id], onDelete: Cascade)
   markedById String
   createdAt  DateTime @default(now())
@@ -242,6 +268,17 @@ model TeamMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
+
+  // Roster details only the team's coach sees. Contacts are the parents' or
+  // guardians', since most players are minors.
+  number         Int?
+  birthDate      String? // YYYY-MM-DD
+  guardian1Name  String?
+  guardian1Email String?
+  guardian1Phone String?
+  guardian2Name  String?
+  guardian2Email String?
+  guardian2Phone String?
 
   @@unique([teamId, userId])
   @@index([userId])
@@ -522,4 +559,74 @@ model Notification {
 
   @@index([userId, readAt])
   @@index([userId, createdAt])
+}
+
+// The season training plan: one row per week, keyed by that week's Monday.
+// A coach can load a ready-made plan and then edit any week of it.
+model TeamPlanWeek {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  weekStart String // YYYY-MM-DD, a Monday
+  unit      String
+  objective String
+  note      String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, weekStart])
+}
+
+enum MatchKind {
+  LEAGUE
+  FRIENDLY
+  TOURNAMENT
+  ASOMEX
+}
+
+model Match {
+  id           String        @id @default(cuid())
+  team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId       String
+  day          String // YYYY-MM-DD
+  opponent     String
+  kind         MatchKind
+  // The tournament or league name, when there is one; it groups results in
+  // the season report the way a school's competitions table does.
+  competition  String?
+  goalsFor     Int
+  goalsAgainst Int
+  note         String?
+  players      MatchPlayer[]
+  createdAt    DateTime      @default(now())
+
+  @@index([teamId, day])
+}
+
+// Who played in a match. Their own rows rather than an array so a player's
+// match count is a plain count, and leaving the team doesn't rewrite history.
+model MatchPlayer {
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+
+  @@id([matchId, userId])
+  @@index([userId])
+}
+
+// A coach's evaluation of one player for one term: five attitude points and
+// five performance points, each scored 1 (needs to improve) to 5 (excellent).
+model PlayerEvaluation {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  athlete   User     @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  athleteId String
+  period    String // "2026-S1": the school year it starts in, and the term
+  scores    Int[]
+  note      String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, athleteId, period])
+  @@index([athleteId])
 }

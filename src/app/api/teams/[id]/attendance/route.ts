@@ -5,7 +5,10 @@ import { ok, fail } from "@/lib/api";
 
 const schema = z.object({
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Day must be YYYY-MM-DD"),
-  marks: z.array(z.object({ userId: z.string().min(1), present: z.boolean() })).min(1).max(200),
+  marks: z
+    .array(z.object({ userId: z.string().min(1), present: z.boolean(), excused: z.boolean().optional() }))
+    .min(1)
+    .max(200),
 });
 
 /**
@@ -16,6 +19,11 @@ const schema = z.object({
  * members can be marked — a userId that isn't on the team is dropped rather
  * than written, so a stale sheet can't attach attendance to someone who left.
  */
+/** Excused only qualifies an absence; a present mark is never excused. */
+function excused(m: { present: boolean; excused?: boolean }): boolean {
+  return !m.present && m.excused === true;
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return fail("Sign in to continue", 401);
@@ -38,8 +46,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     marks.map((m) =>
       prisma.attendance.upsert({
         where: { teamId_day_userId: { teamId: id, day, userId: m.userId } },
-        update: { present: m.present, markedById: session.userId },
-        create: { teamId: id, day, userId: m.userId, present: m.present, markedById: session.userId },
+        update: { present: m.present, excused: excused(m), markedById: session.userId },
+        create: { teamId: id, day, userId: m.userId, present: m.present, excused: excused(m), markedById: session.userId },
       }),
     ),
   );

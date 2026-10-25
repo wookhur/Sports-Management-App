@@ -109,3 +109,25 @@ test("a team page is accessible and readable", async ({ page }) => {
   await page.goto(href!, { waitUntil: "networkidle" });
   expect(await violations(page, CRITICAL_RULES), "accessibility violations").toEqual([]);
 });
+
+// The team log pages (plan, attendance history, matches, evaluations, roster,
+// season report) hang off the team page, so they are checked from it.
+test("the team log pages are accessible and readable", async ({ page }) => {
+  await login(page, COACH);
+  await page.goto("/coach", { waitUntil: "networkidle" });
+  const href = await page.locator('a[href^="/teams/"]').first().getAttribute("href", { timeout: 5_000 }).catch(() => null);
+  test.skip(!href, "the coach has no teams to open");
+  const team = href!.split("?")[0].split("#")[0];
+  await page.evaluate((t) => fetch(`${t.replace("/teams/", "/api/teams/")}/plan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ template: "soccer-season" }),
+  }), team);
+
+  const pages = ["plan", "attendance", "matches", "evaluations", "roster", "season"].map((p) => `${team}/${p}`);
+  expect(await contrastProblems(page, pages), "contrast violations").toEqual([]);
+  for (const p of pages) {
+    await page.goto(p, { waitUntil: "networkidle" });
+    expect(await violations(page, CRITICAL_RULES), `accessibility violations on ${p}`).toEqual([]);
+  }
+});

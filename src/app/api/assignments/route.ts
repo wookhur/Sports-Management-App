@@ -89,7 +89,7 @@ async function soloTarget(athleteId: string, coachId: string): Promise<Targets> 
 async function teamTargets(teamId: string, coachId: string): Promise<Targets> {
   const team = await prisma.team.findUnique({
     where: { id: teamId },
-    select: { coachId: true, members: { select: { userId: true } } },
+    select: { coachId: true, members: { where: { user: { managed: false } }, select: { userId: true } } },
   });
   if (!team || team.coachId !== coachId) return { error: "Team not found", status: 404 };
   if (team.members.length === 0) {

@@ -21,7 +21,7 @@ export function normalizeEmail(email: string): string {
  */
 export function usersByEmail(email: string) {
   return prisma.user.findMany({
-    where: { email: { equals: normalizeEmail(email), mode: "insensitive" } },
+    where: { email: { equals: normalizeEmail(email), mode: "insensitive" }, managed: false },
     orderBy: { createdAt: "asc" },
   });
 }

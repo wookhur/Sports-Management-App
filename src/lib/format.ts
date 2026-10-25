@@ -83,6 +83,11 @@ export function formatDayKey(dayKey: string, lang: string = "ko"): string {
 /** "YYYY-MM-DD" for a date as seen in Asia/Seoul. Used as the daily-reset key
  *  for missions and the week-calendar day cells. */
 export function seoulDayKey(input: Date | string = new Date()): string {
+  return dayKeyIn("Asia/Seoul", input);
+}
+
+/** The calendar day in a given IANA time zone, as YYYY-MM-DD. */
+export function dayKeyIn(timeZone: string, input: Date | string = new Date()): string {
   const d = typeof input === "string" ? new Date(input) : input;
   // en-CA formats as YYYY-MM-DD, which is exactly the key shape we want.
   //
@@ -92,7 +97,7 @@ export function seoulDayKey(input: Date | string = new Date()): string {
   // These keys are also compared and sorted as plain strings, which only holds
   // while every key is the same length.
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Seoul",
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

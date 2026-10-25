@@ -1,14 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Lang } from "@/lib/i18n";
+import { tl } from "@/lib/teamLogText";
+
+export type AttendanceMark = "present" | "absent" | "excused";
 
 export interface AttendanceMember {
   userId: string;
   name: string;
-  /** Today's mark, or null when the register hasn't been taken for them. */
-  present: boolean | null;
+  /** The day's mark, or null when the register hasn't been taken for them. */
+  present: AttendanceMark | null;
   /** Sessions marked in the recent window, and how many they attended. */
   recentMarked: number;
   recentPresent: number;
@@ -82,41 +86,49 @@ const L: Record<
 /**
  * The register for one day, plus each athlete's recent rate.
  *
- * Three states per row, deliberately: present, absent, and not marked. A coach
- * who opens the sheet and saves nothing has not marked anyone absent, and the
- * rate on the right only counts days that were actually taken.
+ * Four states per row, deliberately: present, absent, excused, and not
+ * marked. A coach who opens the sheet and saves nothing has not marked anyone
+ * absent, and the rate on the right only counts days that were actually taken.
+ * An excused absence is still an absence for the rate; it is told apart so a
+ * school's log can count justified absences separately.
+ *
+ * The day defaults to today where the team trains; the coach can pick an
+ * earlier day to fill in a register they didn't take at the time.
  */
 export default function AttendanceSheet({
   teamId,
   day,
+  today,
   windowDays,
   members,
   lang = "en",
 }: {
   teamId: string;
   day: string;
+  today?: string;
   windowDays: number;
   members: AttendanceMember[];
   lang?: Lang;
 }) {
   const s = L[lang];
+  const t = tl(lang).attendance;
   const router = useRouter();
-  const [marks, setMarks] = useState<Record<string, boolean | null>>(
+  const [marks, setMarks] = useState<Record<string, AttendanceMark | null>>(
     Object.fromEntries(members.map((m) => [m.userId, m.present])),
   );
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function set(userId: string, present: boolean) {
-    setMarks((m) => ({ ...m, [userId]: present }));
+  function set(userId: string, mark: AttendanceMark) {
+    setMarks((m) => ({ ...m, [userId]: mark }));
     setStatus(null);
   }
 
   async function save() {
     const toSend = Object.entries(marks)
-      .filter((e): e is [string, boolean] => e[1] !== null)
-      .map(([userId, present]) => ({ userId, present }));
+      .filter((e): e is [string, AttendanceMark] => e[1] !== null)
+      .map(([userId, mark]) => ({ userId, present: mark === "present", excused: mark === "excused" }));
     if (toSend.length === 0) return;
     setError(null);
     setBusy(true);
@@ -138,25 +150,39 @@ export default function AttendanceSheet({
   const dirty = members.some((m) => marks[m.userId] !== m.present);
 
   return (
-    <section>
+    <section id="attendance" className="scroll-mt-24">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-lg font-bold">{s.heading}</h2>
           <p className="text-sm text-slate-600">{s.sub(windowDays)}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setMarks(Object.fromEntries(members.map((m) => [m.userId, true])))}
-          className="btn-ghost text-xs"
-        >
-          {s.allPresent}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href={`/teams/${teamId}/attendance`} className="text-xs font-semibold text-brand hover:underline">
+            {t.history} →
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMarks(Object.fromEntries(members.map((m) => [m.userId, "present" as const])))}
+            className="btn-ghost text-xs"
+          >
+            {s.allPresent}
+          </button>
+        </div>
       </div>
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 text-xs">
-          <span className="font-semibold uppercase tracking-wide text-slate-500">
-            {s.dayLabel} · <span className="tabular-nums text-slate-700">{day}</span>
-          </span>
+          <label className="flex items-center gap-2 font-semibold uppercase tracking-wide text-slate-500">
+            {s.dayLabel}
+            <input
+              type="date"
+              value={day}
+              max={today}
+              onChange={(e) => {
+                if (e.target.value) router.push(`/teams/${teamId}?day=${e.target.value}#attendance`, { scroll: false });
+              }}
+              className="rounded-md border border-slate-200 px-2 py-1 text-xs font-normal normal-case tabular-nums text-slate-700"
+            />
+          </label>
           <span className="text-slate-500" role="status">
             {status ?? ""}
           </span>
@@ -172,28 +198,26 @@ export default function AttendanceSheet({
                   aria-label={m.name}
                   className="flex overflow-hidden rounded-lg border border-slate-200 text-xs font-semibold"
                 >
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={mark === true}
-                    onClick={() => set(m.userId, true)}
-                    className={`px-3 py-1.5 transition-colors ${
-                      mark === true ? "bg-emerald-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {s.present}
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={mark === false}
-                    onClick={() => set(m.userId, false)}
-                    className={`border-l border-slate-200 px-3 py-1.5 transition-colors ${
-                      mark === false ? "bg-slate-700 text-white" : "bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {s.absent}
-                  </button>
+                  {(
+                    [
+                      ["present", s.present, "bg-emerald-600 text-white"],
+                      ["absent", s.absent, "bg-slate-700 text-white"],
+                      ["excused", t.excused, "bg-amber-500 text-white"],
+                    ] as const
+                  ).map(([value, label, on], i) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={mark === value}
+                      onClick={() => set(m.userId, value)}
+                      className={`px-3 py-1.5 transition-colors ${i > 0 ? "border-l border-slate-200" : ""} ${
+                        mark === value ? on : "bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
                 <span className="w-24 text-right text-xs tabular-nums text-slate-600">
                   {m.recentMarked === 0

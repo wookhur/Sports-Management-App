@@ -33,6 +33,10 @@ export async function DELETE(
   });
   if (!membership) return fail("They are not on this team", 404);
 
-  await prisma.teamMember.delete({ where: { id: membership.id } });
+  // A roster-only player exists only for this team, so taking them off it
+  // removes them entirely rather than leaving an account nobody can use.
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { managed: true } });
+  if (user?.managed && isOwner) await prisma.user.delete({ where: { id: userId } });
+  else await prisma.teamMember.delete({ where: { id: membership.id } });
   return ok({ teamId: id, userId });
 }

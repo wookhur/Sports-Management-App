@@ -65,7 +65,10 @@ export async function buildTeamReport(
   if (teamId) {
     const team = await prisma.team.findUnique({
       where: { id: teamId },
-      select: { coachId: true, members: { select: { user: { select: { id: true, name: true } } } } },
+      select: {
+        coachId: true,
+        members: { where: { user: { managed: false } }, select: { user: { select: { id: true, name: true } } } },
+      },
     });
     athletes = team && team.coachId === coachId ? team.members.map((m) => m.user) : [];
   } else {
@@ -115,8 +118,10 @@ export async function buildRoster(coachId: string): Promise<Roster> {
  * each squad's status on its own page, not the union of both on one.
  */
 export async function buildTeamSquad(teamId: string): Promise<{ roster: Roster; triage: Triage }> {
+  // Roster-only players have no account and log nothing; counting them here
+  // would flag every one of them as drifting.
   const members = await prisma.teamMember.findMany({
-    where: { teamId },
+    where: { teamId, user: { managed: false } },
     select: { user: { select: { id: true, name: true, currentStreak: true } } },
   });
   const roster = await rosterFor(members.map((m) => m.user));
