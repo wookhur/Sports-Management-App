@@ -21,6 +21,7 @@ import { teamTimeZone } from "@/lib/teamAccess";
 import { TeamTabs } from "@/components/teamlog/TeamLogShell";
 import { tl } from "@/lib/teamLogText";
 import { addDays, isDayKey, mondayOf } from "@/lib/season";
+import { nameKey } from "@/lib/nameKey";
 import { TrophyIcon, FileTextIcon, ClipboardIcon } from "@/components/navIcons";
 import { formatDate, formatDuration } from "@/lib/format";
 import { metricLabel, type Lang } from "@/lib/i18n";
@@ -152,6 +153,14 @@ export default async function TeamPage({
 
   const isOwner = team.coachId === session.userId;
   const accountMembers = team.members.filter((m) => !m.user.managed).length;
+  // A player the coach added by name who has since joined with an account
+  // shows up twice; point the coach at the roster, where the two are merged.
+  const accountKeys = new Map(team.members.filter((m) => !m.user.managed).map((m) => [nameKey(m.user.name), m.user.name]));
+  const duplicates = isOwner
+    ? team.members
+        .filter((m) => m.user.managed && accountKeys.has(nameKey(m.user.name)))
+        .map((m) => ({ from: m.user.name, into: accountKeys.get(nameKey(m.user.name))! }))
+    : [];
   const isMember = team.members.some((m) => m.userId === session.userId);
   if (!isOwner && !isMember) notFound();
 
@@ -257,6 +266,21 @@ export default async function TeamPage({
         </header>
 
         <TeamTabs teamId={team.id} active="overview" isOwner={isOwner} lang={lang} />
+
+        {duplicates.length > 0 && (
+          <Link
+            href={`/teams/${team.id}/roster`}
+            className="mt-4 block rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 hover:border-amber-300"
+          >
+            <p className="font-bold">{tl(lang).roster.dupTitle}</p>
+            {duplicates.map((d) => (
+              <p key={d.from} className="mt-0.5">
+                {tl(lang).roster.dupLine(d.from, d.into)}
+              </p>
+            ))}
+            <p className="mt-1 text-xs font-semibold">{tl(lang).roster.merge} →</p>
+          </Link>
+        )}
 
         {thisWeek ? (
           <Link

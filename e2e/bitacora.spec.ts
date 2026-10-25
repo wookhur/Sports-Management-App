@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
+import { PrismaClient } from "@prisma/client";
 import { login, api, ATHLETE, COACH } from "./helpers";
 
 // The coach's season log: a weekly plan, roster-only players, excused
@@ -230,4 +231,82 @@ test("a team of roster-only players reads right in Spanish, from the home screen
   await expect(page).toHaveTitle(/Entrenamiento registrado/);
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("a roster-only player merges into the account they signed up with, history and all", async ({ page, browser }) => {
+  await login(page, COACH);
+  await setLang(page, "es");
+  const team = await newTeam(page, "Merge Squad");
+  // The coach added the athlete by name, surname first, before they had an account.
+  await api(page, `/api/teams/${team.id}/roster`, { names: ["Lee Alex"] });
+
+  const other = await browser.newContext();
+  const athletePage = await other.newPage();
+  await login(athletePage, ATHLETE);
+  expect((await api(athletePage, "/api/teams/join", { code: team.code })).status).toBeLessThan(300);
+
+  const db = new PrismaClient();
+  try {
+    const members = await db.teamMember.findMany({ where: { teamId: team.id }, include: { user: true } });
+    const ghost = members.find((m) => m.user.managed)!.userId;
+    const account = members.find((m) => !m.user.managed)!.userId;
+
+    await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+    const today = await seoulToday(page);
+    const back = (n: number) => {
+      const d = new Date(`${today}T00:00:00Z`);
+      d.setUTCDate(d.getUTCDate() - n);
+      return d.toISOString().slice(0, 10);
+    };
+    const [y, m] = today.split("-").map(Number);
+    const term = m >= 8 ? `${y}-S1` : `${y - 1}-S2`;
+
+    // History on the roster-only row: present two days ago, excused yesterday,
+    // one match, an evaluation and a shirt number. The account was marked
+    // absent yesterday, so that day has a mark on both rows.
+    await send(page, `/api/teams/${team.id}/attendance`, "PUT", { day: back(2), marks: [{ userId: ghost, present: true }] });
+    await send(page, `/api/teams/${team.id}/attendance`, "PUT", {
+      day: back(1),
+      marks: [{ userId: ghost, present: false, excused: true }, { userId: account, present: false }],
+    });
+    await api(page, `/api/teams/${team.id}/matches`, {
+      day: back(1), opponent: "Atlas Chapalita", kind: "LEAGUE", goalsFor: 1, goalsAgainst: 0, players: [ghost],
+    });
+    await send(page, `/api/teams/${team.id}/evaluations`, "PUT", { athleteId: ghost, period: term, scores: Array(10).fill(4) });
+    await send(page, `/api/teams/${team.id}/roster/${ghost}`, "PATCH", { number: 7, guardian1Name: "Mamá Lee" });
+
+    // Only a roster-only player can be merged away, and only by the coach.
+    expect((await api(page, `/api/teams/${team.id}/roster/${account}/merge`, { into: ghost })).data.error).toBe(
+      "Solo se puede unir un jugador sin cuenta",
+    );
+    expect((await api(athletePage, `/api/teams/${team.id}/roster/${ghost}/merge`, { into: account })).status).toBe(404);
+
+    // The team page and the roster both point out the duplicate.
+    await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+    await expect(page.locator("main")).toContainText("Lee Alex (sin cuenta) y Alex Lee (con cuenta)");
+    await page.goto(`/teams/${team.id}/roster`, { waitUntil: "networkidle" });
+    await page.getByRole("region", { name: "Parecen el mismo jugador" }).getByRole("button", { name: "Unir con su cuenta" }).click();
+    const panel = page.locator('li[data-player="Lee Alex"]');
+    await expect(panel.locator('select[name="into"]')).toHaveValue(account);
+    page.once("dialog", (d) => d.accept());
+    await panel.getByRole("button", { name: "Unir", exact: true }).click();
+    await expect(page.locator('li[data-player="Lee Alex"]')).toHaveCount(0);
+
+    // Everything landed on the account.
+    await expect(page.locator('li[data-player="Alex Lee"]')).toContainText("Mamá Lee");
+    await expect(page.locator('li[data-player="Alex Lee"]')).toContainText("7");
+    expect(await db.user.findUnique({ where: { id: ghost } })).toBeNull();
+    const marks = await db.attendance.findMany({ where: { teamId: team.id, userId: account }, orderBy: { day: "asc" } });
+    expect(marks.map((r) => [r.day, r.present, r.excused])).toEqual([
+      [back(2), true, false],
+      [back(1), false, true], // absent on the account, excused on the roster row: excused
+    ]);
+    expect(await db.matchPlayer.count({ where: { userId: account, match: { teamId: team.id } } })).toBe(1);
+    const ev = await db.playerEvaluation.findUnique({ where: { teamId_athleteId_period: { teamId: team.id, athleteId: account, period: term } } });
+    expect(ev?.scores).toEqual(Array(10).fill(4));
+  } finally {
+    await db.$disconnect();
+    await other.close();
+    await send(page, `/api/teams/${team.id}`, "DELETE");
+  }
 });

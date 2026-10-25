@@ -29,6 +29,16 @@ const TEXT = {
   tooManyNames: { en: "Add up to 60 names at a time", es: "Agrega hasta 60 nombres a la vez", ko: "한 번에 60명까지 추가할 수 있어요" },
   pickTerm: { en: "Pick a term", es: "Elige un semestre", ko: "학기를 고르세요" },
   shortTeamName: { en: "Team name is too short", es: "El nombre del equipo es muy corto", ko: "팀 이름이 너무 짧아요" },
+  mergeNotManaged: {
+    en: "Only a player without an account can be merged",
+    es: "Solo se puede unir un jugador sin cuenta",
+    ko: "계정 없는 선수만 합칠 수 있어요",
+  },
+  mergeTarget: {
+    en: "Pick a teammate who has an account",
+    es: "Elige un jugador del equipo que tenga cuenta",
+    ko: "계정이 있는 팀원을 고르세요",
+  },
   timeZone: { en: "Pick a time zone from the list", es: "Elige una zona horaria de la lista", ko: "목록에서 시간대를 고르세요" },
 } satisfies Record<string, Record<Lang, string>>;
 
