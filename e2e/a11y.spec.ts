@@ -110,8 +110,9 @@ test("a team page is accessible and readable", async ({ page }) => {
   expect(await violations(page, CRITICAL_RULES), "accessibility violations").toEqual([]);
 });
 
-// The team log pages (plan, attendance history, matches, evaluations, roster,
-// season report) hang off the team page, so they are checked from it.
+// The team log pages (the bitácora hub and its sheets: goals, roster,
+// attendance, matches, evaluations, plan, year-end report, event requests,
+// self-evaluation) hang off the team page, so they are checked from it.
 test("the team log pages are accessible and readable", async ({ page }) => {
   await login(page, COACH);
   await page.goto("/coach", { waitUntil: "networkidle" });
@@ -124,7 +125,11 @@ test("the team log pages are accessible and readable", async ({ page }) => {
     body: JSON.stringify({ template: "soccer-season" }),
   }), team);
 
-  const pages = ["plan", "attendance", "matches", "evaluations", "roster", "season"].map((p) => `${team}/${p}`);
+  await page.evaluate((t) => fetch(`${t.replace("/teams/", "/api/teams/")}/events`, { method: "POST" }), team);
+
+  const pages = ["bitacora", "goals", "roster", "attendance", "matches", "evaluations", "plan", "season", "events", "self-eval"].map(
+    (p) => `${team}/${p}`,
+  );
   expect(await contrastProblems(page, pages), "contrast violations").toEqual([]);
   for (const p of pages) {
     await page.goto(p, { waitUntil: "networkidle" });

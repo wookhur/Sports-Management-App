@@ -14,6 +14,7 @@ const schema = z.object({
   name: z.string().trim().min(1).max(60).optional(),
   number: z.union([z.number().int().min(0).max(999), z.null()]).optional(),
   birthDate: z.union([z.string().refine(isDayKey, "pickDate"), z.literal("")]).optional(),
+  curp: z.union([z.string().trim().toUpperCase().regex(/^[A-Z0-9]{18}$/, "curp"), z.literal("")]).optional(),
   guardian1Name: text(80),
   guardian1Email: z.union([z.string().trim().email("checkEmail").max(120), z.literal("")]).optional(),
   guardian1Phone: text(40),

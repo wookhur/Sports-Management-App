@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { loadTeamPage, rosterOf } from "@/lib/teamPage";
-import { EVAL_SCALE, evaluationPercent, tl } from "@/lib/teamLogText";
+import { EVAL_SCALE, evaluationGrades, tl } from "@/lib/teamLogText";
 import TeamLogShell from "@/components/teamlog/TeamLogShell";
 import TermPicker, { readPeriod } from "@/components/teamlog/TermPicker";
 import EvaluationGrid from "@/components/teamlog/EvaluationGrid";
@@ -26,10 +26,13 @@ export default async function EvaluationsPage({
     prisma.playerEvaluation.findMany({ where: { teamId: id, period } }),
   ]);
   const byAthlete = new Map(evals.map((v) => [v.athleteId, v]));
-  const done = roster.filter((r) => evaluationPercent(byAthlete.get(r.userId)?.scores ?? []) != null).length;
+  const done = roster.filter((r) => {
+    const g = evaluationGrades(byAthlete.get(r.userId)?.scores ?? []);
+    return g.attitude != null && g.performance != null;
+  }).length;
 
   return (
-    <TeamLogShell team={team} active="evaluations" isOwner={isOwner} lang={lang} title={e.title} sub={e.sub}>
+    <TeamLogShell team={team} active="evaluations" code={isOwner ? "B4" : undefined} isOwner={isOwner} lang={lang} title={e.title} sub={e.sub}>
       <TermPicker basePath={`/teams/${id}/evaluations`} year={year} term={term} currentYear={currentYear} lang={lang} allowWhole={false} />
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_220px]">

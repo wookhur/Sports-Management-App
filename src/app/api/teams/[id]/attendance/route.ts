@@ -3,14 +3,30 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { failT, failIssue } from "@/lib/apiText";
+import { ATTENDANCE_STATUSES, attendanceFlags, type AttendanceStatusKey } from "@/lib/bitacora";
 
 const schema = z.object({
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "pickDate"),
   marks: z
-    .array(z.object({ userId: z.string().min(1), present: z.boolean(), excused: z.boolean().optional() }))
+    .array(
+      z.object({
+        userId: z.string().min(1),
+        // The school's five marks; null clears the day's mark. Older callers
+        // send present/excused instead, which map onto three of the five.
+        status: z.enum(ATTENDANCE_STATUSES).nullable().optional(),
+        present: z.boolean().optional(),
+        excused: z.boolean().optional(),
+      }),
+    )
     .min(1)
     .max(200),
 });
+
+function statusOf(m: { status?: AttendanceStatusKey | null; present?: boolean; excused?: boolean }): AttendanceStatusKey | null {
+  if (m.status !== undefined) return m.status;
+  if (m.present) return "ASISTENCIA";
+  return m.excused ? "JUSTIFICADA" : "FALTA";
+}
 
 /**
  * Take the register for one day.
@@ -20,11 +36,6 @@ const schema = z.object({
  * members can be marked — a userId that isn't on the team is dropped rather
  * than written, so a stale sheet can't attach attendance to someone who left.
  */
-/** Excused only qualifies an absence; a present mark is never excused. */
-function excused(m: { present: boolean; excused?: boolean }): boolean {
-  return !m.present && m.excused === true;
-}
-
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return await failT("signIn", 401);
@@ -44,13 +55,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { day } = parsed.data;
 
   await prisma.$transaction(
-    marks.map((m) =>
-      prisma.attendance.upsert({
+    marks.map((m) => {
+      const status = statusOf(m);
+      if (status === null) return prisma.attendance.deleteMany({ where: { teamId: id, day, userId: m.userId } });
+      const data = { status, ...attendanceFlags(status), markedById: session.userId };
+      return prisma.attendance.upsert({
         where: { teamId_day_userId: { teamId: id, day, userId: m.userId } },
-        update: { present: m.present, excused: excused(m), markedById: session.userId },
-        create: { teamId: id, day, userId: m.userId, present: m.present, excused: excused(m), markedById: session.userId },
-      }),
-    ),
+        update: data,
+        create: { teamId: id, day, userId: m.userId, ...data },
+      });
+    }),
   );
   return ok({ day, saved: marks.length, ignored: parsed.data.marks.length - marks.length });
 }

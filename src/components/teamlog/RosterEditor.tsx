@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Lang } from "@/lib/i18n";
 import { tl } from "@/lib/teamLogText";
 import { nameKey } from "@/lib/nameKey";
+import { bt } from "@/lib/bitacoraText";
 
 export interface RosterRow {
   userId: string;
@@ -12,6 +13,7 @@ export interface RosterRow {
   managed: boolean;
   number: number | null;
   birthDate: string | null;
+  curp: string | null;
   guardian1Name: string | null;
   guardian1Email: string | null;
   guardian1Phone: string | null;
@@ -160,12 +162,21 @@ function PlayerEditor({ teamId, lang, row, onDone }: { teamId: string; lang: Lan
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const field = (k: Key, label: string, type = "text") => (
+  const field = (k: Key, label: string, type = "text", hint?: string) => (
     <label key={k}>
       <span className="label">{label}</span>
-      <input className="input" name={k} type={type} value={v[k]} onChange={(e) => setV({ ...v, [k]: e.target.value })} />
+      <input
+        className="input"
+        name={k}
+        type={type}
+        value={v[k]}
+        onChange={(e) => setV({ ...v, [k]: k === "curp" ? e.target.value.toUpperCase() : e.target.value })}
+        {...(k === "curp" && { maxLength: 18, autoCapitalize: "characters", spellCheck: false })}
+      />
+      {hint && <span className="mt-0.5 block text-[11px] text-slate-500">{hint}</span>}
     </label>
   );
+  const b = bt(lang).roster;
   return (
     <form
       className="mt-3 grid gap-3 rounded-xl bg-slate-50 p-3 sm:grid-cols-3"
@@ -191,6 +202,7 @@ function PlayerEditor({ teamId, lang, row, onDone }: { teamId: string; lang: Lan
       {row.managed && field("name", r.name)}
       {field("number", r.number, "number")}
       {field("birthDate", r.birthDate, "date")}
+      {field("curp", b.curp, "text", b.curpHint)}
       {[1, 2].map((n) => (
         <fieldset key={n} className="grid gap-2 sm:col-span-3 sm:grid-cols-3">
           <legend className="mb-1 text-xs font-bold text-slate-600">{n === 1 ? r.guardian1 : r.guardian2}</legend>
@@ -210,6 +222,55 @@ function PlayerEditor({ teamId, lang, row, onDone }: { teamId: string; lang: Lan
         </button>
         <button type="submit" className="btn-primary text-sm" disabled={busy}>
           {busy ? s.common.saving : s.common.save}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** Take a player off the team, with the reason the year-end report lists. */
+function RemovePanel({ teamId, lang, row, onDone }: { teamId: string; lang: Lang; row: RosterRow; onDone: () => void }) {
+  const s = tl(lang);
+  const b = bt(lang).roster;
+  const router = useRouter();
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <form
+      className="mt-3 space-y-3 rounded-xl bg-rose-50 p-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(null);
+        const err = await send(`/api/teams/${teamId}/members/${row.userId}`, "DELETE", { reason });
+        setBusy(false);
+        if (err) {
+          setError(err === "error" ? s.common.errSave : err);
+          return;
+        }
+        onDone();
+        router.refresh();
+      }}
+    >
+      <label className="block">
+        <span className="label">
+          {b.leaveReason} {s.common.optional}
+        </span>
+        <input name="reason" className="input" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
+        <span className="mt-0.5 block text-[11px] text-slate-600">{b.leaveReasonHint}</span>
+      </label>
+      {error && (
+        <p role="alert" className="text-sm text-red-700">
+          {error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2">
+        <button type="button" className="btn-ghost text-sm" onClick={onDone}>
+          {s.common.cancel}
+        </button>
+        <button type="submit" className="btn-primary bg-rose-700 text-sm hover:bg-rose-800" disabled={busy}>
+          {busy ? s.common.saving : `${b.remove}: ${row.name}`}
         </button>
       </div>
     </form>
@@ -307,7 +368,7 @@ function MergePanel({
 export default function RosterEditor({ teamId, lang, rows }: { teamId: string; lang: Lang; rows: RosterRow[] }) {
   const s = tl(lang);
   const r = s.roster;
-  const [open, setOpen] = useState<{ id: string; mode: "edit" | "merge" } | null>(null);
+  const [open, setOpen] = useState<{ id: string; mode: "edit" | "merge" | "remove" } | null>(null);
   const accounts = rows.filter((x) => !x.managed);
   const byKey = new Map(accounts.map((a) => [nameKey(a.name), a]));
   const matchOf = (row: RosterRow) => (row.managed ? byKey.get(nameKey(row.name)) ?? null : null);
@@ -347,7 +408,7 @@ export default function RosterEditor({ teamId, lang, rows }: { teamId: string; l
                     )}
                   </p>
                   <p className="truncate text-xs text-slate-500">
-                    {[row.birthDate, row.guardian1Name, row.guardian1Phone, row.guardian1Email].filter(Boolean).join(" · ") || r.noDetails}
+                    {[row.birthDate, row.curp, row.guardian1Name, row.guardian1Phone, row.guardian1Email].filter(Boolean).join(" · ") || r.noDetails}
                   </p>
                 </div>
                 {!isOpen && (
@@ -360,10 +421,14 @@ export default function RosterEditor({ teamId, lang, rows }: { teamId: string; l
                     <button type="button" className="btn-ghost px-2 py-1 text-xs" onClick={() => setOpen({ id: row.userId, mode: "edit" })}>
                       {s.common.edit}
                     </button>
+                    <button type="button" className="btn-ghost px-2 py-1 text-xs text-rose-800" onClick={() => setOpen({ id: row.userId, mode: "remove" })}>
+                      {bt(lang).roster.remove}
+                    </button>
                   </div>
                 )}
               </div>
               {isOpen && open.mode === "edit" && <PlayerEditor teamId={teamId} lang={lang} row={row} onDone={() => setOpen(null)} />}
+              {isOpen && open.mode === "remove" && <RemovePanel teamId={teamId} lang={lang} row={row} onDone={() => setOpen(null)} />}
               {isOpen && open.mode === "merge" && (
                 <MergePanel
                   teamId={teamId}

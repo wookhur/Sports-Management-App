@@ -14,7 +14,7 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
   const tz = teamTimeZone(team);
 
   return (
-    <TeamLogShell team={team} active="roster" isOwner={isOwner} lang={lang} title={s.roster.title} sub={s.roster.sub}>
+    <TeamLogShell team={team} active="roster" code={isOwner ? "B1" : undefined} isOwner={isOwner} lang={lang} title={s.roster.title} sub={s.roster.sub}>
       <div className="space-y-6">
         <TeamDetailsForm
           teamId={id}
@@ -34,6 +34,7 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
               managed: m.user.managed,
               number: m.number,
               birthDate: m.birthDate,
+              curp: m.curp,
               guardian1Name: m.guardian1Name,
               guardian1Email: m.guardian1Email,
               guardian1Phone: m.guardian1Phone,

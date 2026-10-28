@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { failT, failIssue } from "@/lib/apiText";
 import { memberIds, teamRole } from "@/lib/teamAccess";
-import { matchSchema } from "@/lib/matchSchema";
+import { matchSchema, playerMarks } from "@/lib/matchSchema";
 
 /**
  * Record a match. Only current members can be listed as having played; a
@@ -17,8 +17,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const parsed = matchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return await failIssue(parsed.error.issues);
-  const { players, competition, note, ...rest } = parsed.data;
+  const { players, competition, note, eventId, ...rest } = parsed.data;
   const onTeam = await memberIds(id);
+  if (eventId && !(await prisma.teamEvent.findFirst({ where: { id: eventId, teamId: id }, select: { id: true } }))) {
+    return failT("invalid");
+  }
 
   const match = await prisma.match.create({
     data: {
@@ -26,7 +29,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       ...rest,
       competition: competition || null,
       note: note || null,
-      players: { create: [...new Set(players)].filter((p) => onTeam.has(p)).map((userId) => ({ userId })) },
+      eventId: eventId ?? null,
+      players: { create: playerMarks(players).filter((p) => onTeam.has(p.userId)) },
     },
   });
   return ok({ id: match.id }, 201);

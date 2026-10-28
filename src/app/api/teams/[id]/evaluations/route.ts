@@ -6,12 +6,13 @@ import { failT, failIssue } from "@/lib/apiText";
 import { memberIds, teamRole } from "@/lib/teamAccess";
 import { isTerm } from "@/lib/season";
 
-// Ten points, each 1-5, or 0 for "not scored yet" so a coach can save half an
-// evaluation and come back to it.
+// Ten points, each 10-6, or 0 for "not scored yet" so a coach can save half
+// an evaluation and come back to it.
 const schema = z.object({
   athleteId: z.string().min(1),
   period: z.string().refine(isTerm, "pickTerm"),
-  scores: z.array(z.number().int().min(0).max(5)).length(10),
+  // The school's scale: 10, 9, 8, 7 or 6 per point; 0 = not scored yet.
+  scores: z.array(z.number().int().refine((n) => n === 0 || (n >= 6 && n <= 10), "invalid")).length(10),
   note: z.string().trim().max(1000).optional(),
 });
 

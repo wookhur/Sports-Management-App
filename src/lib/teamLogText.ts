@@ -1,3 +1,4 @@
+import { blockGrade } from "./bitacora";
 import type { Lang } from "./i18n";
 
 // UI text for the team log pages: the season plan, attendance history,
@@ -7,7 +8,7 @@ import type { Lang } from "./i18n";
 export const MATCH_KINDS = ["LEAGUE", "FRIENDLY", "TOURNAMENT", "ASOMEX"] as const;
 export type MatchKindKey = (typeof MATCH_KINDS)[number];
 
-export const EVAL_SCALE = [5, 4, 3, 2, 1] as const;
+export const EVAL_SCALE = [10, 9, 8, 7, 6] as const;
 
 const ko = {
   tabs: {
@@ -104,7 +105,7 @@ const ko = {
   },
   evaluations: {
     title: "선수 평가",
-    sub: "학기마다 태도 5개, 경기력 5개 항목을 1~5점으로 평가해요. 선수 본인에게는 보이지 않아요.",
+    sub: "학기마다 태도 5개, 경기력 5개 항목을 10~6점으로 평가해요(10이 최고). 선수 본인에게는 보이지 않아요.",
     attitude: "스포츠 태도",
     performance: "경기력",
     criteria: [
@@ -119,7 +120,7 @@ const ko = {
       "체력이 좋다.",
       "훈련과 경기에서 포지션의 전술 역할이 성장하고 있다.",
     ],
-    scale: { 5: "매우 우수", 4: "우수", 3: "보통", 2: "미흡", 1: "노력 필요" } as Record<number, string>,
+    scale: { 10: "매우 우수", 9: "우수", 8: "보통", 7: "미흡", 6: "노력 필요" } as Record<number, string>,
     score: "점수",
     notRated: "미평가",
     noteLabel: "코멘트",
@@ -281,7 +282,7 @@ const en: Dict = {
   },
   evaluations: {
     title: "Player evaluations",
-    sub: "Each term, score five attitude points and five performance points from 1 to 5. Players don't see these.",
+    sub: "Each term, score five attitude points and five performance points from 10 to 6 (10 is best). Players don't see these.",
     attitude: "Sporting attitude",
     performance: "Performance",
     criteria: [
@@ -296,7 +297,7 @@ const en: Dict = {
       "Good physical condition.",
       "Growing in the tactical role of their position, in training and games.",
     ],
-    scale: { 5: "Excellent", 4: "Very good", 3: "Good", 2: "Fair", 1: "Needs to improve" },
+    scale: { 10: "Excellent", 9: "Very good", 8: "Good", 7: "Fair", 6: "Needs to improve" },
     score: "Score",
     notRated: "Not rated",
     noteLabel: "Comment",
@@ -457,7 +458,7 @@ const es: Dict = {
   },
   evaluations: {
     title: "Evaluaciones de jugadores",
-    sub: "Cada semestre califica cinco puntos de actitud y cinco de rendimiento del 1 al 5. Los jugadores no las ven.",
+    sub: "Cada semestre califica cinco puntos de actitud y cinco de rendimiento del 10 al 6 (10 es excelente). Los jugadores no las ven.",
     attitude: "Actitud deportiva",
     performance: "Rendimiento deportivo",
     criteria: [
@@ -472,7 +473,7 @@ const es: Dict = {
       "Cuenta con buen rendimiento físico.",
       "Desarrollo en la caracterización táctica en los juegos y entrenamientos (posición del jugador).",
     ],
-    scale: { 5: "Excelente", 4: "Muy bien", 3: "Bien", 2: "Regular", 1: "Necesita mejorar" },
+    scale: { 10: "Excelente", 9: "Muy bien", 8: "Bien", 7: "Regular", 6: "Necesita mejorar" },
     score: "Calificación",
     notRated: "Sin calificar",
     noteLabel: "Comentario",
@@ -549,8 +550,11 @@ export function matchResult(goalsFor: number, goalsAgainst: number): "W" | "D" |
   return goalsFor > goalsAgainst ? "W" : goalsFor === goalsAgainst ? "D" : "L";
 }
 
-/** Sum of ten 1-5 scores as a percentage; null until every point is scored. */
-export function evaluationPercent(scores: number[]): number | null {
-  if (scores.length !== 10 || scores.some((s) => !(s >= 1 && s <= 5))) return null;
-  return Math.round((scores.reduce((a, b) => a + b, 0) / 50) * 100);
+/**
+ * The two calificaciones of the B4 sheet: attitude (points 1-5) and
+ * performance (points 6-10), each the average of its five 10-6 scores, null
+ * until that block is fully scored.
+ */
+export function evaluationGrades(scores: number[]): { attitude: number | null; performance: number | null } {
+  return { attitude: blockGrade(scores.slice(0, 5)), performance: blockGrade(scores.slice(5, 10)) };
 }

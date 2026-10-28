@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Lang } from "@/lib/i18n";
 import { tl } from "@/lib/teamLogText";
-
-export type AttendanceMark = "present" | "absent" | "excused";
+import { ATTENDANCE_LABEL, ATTENDANCE_STATUSES, ATTENDANCE_STYLE, type AttendanceStatusKey } from "@/lib/bitacora";
 
 export interface AttendanceMember {
   userId: string;
   name: string;
   /** The day's mark, or null when the register hasn't been taken for them. */
-  present: AttendanceMark | null;
+  mark: AttendanceStatusKey | null;
   /** Sessions marked in the recent window, and how many they attended. */
   recentMarked: number;
   recentPresent: number;
@@ -24,8 +23,6 @@ const L: Record<
     heading: string;
     sub: (days: number) => string;
     dayLabel: string;
-    present: string;
-    absent: string;
     unmarked: string;
     rate: (present: number, marked: number) => string;
     noHistory: string;
@@ -40,8 +37,6 @@ const L: Record<
     heading: "출석",
     sub: (days) => `오늘 나온 선수를 표시하세요. 오른쪽은 최근 ${days}일 출석률이에요.`,
     dayLabel: "날짜",
-    present: "출석",
-    absent: "결석",
     unmarked: "미체크",
     rate: (p, m) => `${m}회 중 ${p}회`,
     noHistory: "기록 없음",
@@ -55,8 +50,6 @@ const L: Record<
     heading: "Attendance",
     sub: (days) => `Mark who turned up today. On the right, each athlete's rate over the last ${days} days.`,
     dayLabel: "Day",
-    present: "Present",
-    absent: "Absent",
     unmarked: "Not marked",
     rate: (p, m) => `${p} of ${m}`,
     noHistory: "No history",
@@ -70,8 +63,6 @@ const L: Record<
     heading: "Asistencia",
     sub: (days) => `Marca quién vino hoy. A la derecha, la asistencia de cada atleta en los últimos ${days} días.`,
     dayLabel: "Día",
-    present: "Presente",
-    absent: "Ausente",
     unmarked: "Sin marcar",
     rate: (p, m) => `${p} de ${m}`,
     noHistory: "Sin historial",
@@ -86,11 +77,11 @@ const L: Record<
 /**
  * The register for one day, plus each athlete's recent rate.
  *
- * Four states per row, deliberately: present, absent, excused, and not
- * marked. A coach who opens the sheet and saves nothing has not marked anyone
- * absent, and the rate on the right only counts days that were actually taken.
- * An excused absence is still an absence for the rate; it is told apart so a
- * school's log can count justified absences separately.
+ * The school's five marks per row (asistencia, falta, tarde, incidente,
+ * justificada), plus not marked. A coach who opens the sheet and saves
+ * nothing has not marked anyone absent, and the rate on the right only counts
+ * days that were actually taken. Late and incident count as attended; an
+ * excused absence is still an absence for the rate.
  *
  * The day defaults to today where the team trains; the coach can pick an
  * earlier day to fill in a register they didn't take at the time.
@@ -113,22 +104,23 @@ export default function AttendanceSheet({
   const s = L[lang];
   const t = tl(lang).attendance;
   const router = useRouter();
-  const [marks, setMarks] = useState<Record<string, AttendanceMark | null>>(
-    Object.fromEntries(members.map((m) => [m.userId, m.present])),
+  const labels = ATTENDANCE_LABEL[lang];
+  const [marks, setMarks] = useState<Record<string, AttendanceStatusKey | null>>(
+    Object.fromEntries(members.map((m) => [m.userId, m.mark])),
   );
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function set(userId: string, mark: AttendanceMark) {
+  function set(userId: string, mark: AttendanceStatusKey) {
     setMarks((m) => ({ ...m, [userId]: mark }));
     setStatus(null);
   }
 
   async function save() {
     const toSend = Object.entries(marks)
-      .filter((e): e is [string, AttendanceMark] => e[1] !== null)
-      .map(([userId, mark]) => ({ userId, present: mark === "present", excused: mark === "excused" }));
+      .filter((e): e is [string, AttendanceStatusKey] => e[1] !== null)
+      .map(([userId, status]) => ({ userId, status }));
     if (toSend.length === 0) return;
     setError(null);
     setBusy(true);
@@ -147,7 +139,7 @@ export default function AttendanceSheet({
     router.refresh();
   }
 
-  const dirty = members.some((m) => marks[m.userId] !== m.present);
+  const dirty = members.some((m) => marks[m.userId] !== m.mark);
 
   return (
     <section id="attendance" className="scroll-mt-24">
@@ -162,7 +154,7 @@ export default function AttendanceSheet({
           </Link>
           <button
             type="button"
-            onClick={() => setMarks(Object.fromEntries(members.map((m) => [m.userId, "present" as const])))}
+            onClick={() => setMarks(Object.fromEntries(members.map((m) => [m.userId, "ASISTENCIA" as const])))}
             className="btn-ghost text-xs"
           >
             {s.allPresent}
@@ -192,30 +184,27 @@ export default function AttendanceSheet({
             const mark = marks[m.userId];
             return (
               <li key={m.userId} className="flex flex-wrap items-center gap-3 px-5 py-2.5">
-                <p className="min-w-0 flex-1 truncate text-sm font-medium">{m.name}</p>
+                <p className="min-w-0 flex-1 basis-full truncate text-sm font-medium sm:basis-0">{m.name}</p>
                 <div
                   role="radiogroup"
                   aria-label={m.name}
                   className="flex overflow-hidden rounded-lg border border-slate-200 text-xs font-semibold"
                 >
-                  {(
-                    [
-                      ["present", s.present, "bg-emerald-600 text-white"],
-                      ["absent", s.absent, "bg-slate-700 text-white"],
-                      ["excused", t.excused, "bg-amber-500 text-white"],
-                    ] as const
-                  ).map(([value, label, on], i) => (
+                  {ATTENDANCE_STATUSES.map((value, i) => (
                     <button
                       key={value}
                       type="button"
                       role="radio"
                       aria-checked={mark === value}
+                      aria-label={labels[value].label}
+                      title={labels[value].label}
                       onClick={() => set(m.userId, value)}
-                      className={`px-3 py-1.5 transition-colors ${i > 0 ? "border-l border-slate-200" : ""} ${
-                        mark === value ? on : "bg-white text-slate-600 hover:bg-slate-50"
+                      className={`min-w-9 px-2 py-1.5 transition-colors ${i > 0 ? "border-l border-slate-200" : ""} ${
+                        mark === value ? ATTENDANCE_STYLE[value] : "bg-white text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      {label}
+                      <span className="md:hidden">{labels[value].code}</span>
+                      <span className="hidden md:inline">{labels[value].label}</span>
                     </button>
                   ))}
                 </div>

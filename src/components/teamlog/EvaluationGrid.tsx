@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { Lang } from "@/lib/i18n";
-import { EVAL_SCALE, evaluationPercent, tl } from "@/lib/teamLogText";
+import { EVAL_SCALE, evaluationGrades, tl } from "@/lib/teamLogText";
+import { bt } from "@/lib/bitacoraText";
 
 export interface EvalPlayer {
   userId: string;
@@ -23,7 +24,8 @@ function PlayerRow({ teamId, period, lang, player }: { teamId: string; period: s
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const dirty = saved.scores !== scores.join(",") || saved.note !== note;
-  const pct = evaluationPercent(scores);
+  const grades = evaluationGrades(scores);
+  const g = bt(lang).evals;
 
   async function save() {
     setBusy(true);
@@ -51,8 +53,16 @@ function PlayerRow({ teamId, period, lang, player }: { teamId: string; period: s
           {player.name}
         </p>
         <div className="flex items-center gap-3">
-          <span className={`text-sm font-bold tabular-nums ${pct == null ? "text-slate-500" : "text-slate-900"}`} data-testid="eval-pct">
-            {pct == null ? e.notRated : `${pct}%`}
+          <span className="text-xs text-slate-600" data-testid="eval-grades">
+            {g.attitude}{" "}
+            <strong className="text-sm tabular-nums text-slate-900" data-testid="eval-attitude">
+              {grades.attitude ?? "–"}
+            </strong>
+            {" · "}
+            {g.performance}{" "}
+            <strong className="text-sm tabular-nums text-slate-900" data-testid="eval-performance">
+              {grades.performance ?? "–"}
+            </strong>
           </span>
           <span className="text-xs text-slate-500" role="status">
             {msg?.ok ? msg.text : ""}
@@ -76,7 +86,7 @@ function PlayerRow({ teamId, period, lang, player }: { teamId: string; period: s
             >
               <option value={0}>–</option>
               {EVAL_SCALE.map((v) => (
-                <option key={v} value={v}>
+                <option key={v} value={v} title={e.scale[v]}>
                   {v}
                 </option>
               ))}
@@ -101,7 +111,7 @@ function PlayerRow({ teamId, period, lang, player }: { teamId: string; period: s
   );
 }
 
-/** One row per player: ten 1-5 scores, a comment, and the resulting percentage. */
+/** One row per player: ten 10-6 scores, a comment, and the sheet's two grades. */
 export default function EvaluationGrid({
   teamId,
   period,

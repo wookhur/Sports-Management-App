@@ -31,7 +31,7 @@ export default async function TeamPlanPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <TeamLogShell team={team} active="plan" isOwner={isOwner} lang={lang} title={s.title} sub={s.sub}>
+    <TeamLogShell team={team} active="plan" code={isOwner ? "B5" : undefined} isOwner={isOwner} lang={lang} title={s.title} sub={s.sub}>
       <div className="grid gap-4 md:grid-cols-2">
         <section className="card p-5">
           <h2 className="text-sm font-bold">{s.session}</h2>

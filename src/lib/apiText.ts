@@ -39,6 +39,7 @@ const TEXT = {
     es: "Elige un jugador del equipo que tenga cuenta",
     ko: "계정이 있는 팀원을 고르세요",
   },
+  curp: { en: "A CURP has 18 letters and digits", es: "La CURP tiene 18 letras y números", ko: "CURP는 영문자와 숫자 18자예요" },
   timeZone: { en: "Pick a time zone from the list", es: "Elige una zona horaria de la lista", ko: "목록에서 시간대를 고르세요" },
 } satisfies Record<string, Record<Lang, string>>;
 

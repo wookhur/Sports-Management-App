@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { attendanceFlags, type AttendanceStatusKey } from "./bitacora";
 
 // Folding a roster-only player into the account the same person later made.
 //
@@ -8,12 +9,15 @@ import { prisma } from "./db";
 // history stays on the row with no account. Merging moves everything that
 // row has onto the account and deletes the row.
 
-type Mark = { present: boolean; excused: boolean };
+type Mark = { status: AttendanceStatusKey };
 
-/** Both rows say something about one day: any "present" wins, then "excused". */
-export function combineMarks(a: Mark, b: Mark): Mark {
-  if (a.present || b.present) return { present: true, excused: false };
-  return { present: false, excused: a.excused || b.excused };
+/** Which of two marks for one day to keep: having come beats not, then an excuse. */
+const MARK_RANK: Record<AttendanceStatusKey, number> = { ASISTENCIA: 5, TARDE: 4, INCIDENTE: 3, JUSTIFICADA: 2, FALTA: 1 };
+
+/** Both rows say something about one day: keep the stronger mark. */
+export function combineMarks(a: Mark, b: Mark) {
+  const status = MARK_RANK[a.status] >= MARK_RANK[b.status] ? a.status : b.status;
+  return { status, ...attendanceFlags(status) };
 }
 
 /** Of two evaluations for one term, keep the one with more points scored, then the newer. */
@@ -26,6 +30,7 @@ export function pickEvaluation<T extends { scores: number[]; updatedAt: Date }>(
 const ROSTER_FIELDS = [
   "number",
   "birthDate",
+  "curp",
   "guardian1Name",
   "guardian1Email",
   "guardian1Phone",
@@ -67,10 +72,10 @@ export async function mergeRosterPlayer(teamId: string, fromId: string, intoId: 
     }
 
     // Match appearances. A match both rows played in counts once.
-    const appearances = await tx.matchPlayer.findMany({ where: { userId: fromId, match: { teamId } }, select: { matchId: true } });
+    const appearances = await tx.matchPlayer.findMany({ where: { userId: fromId, match: { teamId } }, select: { matchId: true, status: true } });
     if (appearances.length) {
       await tx.matchPlayer.createMany({
-        data: appearances.map((a) => ({ matchId: a.matchId, userId: intoId })),
+        data: appearances.map((a) => ({ matchId: a.matchId, userId: intoId, status: a.status })),
         skipDuplicates: true,
       });
       result.matches = appearances.length;

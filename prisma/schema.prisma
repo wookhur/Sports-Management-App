@@ -106,13 +106,13 @@ model User {
   gameScores       GameScore[]
   notifications    Notification[]
 
-  assignmentsGiven    Assignment[] @relation("AssignmentCoach")
-  assignmentsReceived Assignment[] @relation("AssignmentAthlete")
-  teamsOwned          Team[]       @relation("TeamCoach")
+  assignmentsGiven    Assignment[]       @relation("AssignmentCoach")
+  assignmentsReceived Assignment[]       @relation("AssignmentAthlete")
+  teamsOwned          Team[]             @relation("TeamCoach")
   teamMemberships     TeamMember[]
   announcements       TeamAnnouncement[] @relation("AnnouncementAuthor")
-  attendance          Attendance[] @relation("AttendanceAthlete")
-  attendanceMarked    Attendance[] @relation("AttendanceMarker")
+  attendance          Attendance[]       @relation("AttendanceAthlete")
+  attendanceMarked    Attendance[]       @relation("AttendanceMarker")
   customDrills        CustomDrill[]
   matchesPlayed       MatchPlayer[]
   evaluations         PlayerEvaluation[]
@@ -175,16 +175,18 @@ model Assignment {
 
 // A coach-owned squad. Athletes join with the invite code.
 model Team {
-  id        String       @id @default(cuid())
-  name      String
-  code      String       @unique
-  coach     User         @relation("TeamCoach", fields: [coachId], references: [id], onDelete: Cascade)
+  id            String             @id @default(cuid())
+  name          String
+  code          String             @unique
+  coach         User               @relation("TeamCoach", fields: [coachId], references: [id], onDelete: Cascade)
   coachId       String
   members       TeamMember[]
   assignments   Assignment[]
   announcements TeamAnnouncement[]
   attendance    Attendance[]
   planWeeks     TeamPlanWeek[]
+  seasonDocs    TeamSeasonDoc[]
+  events        TeamEvent[]
   matches       Match[]
   evaluations   PlayerEvaluation[]
   // Free text the coach fills in: the age group (often birth years, like
@@ -197,7 +199,7 @@ model Team {
   // next day in Seoul, so a single app-wide zone files it under tomorrow.
   // Null means Asia/Seoul, which is what every team used before.
   timeZone      String?
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime           @default(now())
 }
 
 // A note from the coach to the whole team. Every member is notified when it
@@ -241,20 +243,24 @@ model CustomDrill {
 // day; absent is a row with present=false, so "not marked" and "marked absent"
 // stay distinct.
 model Attendance {
-  id         String   @id @default(cuid())
-  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id         String           @id @default(cuid())
+  team       Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId     String
-  user       User     @relation("AttendanceAthlete", fields: [userId], references: [id], onDelete: Cascade)
+  user       User             @relation("AttendanceAthlete", fields: [userId], references: [id], onDelete: Cascade)
   userId     String
   day        String // YYYY-MM-DD in the team's local calendar
   present    Boolean
   // An absence with a reason the coach accepts (illness, a school trip). Only
   // meaningful when present is false; it is counted apart from plain absences.
-  excused    Boolean  @default(false)
-  markedBy   User     @relation("AttendanceMarker", fields: [markedById], references: [id], onDelete: Cascade)
+  excused    Boolean          @default(false)
+  // The school's register has five marks, not three. Late and "incident"
+  // both count as attended, so `present` and `excused` stay in step with
+  // this for everything that only asks "were they there?".
+  status     AttendanceStatus @default(ASISTENCIA)
+  markedBy   User             @relation("AttendanceMarker", fields: [markedById], references: [id], onDelete: Cascade)
   markedById String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   @@unique([teamId, day, userId])
   @@index([teamId, day])
@@ -273,6 +279,9 @@ model TeamMember {
   // guardians', since most players are minors.
   number         Int?
   birthDate      String? // YYYY-MM-DD
+  // Mexico's national ID, which the school's roster sheet asks for. Only the
+  // team's coach can read it, like the rest of these details.
+  curp           String?
   guardian1Name  String?
   guardian1Email String?
   guardian1Phone String?
@@ -309,19 +318,19 @@ model BlogLike {
 
 // Blog posts, authored in-app (currently by coaches) or seeded.
 model BlogPost {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String
-  excerpt   String
-  body      String // markdown-ish plain text
-  emoji     String   @default("📝")
-  tag       String?
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String
+  excerpt    String
+  body       String // markdown-ish plain text
+  emoji      String   @default("📝")
+  tag        String?
   coverImage String?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  authorId  String?
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId   String?
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   readerComments BlogComment[]
   likes          BlogLike[]
@@ -392,9 +401,9 @@ model CoachAthlete {
 // A single performance record. Sport-agnostic core with optional
 // structured fields so new sports/metrics can be added without migrations.
 model Record {
-  id       String @id @default(cuid())
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
   sport      String // sport id from the registry, e.g. "swimming"
   metricKey  String // metric id, e.g. "freestyle_50m"
@@ -418,12 +427,12 @@ model Record {
 
 // Coach feedback on a shared record.
 model Comment {
-  id       String   @id @default(cuid())
-  record   Record   @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId String
-  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId String
-  body     String
+  id        String   @id @default(cuid())
+  record    Record   @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
   createdAt DateTime @default(now())
 
   @@index([recordId])
@@ -523,7 +532,6 @@ model BoardLike {
   @@id([postId, userId])
 }
 
-
 /// A single-use password reset grant.
 ///
 /// Only the SHA-256 of the token is stored, so a database leak cannot be
@@ -539,7 +547,6 @@ model PasswordResetToken {
 
   @@index([userId, createdAt])
 }
-
 
 /// An in-app notification.
 ///
@@ -584,20 +591,26 @@ enum MatchKind {
 }
 
 model Match {
-  id           String        @id @default(cuid())
-  team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId       String
-  day          String // YYYY-MM-DD
-  opponent     String
-  kind         MatchKind
+  id               String        @id @default(cuid())
+  team             Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId           String
+  day              String // YYYY-MM-DD
+  opponent         String
+  kind             MatchKind
   // The tournament or league name, when there is one; it groups results in
   // the season report the way a school's competitions table does.
-  competition  String?
-  goalsFor     Int
-  goalsAgainst Int
-  note         String?
-  players      MatchPlayer[]
-  createdAt    DateTime      @default(now())
+  competition      String?
+  goalsFor         Int
+  goalsAgainst     Int
+  // A shootout after a draw, recorded apart from the score as the sheet does.
+  penaltiesFor     Int?
+  penaltiesAgainst Int?
+  // The event request (S-EVE) this match was played under, if any.
+  event            TeamEvent?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  eventId          String?
+  note             String?
+  players          MatchPlayer[]
+  createdAt        DateTime      @default(now())
 
   @@index([teamId, day])
 }
@@ -605,10 +618,13 @@ model Match {
 // Who played in a match. Their own rows rather than an array so a player's
 // match count is a plain count, and leaving the team doesn't rewrite history.
 model MatchPlayer {
-  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  match   Match             @relation(fields: [matchId], references: [id], onDelete: Cascade)
   matchId String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
+  // As the school's match sheet records it. Every row before this existed
+  // was someone who played, hence the default.
+  status  MatchPlayerStatus @default(ASISTIO)
 
   @@id([matchId, userId])
   @@index([userId])
@@ -629,4 +645,49 @@ model PlayerEvaluation {
 
   @@unique([teamId, athleteId, period])
   @@index([athleteId])
+}
+
+enum AttendanceStatus {
+  ASISTENCIA
+  FALTA
+  TARDE
+  INCIDENTE
+  JUSTIFICADA
+}
+
+enum MatchPlayerStatus {
+  ASISTIO
+  NO_ASISTIO
+  JUSTIFICADO
+  NO_SELECCIONADO
+}
+
+// The parts of the season log that are forms rather than records: the
+// season's goals, the year-end report's written answers, the coach's
+// self-evaluations. One document per team, school year and kind; the shape
+// of `data` belongs to src/lib/bitacora.ts.
+model TeamSeasonDoc {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  year      Int // the school year that starts in August of this year
+  kind      String // "goals" | "report" | "selfEvalTerm" | "selfEvalFinal"
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, year, kind])
+}
+
+// An event request (S-EVE): one per tournament, ASOMEX or local meet.
+model TeamEvent {
+  id        String   @id @default(cuid())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  year      Int
+  data      Json
+  matches   Match[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId, year])
 }

@@ -2,11 +2,67 @@ import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import type { Lang } from "@/lib/i18n";
 import { tl } from "@/lib/teamLogText";
+import { bt } from "@/lib/bitacoraText";
 
-export type TeamTab = "overview" | "plan" | "attendance" | "matches" | "evaluations" | "roster" | "season";
+export type TeamTab =
+  | "overview"
+  | "bitacora"
+  | "goals"
+  | "roster"
+  | "attendance"
+  | "matches"
+  | "evaluations"
+  | "plan"
+  | "season"
+  | "events"
+  | "self-eval";
 
-const OWNER_TABS: TeamTab[] = ["overview", "plan", "attendance", "matches", "evaluations", "roster", "season"];
+// In the order of the school's workbook, after the team page and the hub.
+const OWNER_TABS: TeamTab[] = [
+  "overview",
+  "bitacora",
+  "goals",
+  "roster",
+  "attendance",
+  "matches",
+  "evaluations",
+  "plan",
+  "season",
+  "events",
+  "self-eval",
+];
 const MEMBER_TABS: TeamTab[] = ["overview", "plan", "matches"];
+
+/** The workbook sheet each tab stands for. */
+const SHEET: Partial<Record<TeamTab, string>> = {
+  goals: "STA-GRAL",
+  roster: "B1",
+  attendance: "B2",
+  matches: "B3",
+  evaluations: "B4",
+  plan: "B5",
+  season: "R-FI",
+  events: "S-EVE",
+  "self-eval": "A-EV",
+};
+
+export function tabLabel(tab: TeamTab, lang: Lang): string {
+  const s = tl(lang).tabs;
+  const h = bt(lang).hub;
+  const name =
+    tab === "bitacora"
+      ? h.tab
+      : tab === "goals"
+        ? h.sheets.sta.name
+        : tab === "events"
+          ? h.sheets.seve.name
+          : tab === "self-eval"
+            ? h.sheets.aev.name
+            : tab === "season"
+              ? h.sheets.rfi.name
+              : s[tab];
+  return name;
+}
 
 export function TeamTabs({ teamId, active, isOwner, lang }: { teamId: string; active: TeamTab; isOwner: boolean; lang: Lang }) {
   const s = tl(lang).tabs;
@@ -14,6 +70,7 @@ export function TeamTabs({ teamId, active, isOwner, lang }: { teamId: string; ac
     <nav aria-label={s.overview} className="no-print -mx-1 mt-4 flex gap-1 overflow-x-auto pb-1">
       {(isOwner ? OWNER_TABS : MEMBER_TABS).map((tab) => {
         const href = tab === "overview" ? `/teams/${teamId}` : `/teams/${teamId}/${tab}`;
+        const code = isOwner ? SHEET[tab] : undefined;
         const on = tab === active;
         return (
           <Link
@@ -24,7 +81,8 @@ export function TeamTabs({ teamId, active, isOwner, lang }: { teamId: string; ac
               on ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
-            {s[tab]}
+            {code && <span className="mr-1 text-[10px] font-bold">{code} </span>}
+            {tabLabel(tab, lang)}
           </Link>
         );
       })}
@@ -40,6 +98,7 @@ export default function TeamLogShell({
   lang,
   title,
   sub,
+  code,
   actions,
   children,
 }: {
@@ -49,6 +108,8 @@ export default function TeamLogShell({
   lang: Lang;
   title: string;
   sub?: string;
+  /** The workbook sheet this page is, shown before the team name. */
+  code?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -64,6 +125,7 @@ export default function TeamLogShell({
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {code && <span className="mr-1.5 rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-white">{code}</span>}
               {team.name}
               {meta ? ` · ${meta}` : ""}
             </p>

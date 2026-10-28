@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { failT, failIssue } from "@/lib/apiText";
 import { memberIds, teamRole } from "@/lib/teamAccess";
-import { matchSchema } from "@/lib/matchSchema";
+import { matchSchema, playerMarks } from "@/lib/matchSchema";
 
 async function ownedMatch(id: string, matchId: string) {
   const session = await getSession();
@@ -26,17 +26,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const parsed = matchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return await failIssue(parsed.error.issues);
-  const { players, competition, note, ...rest } = parsed.data;
+  const { players, competition, note, eventId, ...rest } = parsed.data;
   const onTeam = await memberIds(id);
-  const keep = [...new Set(players)].filter((p) => onTeam.has(p));
+  const keep = playerMarks(players).filter((p) => onTeam.has(p.userId));
+  if (eventId && !(await prisma.teamEvent.findFirst({ where: { id: eventId, teamId: id }, select: { id: true } }))) {
+    return failT("invalid");
+  }
 
   await prisma.$transaction([
     prisma.matchPlayer.deleteMany({ where: { matchId, userId: { in: [...onTeam] } } }),
     prisma.match.update({
       where: { id: matchId },
-      data: { ...rest, competition: competition || null, note: note || null },
+      data: { ...rest, competition: competition || null, note: note || null, ...(eventId !== undefined && { eventId }) },
     }),
-    prisma.matchPlayer.createMany({ data: keep.map((userId) => ({ matchId, userId })), skipDuplicates: true }),
+    prisma.matchPlayer.createMany({ data: keep.map((p) => ({ matchId, ...p })), skipDuplicates: true }),
   ]);
   return ok({ id: matchId });
 }

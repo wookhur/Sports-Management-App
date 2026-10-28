@@ -15,7 +15,8 @@ import RosterHeatmap from "@/components/RosterHeatmap";
 import AttentionList from "@/components/AttentionList";
 import { buildTeamSquad } from "@/lib/squad";
 import TeamAnnouncements, { type AnnouncementRow } from "@/components/TeamAnnouncements";
-import AttendanceSheet, { type AttendanceMember, type AttendanceMark } from "@/components/AttendanceSheet";
+import AttendanceSheet, { type AttendanceMember } from "@/components/AttendanceSheet";
+import { ATTENDED, type AttendanceStatusKey } from "@/lib/bitacora";
 import { dayKeyIn } from "@/lib/format";
 import { teamTimeZone } from "@/lib/teamAccess";
 import { TeamTabs } from "@/components/teamlog/TeamLogShell";
@@ -492,15 +493,15 @@ async function attendanceFor(teamId: string, memberIds: string[], today: string)
     prisma.user.findMany({ where: { id: { in: memberIds } }, select: { id: true, name: true } }),
     prisma.attendance.findMany({
       where: { teamId, userId: { in: memberIds }, day: { gte: from, lte: today } },
-      select: { userId: true, day: true, present: true, excused: true },
+      select: { userId: true, day: true, status: true },
     }),
   ]);
-  const byUser = new Map<string, { today: AttendanceMark | null; marked: number; present: number }>();
+  const byUser = new Map<string, { today: AttendanceStatusKey | null; marked: number; present: number }>();
   for (const r of rows) {
     const u = byUser.get(r.userId) ?? { today: null, marked: 0, present: 0 };
     u.marked += 1;
-    if (r.present) u.present += 1;
-    if (r.day === today) u.today = r.present ? "present" : r.excused ? "excused" : "absent";
+    if (ATTENDED.has(r.status)) u.present += 1;
+    if (r.day === today) u.today = r.status;
     byUser.set(r.userId, u);
   }
   return members
@@ -510,7 +511,7 @@ async function attendanceFor(teamId: string, memberIds: string[], today: string)
       return {
         userId: m.id,
         name: m.name,
-        present: u?.today ?? null,
+        mark: u?.today ?? null,
         recentMarked: u?.marked ?? 0,
         recentPresent: u?.present ?? 0,
       };
