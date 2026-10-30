@@ -29,7 +29,26 @@ async function tableExists(name: string): Promise<boolean> {
   return rows[0]?.present === true;
 }
 
+// Neon suspends an idle database and the first connection can time out while
+// it wakes. A build that fails on that is a wasted deploy, so wait for the
+// database before touching it (the later steps then find it awake).
+async function waitForDatabase(tries = 6) {
+  for (let i = 1; ; i++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      return;
+    } catch (e) {
+      if (i >= tries) throw e;
+      const wait = 5 * i;
+      console.log(`[baseline] database not reachable yet (attempt ${i}/${tries}); retrying in ${wait}s.`);
+      await prisma.$disconnect().catch(() => {});
+      await new Promise((r) => setTimeout(r, wait * 1000));
+    }
+  }
+}
+
 async function main() {
+  await waitForDatabase();
   const hasHistory = await tableExists("_prisma_migrations");
   if (hasHistory) {
     console.log("[baseline] migration history present — nothing to do.");
