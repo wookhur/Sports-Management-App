@@ -215,7 +215,9 @@ function b3(data: SeasonData, players: SeasonData["players"]): SheetPatch {
     p[at(48)] = m ? m.goalsAgainst : null;
     p[at(49)] = m && m.penaltiesFor != null && m.penaltiesAgainst != null ? `${m.penaltiesFor} - ${m.penaltiesAgainst}` : null;
   });
-  // Second-term statistics are typed in the sheet, not computed.
+  // The per-term statistics panels are typed in the sheet, not computed.
+  const r1 = data.records.term[t1];
+  Object.assign(p, { AQ27: r1.played, AS27: r1.won, AU27: r1.drawn, AW27: r1.lost, AY27: r1.goalsFor, BA27: r1.goalsAgainst });
   const r2 = data.records.term[t2];
   Object.assign(p, { AQ44: r2.played, AS44: r2.won, AU44: r2.drawn, AW44: r2.lost, AY44: r2.goalsFor, BA44: r2.goalsAgainst });
   return p;
@@ -250,6 +252,10 @@ function rfi(data: SeasonData, players: SeasonData["players"], report: ReturnTyp
     A4: `Reporte Anual ${yy(data.year)}`,
     H11: report.started ?? data.players.length + report.bajas.length,
     H12: data.players.length,
+    // The template points this at B2's sum of every student's attendances,
+    // so a season of 11 sessions read as 83. Write the sessions held, which
+    // is what the line asks for (and what each student's count is out of).
+    H13: data.sessionDays.length,
   };
   for (let i = 0; i < 5; i++) {
     const b = report.bajas[i];
@@ -276,7 +282,7 @@ function rfi(data: SeasonData, players: SeasonData["players"], report: ReturnTyp
   p.A129 = orNull(report.wentWell);
   p.A132 = orNull(report.notDone);
   p.A135 = orNull(report.suggestions);
-  p.A138 = orNull(report.meeting);
+  // A138, the meeting notes, is marked "DEJAR EN BLANCO": the director fills it.
   return p;
 }
 
@@ -315,7 +321,9 @@ function seve(event: EventRow, data: SeasonData, team: ExportTeam, today: string
     A14: orNull(e.objective),
     H31: invited.filter((id) => !outside.has(id)).length,
     H32: invited.filter((id) => outside.has(id)).length,
-    H33: event.matches.length,
+    // Formatted as a date in the template (m-d), so a number would read
+    // "12-31"; as text it shows as written.
+    H33: String(event.matches.length),
     A65: orNull(e.analysis),
     A107: orNull(e.organization),
     F117: team.coachName,

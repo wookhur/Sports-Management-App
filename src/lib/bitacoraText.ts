@@ -120,7 +120,6 @@ const es = {
     wentWell: "En tu opinión, ¿qué cosas realizaste bien en este equipo?",
     notDone: "¿Qué cosas dejaste de hacer que tenías programadas?",
     suggestions: "¿Qué sugerencias puedes aportar a tu coordinador para el próximo ciclo escolar?",
-    meeting: "Observaciones generales de la reunión con el director y el coordinador",
   },
   events: {
     title: "Solicitudes de evento",
@@ -289,7 +288,6 @@ const en: Dict = {
     wentWell: "In your opinion, what did you do well with this team?",
     notDone: "What did you plan but not get done?",
     suggestions: "What suggestions do you have for your coordinator for next school year?",
-    meeting: "General notes from the meeting with the director and coordinator",
   },
   events: {
     title: "Event requests",
@@ -456,7 +454,6 @@ const ko: Dict = {
     wentWell: "잘된 점",
     notDone: "이루지 못한 점과 이유",
     suggestions: "다음 시즌 제안",
-    meeting: "교장·코디네이터 회의 메모",
   },
   events: {
     title: "대회 신청서",

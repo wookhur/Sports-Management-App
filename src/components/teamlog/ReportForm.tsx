@@ -54,7 +54,7 @@ export default function ReportForm({
   const state = useAutosave(doc, (data) => putJson(`/api/teams/${teamId}/docs/report`, { year, data }));
   const set = <K extends keyof ReportDoc>(k: K, v: ReportDoc[K]) => setDoc((d) => ({ ...d, [k]: v }));
 
-  const area = (k: "group" | "asomex" | "wentWell" | "notDone" | "suggestions" | "meeting", label: string, rows = 4) => (
+  const area = (k: "group" | "asomex" | "wentWell" | "notDone" | "suggestions", label: string, rows = 4) => (
     <label className="block">
       <span className="text-sm font-bold">{label}</span>
       <textarea name={k} rows={rows} maxLength={6000} className="input mt-1.5 text-sm" value={doc[k]} onChange={(e) => set(k, e.target.value)} />
@@ -287,7 +287,6 @@ export default function ReportForm({
         {area("wentWell", t.wentWell, 3)}
         {area("notDone", t.notDone, 3)}
         {area("suggestions", t.suggestions, 3)}
-        {area("meeting", t.meeting, 3)}
       </section>
     </div>
   );

@@ -548,6 +548,8 @@ test("the bitácora's written sections save as typed and everything lands in the
     expect(await cell(zip, "STA-GRAL", "O6")).toBe("Ganar la liga");
     expect(await cell(zip, "STA-GRAL", "A25")).toBe("Dominar la salida desde atrás");
     expect(await cell(zip, "R-FI", "H12")).toBe(2);
+    expect(await cell(zip, "R-FI", "H13")).toBe(2); // sessions held, not the sum of attendances
+    expect(await cell(zip, B3, Number(d2.slice(5, 7)) >= 8 ? "AQ27" : "AQ44")).toBe(1); // that term's stats panel
     expect(await cell(zip, "R-FI", "A56")).toBe("Ruiz Pablo");
     expect(await cell(zip, "R-FI", "E56")).toBe("Cambio de escuela");
     expect(await cell(zip, "R-FI", "A65")).toBe("Copa ASFG");
@@ -560,6 +562,7 @@ test("the bitácora's written sections save as typed and everything lands in the
     expect(await cell(zip, "S-EVE", "F37")).toBe(1);
     expect(await cell(zip, "S-EVE", "H31")).toBe(1);
     expect(await cell(zip, "S-EVE", "H32")).toBe(1);
+    expect(await cell(zip, "S-EVE", "H33")).toBe("1"); // text: the template formats the cell as a date
     expect(await cell(zip, "S-EVE", "G55")).toBe("1 - 1 (4-3 pen.)");
     expect(await cell(zip, "S-EVE", "D83")).toBe("Gran torneo");
   } finally {
