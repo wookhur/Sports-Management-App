@@ -7,6 +7,7 @@ import {
   ATTENDANCE_STATUSES,
   ATTENDANCE_STYLE,
   ATTENDED,
+  semesterPercent,
   type AttendanceStatusKey,
 } from "@/lib/bitacora";
 import { bt } from "@/lib/bitacoraText";
@@ -25,17 +26,6 @@ function next(s: AttendanceStatusKey | undefined): AttendanceStatusKey | null {
   if (!s) return ATTENDANCE_STATUSES[0];
   const i = ATTENDANCE_STATUSES.indexOf(s);
   return i === ATTENDANCE_STATUSES.length - 1 ? null : ATTENDANCE_STATUSES[i + 1];
-}
-
-function pct(marks: Record<string, AttendanceStatusKey> | undefined, from: string, to: string): number | null {
-  let seen = 0;
-  let came = 0;
-  for (const [day, s] of Object.entries(marks ?? {})) {
-    if (day < from || day > to) continue;
-    seen += 1;
-    if (ATTENDED.has(s)) came += 1;
-  }
-  return seen ? Math.round((came / seen) * 100) : null;
 }
 
 /**
@@ -63,7 +53,7 @@ export default function AttendanceGrid({
   days: string[];
   /** The whole school year's marks, by player then day. */
   marks: Marks;
-  /** [from, to] of each term, for the per-term rates. */
+  /** [from, to] of the sheet's two semesters, for its "% por semestre". */
   terms: [[string, string], [string, string]];
 }) {
   const g = bt(lang).grid;
@@ -204,7 +194,7 @@ export default function AttendanceGrid({
           <tbody className="divide-y divide-slate-100">
             {roster.map((p) => {
               const t = totals(p.userId);
-              const [s1, s2] = terms.map(([a, b]) => pct(marks[p.userId], a, b));
+              const [s1, s2] = terms.map((range) => semesterPercent(marks[p.userId], range));
               return (
                 <tr key={p.userId} data-player={p.name}>
                   <td className="sticky left-0 bg-white px-2 py-1.5 tabular-nums text-slate-500">{p.number ?? ""}</td>
@@ -229,8 +219,8 @@ export default function AttendanceGrid({
                   <td className="border-l border-slate-100 px-2 text-center font-semibold tabular-nums text-emerald-800">{t.came}</td>
                   <td className="px-2 text-center tabular-nums">{t.absent}</td>
                   <td className="px-2 text-center tabular-nums text-sky-800">{t.excused}</td>
-                  <td className="border-l border-slate-100 px-2 text-center tabular-nums">{s1 == null ? "–" : `${s1}%`}</td>
-                  <td className="px-2 text-center tabular-nums">{s2 == null ? "–" : `${s2}%`}</td>
+                  <td className="border-l border-slate-100 px-2 text-center tabular-nums">{s1}%</td>
+                  <td className="px-2 text-center tabular-nums">{s2}%</td>
                 </tr>
               );
             })}
@@ -239,6 +229,7 @@ export default function AttendanceGrid({
         {days.length === 0 && <p className="p-6 text-center text-sm text-slate-600">{g.noDays}</p>}
       </div>
       <p className="mt-2 text-xs text-slate-600">{g.trainings(days.filter((d) => roster.some((p) => marks[p.userId]?.[d])).length)}</p>
+      <p className="mt-1 text-xs text-slate-600">{g.semNote}</p>
     </div>
   );
 }

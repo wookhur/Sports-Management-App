@@ -17,6 +17,27 @@ export type AttendanceStatusKey = (typeof ATTENDANCE_STATUSES)[number];
 /** Late and "incident" both count as attended, as the workbook's totals do. */
 export const ATTENDED: ReadonlySet<AttendanceStatusKey> = new Set(["ASISTENCIA", "TARDE", "INCIDENTE"]);
 
+/**
+ * The B2 sheet's "% por semestre": a term's attended days over a fixed 74
+ * sessions, with the first term running August to January and the second
+ * February to June (the columns its formulas count). Rounded like the
+ * sheet's percent cells.
+ */
+export const SEMESTER_SESSIONS = 74;
+
+export function sheetSemesters(year: number): [[string, string], [string, string]] {
+  return [
+    [`${year}-08-01`, `${year + 1}-01-31`],
+    [`${year + 1}-02-01`, `${year + 1}-06-30`],
+  ];
+}
+
+export function semesterPercent(days: Record<string, AttendanceStatusKey> | undefined, [from, to]: [string, string]): number {
+  let came = 0;
+  for (const [day, s] of Object.entries(days ?? {})) if (day >= from && day <= to && ATTENDED.has(s)) came += 1;
+  return Math.round((came / SEMESTER_SESSIONS) * 100);
+}
+
 export function attendanceFlags(s: AttendanceStatusKey): { present: boolean; excused: boolean } {
   return { present: ATTENDED.has(s), excused: s === "JUSTIFICADA" };
 }

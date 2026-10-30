@@ -175,6 +175,10 @@ test("players without accounts go on the roster, take attendance, and never get 
   await expect(jesusRow.locator("td").nth(-3)).toHaveText("1"); // excused
   await expect(anaRow.getByRole("button", { name: /Ana López, .*: Late/ })).toHaveText("L");
   await expect(anaRow.locator("td").nth(-5)).toHaveText("1"); // attended
+  // "% por semestre" as the sheet computes it: attended ÷ 74, first semester August to January.
+  const firstSem = Number(day.slice(5, 7)) >= 8 || day.slice(5, 7) === "01";
+  await expect(anaRow.locator("td").nth(firstSem ? -2 : -1)).toHaveText("1%"); // 1 / 74
+  await expect(jesusRow.locator("td").nth(firstSem ? -2 : -1)).toHaveText("0%"); // excused isn't attended
   // A tap moves a cell on to the next mark and saves it: late → incident.
   await anaRow.getByRole("button", { name: /Ana López, .*: Late/ }).click();
   await expect(anaRow.getByRole("button", { name: /Ana López, .*: Incident/ })).toHaveText("I");

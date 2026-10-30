@@ -3,8 +3,8 @@ import { prisma } from "@/lib/db";
 import { loadTeamPage, rosterOf } from "@/lib/teamPage";
 import { tl } from "@/lib/teamLogText";
 import { bt } from "@/lib/bitacoraText";
-import { monthLabel, monthsOfYear, schoolYearLabel, termRange, termsOfYear, yearRange } from "@/lib/season";
-import type { AttendanceStatusKey } from "@/lib/bitacora";
+import { monthLabel, monthsOfYear, schoolYearLabel, yearRange } from "@/lib/season";
+import { sheetSemesters, type AttendanceStatusKey } from "@/lib/bitacora";
 import TeamLogShell from "@/components/teamlog/TeamLogShell";
 import { readPeriod } from "@/components/teamlog/TermPicker";
 import AttendanceGrid from "@/components/teamlog/AttendanceGrid";
@@ -55,7 +55,7 @@ export default async function AttendancePage({
   const days = [...new Set(rows.filter((r) => r.day.startsWith(month)).map((r) => r.day))].sort();
   const perMonth = new Map<string, number>();
   for (const d of new Set(rows.map((r) => r.day))) perMonth.set(d.slice(0, 7), (perMonth.get(d.slice(0, 7)) ?? 0) + 1);
-  const terms = termsOfYear(year).map(termRange) as [[string, string], [string, string]];
+  const terms = sheetSemesters(year);
 
   const chip = (href: string, on: boolean, label: React.ReactNode, key: string) => (
     <Link
