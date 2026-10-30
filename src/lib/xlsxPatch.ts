@@ -99,17 +99,15 @@ function setCell(doc: Document, sheetData: Element, ref: string, value: CellValu
  * Forget every formula's saved result. They were computed from the blank
  * template; with no cached value, every spreadsheet app has to recompute
  * (LibreOffice, for one, ignores fullCalcOnLoad and would show the stale
- * numbers).
+ * numbers). Done on the XML text: walking a whole workbook through the DOM
+ * took tens of seconds.
  */
-function dropCachedResults(doc: Document) {
-  const cells = doc.getElementsByTagName("c");
-  for (let i = 0; i < cells.length; i++) {
-    const c = cells[i];
-    if (elementChildren(c, "f").length === 0) continue;
-    for (const v of elementChildren(c, "v")) c.removeChild(v);
-    // A cached text or error result was typed; without the value the type goes too.
-    if (["str", "e", "b", "s"].includes(c.getAttribute("t") ?? "")) c.removeAttribute("t");
-  }
+function dropCachedResults(xml: string): string {
+  return xml.replace(
+    /<c ([^>]*?)>(<f\b[^>]*\/>|<f\b[^>]*>[^<]*<\/f>)<v>[^<]*<\/v><\/c>/g,
+    // A cached text, error or boolean result was typed; the type goes with the value.
+    (_m, attrs: string, f: string) => `<c ${attrs.replace(/\s+t="(?:str|e|b|s)"/, "")}>${f}</c>`,
+  );
 }
 
 /** Sheet name → path of its XML part inside the package. */
@@ -152,11 +150,15 @@ export async function patchWorkbook(template: Buffer | Uint8Array, patches: Reco
   for (const [sheet, path] of paths) {
     const file = zip.file(path);
     if (!file) continue;
-    const doc = parser.parseFromString(await file.async("string"), "text/xml");
-    const sheetData = doc.getElementsByTagName("sheetData")[0];
-    for (const [ref, value] of Object.entries(patches[sheet] ?? {})) setCell(doc, sheetData, ref, value);
-    dropCachedResults(doc);
-    zip.file(path, serializer.serializeToString(doc));
+    let xml = await file.async("string");
+    const cells = patches[sheet];
+    if (cells) {
+      const doc = parser.parseFromString(xml, "text/xml");
+      const sheetData = doc.getElementsByTagName("sheetData")[0];
+      for (const [ref, value] of Object.entries(cells)) setCell(doc, sheetData, ref, value);
+      xml = serializer.serializeToString(doc);
+    }
+    zip.file(path, dropCachedResults(xml));
   }
 
   // And have Excel recompute everything on open, not only cells without a value.
