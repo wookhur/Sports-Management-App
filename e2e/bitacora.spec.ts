@@ -146,7 +146,7 @@ test("players without accounts go on the roster, take attendance, and never get 
   await jesus.locator('input[name="curp"]').fill("mejj130402hjcnss09");
   await expect(jesus.locator('input[name="curp"]')).toHaveValue("MEJJ130402HJCNSS09");
   await jesus.getByRole("button", { name: "Save" }).click();
-  await expect(jesus).toContainText("2013-04-02 · MEJJ130402HJCNSS09 · María Mendoza · 33 1234 5678");
+  await expect(jesus).toContainText("02/04/2013 · MEJJ130402HJCNSS09 · María Mendoza · 33 1234 5678");
 
   // Homework can't go to people who can't open the app.
   const homework = await api(page, "/api/assignments", { teamId: team.id, title: "50 keep-ups" });
@@ -604,7 +604,7 @@ test("a coach adds a student with their details in one step, no account needed",
 
   const row = page.locator('li[data-player="Mendoza Jesús"]');
   await expect(row).toContainText("Sin cuenta");
-  await expect(row).toContainText("2013-04-02 · MEJJ130402HJCNSS09 · María Mendoza · 33 1234 5678");
+  await expect(row).toContainText("02/04/2013 · MEJJ130402HJCNSS09 · María Mendoza · 33 1234 5678");
   await expect(row).toContainText("9");
 
   // A second one with just a name, and a bad CURP is refused with the reason.
@@ -620,4 +620,54 @@ test("a coach adds a student with their details in one step, no account needed",
   await expect(page.getByRole("radiogroup", { name: "García Sofía" })).toBeVisible();
 
   await send(page, `/api/teams/${team.id}`, "DELETE");
+});
+
+test("a Spanish coach's new team runs on their own clock, and removing a student says what it deletes", async ({ browser }) => {
+  // A coach in Guadalajara with a Spanish browser.
+  const ctx = await browser.newContext({ timezoneId: "America/Mexico_City", locale: "es-MX" });
+  const page = await ctx.newPage();
+  await login(page, COACH);
+  await setLang(page, "es");
+  await page.goto("/coach", { waitUntil: "networkidle" });
+  const box = page.locator("form", { has: page.getByRole("button", { name: "Crear" }) });
+  await box.locator("input").fill("Zona Horaria FC");
+  await box.getByRole("button", { name: "Crear" }).click();
+  await expect(page.getByText("Zona Horaria FC").first()).toBeVisible();
+  const db = new PrismaClient();
+  try {
+    const team = await db.team.findFirstOrThrow({ where: { name: "Zona Horaria FC" }, orderBy: { createdAt: "desc" } });
+    expect(team.timeZone).toBe("America/Mexico_City");
+
+    // Server errors answer in Spanish too.
+    const bad = await api(page, "/api/teams/join", { code: "ZZZZZZ" });
+    expect(bad.data.error).toBe("Ese código de invitación no corresponde a ningún equipo");
+
+    // A team of students without accounts: no announcement box to post into the void.
+    await api(page, `/api/teams/${team.id}/roster`, { names: ["Ruiz Pablo"] });
+    await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+    await expect(page.getByPlaceholder("Un aviso para todo el equipo…")).toHaveCount(0);
+
+    // Removing one warns that their records go too, and asks for the reason.
+    const asked: string[] = [];
+    page.on("dialog", async (d) => {
+      asked.push(d.message());
+      if (d.type() === "prompt") await d.accept("Cambio de escuela");
+      else await d.accept();
+    });
+    await page.getByRole("button", { name: "Sacar a Ruiz Pablo del equipo" }).click();
+    await expect(page.getByRole("button", { name: "Sacar a Ruiz Pablo del equipo" })).toHaveCount(0);
+    expect(asked[0]).toContain("también se borran su asistencia, partidos y evaluaciones");
+    expect(asked[1]).toContain("Motivo de la baja");
+    const report = await db.teamSeasonDoc.findFirst({ where: { teamId: team.id, kind: "report" } });
+    expect(JSON.stringify(report?.data)).toContain("Cambio de escuela");
+
+    // And a missing page says so in Spanish.
+    await page.goto("/no-existe-esta-pagina");
+    await expect(page.locator("main")).toContainText("No encontramos esta página");
+
+    await send(page, `/api/teams/${team.id}`, "DELETE");
+  } finally {
+    await db.$disconnect();
+    await ctx.close();
+  }
 });

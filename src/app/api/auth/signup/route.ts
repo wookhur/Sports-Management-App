@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { SPORT_LIST } from "@/lib/sports";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { minorFromDob } from "@/lib/consent";
 import { sendGuardianNotice } from "@/lib/guardianEmail";
 import { getLang } from "@/lib/getLang";
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     termsAccepted, minor, guardianName, guardianEmail, guardianConsent,
   } = parsed.data;
 
-  if (termsAccepted !== true) return fail("You need to accept the Terms of Use and Privacy Notice to sign up");
+  if (termsAccepted !== true) return failT("acceptTerms");
 
   const lang = await getLang();
   const [existingEmail, existingUsername] = await Promise.all([
@@ -65,15 +66,15 @@ export async function POST(req: Request) {
   if (existingUsername) return fail(DUPLICATE[lang].username, 409);
 
   const parsedDob = dob ? new Date(dob) : undefined;
-  if (dob && Number.isNaN(parsedDob?.getTime())) return fail("생년월일 형식이 올바르지 않습니다");
+  if (dob && Number.isNaN(parsedDob?.getTime())) return failT("badDob");
 
   // Under 18 by birth date when we have one, otherwise by their own answer.
   // No answer at all is refused: an account for a child must never be
   // created on the assumption that they are an adult.
   const isMinor = minorFromDob(parsedDob ?? null) ?? minor;
-  if (isMinor === undefined) return fail("Tell us whether you are under 18");
+  if (isMinor === undefined) return failT("tellMinor");
   if (isMinor && !(guardianName && guardianEmail && guardianConsent === true)) {
-    return fail("A parent or guardian must consent before anyone under 18 can sign up");
+    return failT("parentConsent");
   }
   const now = new Date();
 

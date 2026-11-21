@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { usersByEmail } from "@/lib/email";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { notify } from "@/lib/notifyServer";
 
 const schema = z.object({ email: z.string().email("올바른 이메일을 입력하세요") });
@@ -21,14 +22,14 @@ const schema = z.object({ email: z.string().email("올바른 이메일을 입력
  */
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
 
   const [counterpart] = await usersByEmail(parsed.data.email);
-  if (!counterpart) return fail("해당 이메일의 사용자를 찾을 수 없습니다", 404);
-  if (counterpart.id === session.userId) return fail("자기 자신은 연결할 수 없습니다");
+  if (!counterpart) return failT("noUserWithEmail", 404);
+  if (counterpart.id === session.userId) return failT("notYourself");
 
   const wantRole = session.role === "COACH" ? "ATHLETE" : "COACH";
   if (counterpart.role !== wantRole) {
@@ -71,11 +72,11 @@ export async function POST(req: Request) {
 /** Remove a link, or withdraw a pending request. Either side may. */
 export async function DELETE(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const { searchParams } = new URL(req.url);
   const otherId = searchParams.get("id");
-  if (!otherId) return fail("대상이 필요합니다");
+  if (!otherId) return failT("pickSomeone");
 
   const coachId = session.role === "COACH" ? session.userId : otherId;
   const athleteId = session.role === "COACH" ? otherId : session.userId;

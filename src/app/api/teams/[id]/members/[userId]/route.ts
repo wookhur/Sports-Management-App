@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { readDoc } from "@/lib/bitacora";
 import { dayKeyIn } from "@/lib/format";
 import { schoolYearOf } from "@/lib/season";
@@ -23,23 +24,23 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; userId: string }> },
 ) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return failT("signIn", 401);
 
   const { id, userId } = await params;
   const team = await prisma.team.findUnique({
     where: { id },
     select: { id: true, coachId: true, timeZone: true },
   });
-  if (!team) return fail("Team not found", 404);
+  if (!team) return failT("teamNotFound", 404);
 
   const isOwner = team.coachId === session.userId;
   const isSelf = userId === session.userId;
-  if (!isOwner && !isSelf) return fail("Team not found", 404);
+  if (!isOwner && !isSelf) return failT("teamNotFound", 404);
 
   const membership = await prisma.teamMember.findUnique({
     where: { teamId_userId: { teamId: id, userId } },
   });
-  if (!membership) return fail("They are not on this team", 404);
+  if (!membership) return failT("notOnTeam", 404);
 
   // A roster-only player exists only for this team, so taking them off it
   // removes them entirely rather than leaving an account nobody can use.

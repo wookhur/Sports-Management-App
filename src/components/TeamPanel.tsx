@@ -160,7 +160,9 @@ export default function TeamPanel({
     const res = await fetch("/api/teams", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      // The coach's own time zone decides what "today" is when they take the
+      // register, so a team in Guadalajara doesn't run on Seoul's calendar.
+      body: JSON.stringify({ name, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
     });
     const data = await res.json().catch(() => null);
     setBusy(false);

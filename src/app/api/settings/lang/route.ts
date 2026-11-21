@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 
 const schema = z.object({ lang: z.enum(["ko", "en", "es"]) });
 
@@ -18,7 +19,7 @@ const schema = z.object({ lang: z.enum(["ko", "en", "es"]) });
  */
 export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("잘못된 요청입니다");
+  if (!parsed.success) return failT("invalid");
 
   const session = await getSession();
   if (!session) return ok({ stored: false });

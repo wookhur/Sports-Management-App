@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { notify } from "@/lib/notifyServer";
 
 const schema = z
@@ -32,8 +33,8 @@ type Targets = { athleteIds: string[] } | { error: string; status: 400 | 403 | 4
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
-  if (session.role !== "COACH") return fail("Only coaches can set assignments", 403);
+  if (!session) return failT("signIn", 401);
+  if (session.role !== "COACH") return failT("onlyCoachAssign", 403);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");

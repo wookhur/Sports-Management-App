@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 
 // Unambiguous alphabet (no 0/O or 1/I) so codes are easy to read aloud.
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -21,11 +22,11 @@ function makeCode(): string {
  */
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return failT("signIn", 401);
 
   const { id } = await params;
   const team = await prisma.team.findUnique({ where: { id }, select: { coachId: true } });
-  if (!team || team.coachId !== session.userId) return fail("Team not found", 404);
+  if (!team || team.coachId !== session.userId) return failT("teamNotFound", 404);
 
   // Retry on the (astronomically unlikely) code collision.
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -37,5 +38,5 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       if (!unique || attempt === 2) throw e;
     }
   }
-  return fail("Couldn't issue a new code");
+  return failT("newCodeFailed");
 }

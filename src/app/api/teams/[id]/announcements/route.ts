@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { notify } from "@/lib/notifyServer";
 
 const schema = z.object({ body: z.string().trim().min(1, "Write something first").max(1000) });
@@ -16,14 +17,14 @@ const schema = z.object({ body: z.string().trim().min(1, "Write something first"
  */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return failT("signIn", 401);
 
   const { id } = await params;
   const team = await prisma.team.findUnique({
     where: { id },
     select: { coachId: true, members: { select: { userId: true } } },
   });
-  if (!team || team.coachId !== session.userId) return fail("Team not found", 404);
+  if (!team || team.coachId !== session.userId) return failT("teamNotFound", 404);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid request");

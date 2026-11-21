@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 
 /** The coach takes a note down. Notifications already sent are left alone. */
 export async function DELETE(
@@ -8,7 +9,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; aid: string }> },
 ) {
   const session = await getSession();
-  if (!session) return fail("Sign in to continue", 401);
+  if (!session) return failT("signIn", 401);
 
   const { id, aid } = await params;
   const announcement = await prisma.teamAnnouncement.findUnique({
@@ -16,7 +17,7 @@ export async function DELETE(
     select: { teamId: true, team: { select: { coachId: true } } },
   });
   if (!announcement || announcement.teamId !== id || announcement.team.coachId !== session.userId) {
-    return fail("Announcement not found", 404);
+    return failT("announcementNotFound", 404);
   }
   await prisma.teamAnnouncement.delete({ where: { id: aid } });
   return ok({ id: aid });

@@ -64,6 +64,7 @@ const es = {
     curpHint: "18 caracteres. Solo tú lo ves.",
     leaveReason: "Motivo de la baja",
     leaveReasonHint: "Aparece en el reporte final (R-FI). Déjalo vacío si no aplica.",
+    leaveWarning: "Como no tiene cuenta, también se borran su asistencia, partidos y evaluaciones. No se puede deshacer.",
     remove: "Dar de baja",
   },
   hub: {
@@ -248,6 +249,7 @@ const en: Dict = {
     curpHint: "18 characters. Only you see it.",
     leaveReason: "Reason for leaving",
     leaveReasonHint: "Shown on the year-end report (R-FI). Leave blank if it doesn't apply.",
+    leaveWarning: "They have no account, so their attendance, matches and evaluations are deleted too. This can't be undone.",
     remove: "Remove from team",
   },
   hub: {
@@ -430,6 +432,7 @@ const ko: Dict = {
     curpHint: "18자리. 코치만 볼 수 있어요.",
     leaveReason: "탈퇴 사유",
     leaveReasonHint: "연말 보고서(R-FI)에 들어가요. 해당 없으면 비워 두세요.",
+    leaveWarning: "계정이 없는 학생이라 출석, 경기, 평가 기록도 함께 지워지고 되돌릴 수 없어요.",
     remove: "팀에서 빼기",
   },
   hub: {

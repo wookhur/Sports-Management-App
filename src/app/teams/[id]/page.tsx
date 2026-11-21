@@ -362,14 +362,19 @@ export default async function TeamPage({
         )}
 
 
-        <div className="mt-6">
-          <TeamAnnouncements
-            teamId={team.id}
-            announcements={announcements}
-            canPost={isOwner}
-            lang={lang}
-          />
-        </div>
+        {/* Announcements only reach players with accounts; on a team of
+            roster-only students the box would post into the void, so it stays
+            out of the way until someone could read it (the note below says why). */}
+        {!(isOwner && accountMembers === 0 && announcements.length === 0) && (
+          <div className="mt-6">
+            <TeamAnnouncements
+              teamId={team.id}
+              announcements={announcements}
+              canPost={isOwner}
+              lang={lang}
+            />
+          </div>
+        )}
 
         {/* Homework for everyone, right under the notes: the two things a
             coach does to the whole team at once sit together. */}

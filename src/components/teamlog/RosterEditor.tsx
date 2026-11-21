@@ -366,6 +366,7 @@ function RemovePanel({ teamId, lang, row, onDone }: { teamId: string; lang: Lang
         <input name="reason" className="input" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
         <span className="mt-0.5 block text-[11px] text-slate-600">{b.leaveReasonHint}</span>
       </label>
+      {row.managed && <p className="text-sm font-medium text-rose-900">{b.leaveWarning}</p>}
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
@@ -514,7 +515,9 @@ export default function RosterEditor({ teamId, lang, rows }: { teamId: string; l
                     )}
                   </p>
                   <p className="truncate text-xs text-slate-500">
-                    {[row.birthDate, row.curp, row.guardian1Name, row.guardian1Phone, row.guardian1Email].filter(Boolean).join(" · ") || r.noDetails}
+                    {[row.birthDate && row.birthDate.split("-").reverse().join("/"), row.curp, row.guardian1Name, row.guardian1Phone, row.guardian1Email]
+                      .filter(Boolean)
+                      .join(" · ") || r.noDetails}
                   </p>
                 </div>
                 {!isOpen && (

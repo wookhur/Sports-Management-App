@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession, createSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
 import { SPORTS } from "@/lib/sports";
 
@@ -21,7 +22,7 @@ const schema = z.object({
 
 export async function PATCH(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
@@ -29,17 +30,17 @@ export async function PATCH(req: Request) {
   const { name, username, school, grade, dob, experienceLevel, sportInterests } = parsed.data;
 
   if (grade && !GRADE_OPTIONS.includes(grade as (typeof GRADE_OPTIONS)[number])) {
-    return fail("학년 값이 올바르지 않아요");
+    return failT("invalid");
   }
   if (experienceLevel && !EXPERIENCE_LEVELS.some((l) => l.value === experienceLevel)) {
-    return fail("경험 수준 값이 올바르지 않아요");
+    return failT("invalid");
   }
   const interests = (sportInterests ?? []).filter((id) => SPORTS[id]);
 
   let dobDate: Date | null = null;
   if (dob) {
     dobDate = new Date(`${dob}T00:00:00Z`);
-    if (Number.isNaN(dobDate.getTime())) return fail("생년월일이 올바르지 않아요");
+    if (Number.isNaN(dobDate.getTime())) return failT("badDob");
   }
 
   if (username?.trim()) {
@@ -47,7 +48,7 @@ export async function PATCH(req: Request) {
       where: { username: username.trim(), id: { not: session.userId } },
       select: { id: true },
     });
-    if (taken) return fail("이미 사용 중인 아이디예요");
+    if (taken) return failT("usernameTaken");
   }
 
   await prisma.user.update({
