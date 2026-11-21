@@ -21,6 +21,7 @@ import { dayKeyIn } from "@/lib/format";
 import { teamTimeZone } from "@/lib/teamAccess";
 import { TeamTabs } from "@/components/teamlog/TeamLogShell";
 import { tl } from "@/lib/teamLogText";
+import { bt } from "@/lib/bitacoraText";
 import { addDays, isDayKey, mondayOf } from "@/lib/season";
 import { nameKey } from "@/lib/nameKey";
 import { TrophyIcon, FileTextIcon, ClipboardIcon } from "@/components/navIcons";
@@ -257,11 +258,22 @@ export default async function TeamPage({
             </p>
           </div>
           {isOwner && (
-            <div className="rounded-xl bg-white/10 px-4 py-3 text-center">
-              <p className="text-xs text-slate-300">{s.inviteCode}</p>
-              <p className="font-mono text-xl font-bold tracking-widest">{team.code}</p>
-              <CopyCodeButton code={team.code} lang={lang} />
-              <RegenerateCodeButton teamId={team.id} lang={lang} />
+            <div className="flex flex-wrap items-stretch gap-3">
+              {/* Students go on the roster by name; the invite code is only
+                  for the ones who will use the app themselves. */}
+              <Link
+                href={`/teams/${team.id}/roster#add-player`}
+                className="flex items-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 hover:bg-emerald-50"
+              >
+                {bt(lang).addStudent.teamButton}
+              </Link>
+              <div className="rounded-xl bg-white/10 px-4 py-3 text-center">
+                <p className="text-xs text-slate-300">{s.inviteCode}</p>
+                <p className="font-mono text-xl font-bold tracking-widest">{team.code}</p>
+                <p className="text-[11px] text-slate-300">{bt(lang).addStudent.inviteOptional}</p>
+                <CopyCodeButton code={team.code} lang={lang} />
+                <RegenerateCodeButton teamId={team.id} lang={lang} />
+              </div>
             </div>
           )}
         </header>
@@ -389,7 +401,16 @@ export default async function TeamPage({
             <h2 className="mb-3 text-lg font-bold">{s.membersHeading}</h2>
             {team.members.length === 0 ? (
               <div className="card p-6 text-center text-sm text-slate-600">
-                {s.noMembers}
+                {isOwner ? (
+                  <>
+                    <p>{bt(lang).addStudent.emptyOwner}</p>
+                    <Link href={`/teams/${team.id}/roster#add-player`} className="btn-primary mt-3 inline-block text-sm">
+                      {bt(lang).addStudent.teamButton}
+                    </Link>
+                  </>
+                ) : (
+                  s.noMembers
+                )}
               </div>
             ) : (
               <TeamMemberList

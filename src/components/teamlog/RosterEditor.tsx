@@ -94,6 +94,112 @@ export function TeamDetailsForm({
   );
 }
 
+const BLANK_PLAYER = {
+  name: "",
+  number: "",
+  birthDate: "",
+  curp: "",
+  guardian1Name: "",
+  guardian1Email: "",
+  guardian1Phone: "",
+  guardian2Name: "",
+  guardian2Email: "",
+  guardian2Phone: "",
+};
+
+/**
+ * Add one student with what the coach knows about them, the way they would
+ * fill in a row of the school's B1 sheet: no account, no app, just a name and
+ * whatever details are at hand. Stays open for the next student.
+ */
+export function NewPlayerForm({ teamId, lang }: { teamId: string; lang: Lang }) {
+  const s = tl(lang);
+  const r = s.roster;
+  const a = bt(lang).addStudent;
+  const router = useRouter();
+  const [v, setV] = useState(BLANK_PLAYER);
+  const [second, setSecond] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const set = (k: keyof typeof BLANK_PLAYER) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setV({ ...v, [k]: k === "curp" ? e.target.value.toUpperCase() : e.target.value });
+  const field = (k: keyof typeof BLANK_PLAYER, label: string, type = "text", extra: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+    <label key={k}>
+      <span className="label">{label}</span>
+      <input className="input" name={`new-${k}`} type={type} value={v[k]} onChange={set(k)} {...extra} />
+    </label>
+  );
+  return (
+    <form
+      id="add-player"
+      className="card scroll-mt-24 border-emerald-200 p-5"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!v.name.trim()) {
+          setMsg({ ok: false, text: a.errName });
+          return;
+        }
+        setBusy(true);
+        setMsg(null);
+        const { number, ...rest } = v;
+        const err = await send(`/api/teams/${teamId}/roster`, "POST", {
+          player: { ...rest, number: number.trim() === "" ? null : Number(number) },
+        });
+        setBusy(false);
+        if (err) {
+          setMsg({ ok: false, text: err === "error" ? s.common.errSave : err });
+          return;
+        }
+        setMsg({ ok: true, text: a.added(v.name.trim()) });
+        setV(BLANK_PLAYER);
+        setSecond(false);
+        router.refresh();
+        (e.currentTarget.querySelector('input[name="new-name"]') as HTMLInputElement | null)?.focus();
+      }}
+    >
+      <h2 className="text-base font-bold">{a.title}</h2>
+      <p className="mt-1 text-sm text-slate-600">{a.sub}</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="sm:col-span-2">
+          <span className="label">
+            {a.name} <span className="font-normal text-slate-500">({a.required})</span>
+          </span>
+          <input className="input" name="new-name" value={v.name} onChange={set("name")} placeholder={a.namePh} maxLength={60} required />
+        </label>
+        {field("number", r.number, "number", { min: 0, max: 999 })}
+        {field("birthDate", r.birthDate, "date")}
+        {field("curp", bt(lang).roster.curp, "text", { maxLength: 18, autoCapitalize: "characters", spellCheck: false })}
+        <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-3 lg:col-span-4">
+          <legend className="mb-1 text-xs font-bold text-slate-600">{r.guardian1}</legend>
+          {field("guardian1Name", r.name)}
+          {field("guardian1Email", r.email, "email")}
+          {field("guardian1Phone", r.phone, "tel")}
+        </fieldset>
+        {second ? (
+          <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-3 lg:col-span-4">
+            <legend className="mb-1 text-xs font-bold text-slate-600">{r.guardian2}</legend>
+            {field("guardian2Name", r.name)}
+            {field("guardian2Email", r.email, "email")}
+            {field("guardian2Phone", r.phone, "tel")}
+          </fieldset>
+        ) : (
+          <button type="button" className="justify-self-start text-xs font-semibold text-brand hover:underline sm:col-span-2" onClick={() => setSecond(true)}>
+            + {a.moreGuardian}
+          </button>
+        )}
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+        <span className={`text-sm ${msg?.ok === false ? "text-red-700" : "text-emerald-700"}`} role={msg?.ok === false ? "alert" : "status"}>
+          {msg?.text ?? ""}
+        </span>
+        <button type="submit" className="btn-primary text-sm" disabled={busy}>
+          {busy ? s.common.saving : a.submit}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 /** Paste a list of names to put players on the roster without accounts. */
 export function AddPlayersForm({ teamId, lang }: { teamId: string; lang: Lang }) {
   const s = tl(lang);
@@ -124,7 +230,7 @@ export function AddPlayersForm({ teamId, lang }: { teamId: string; lang: Lang })
         router.refresh();
       }}
     >
-      <h2 className="text-sm font-bold">{r.addPlayer}</h2>
+      <h2 className="text-sm font-bold">{bt(lang).addStudent.bulkTitle}</h2>
       <p className="mt-1 text-xs text-slate-600">{r.addPlayerSub}</p>
       <label className="mt-3 block">
         <span className="label">{r.pasteNames}</span>

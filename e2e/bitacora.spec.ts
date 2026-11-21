@@ -574,3 +574,50 @@ test("the bitácora's written sections save as typed and everything lands in the
     await send(page, `/api/teams/${team.id}`, "DELETE");
   }
 });
+
+test("a coach adds a student with their details in one step, no account needed", async ({ page }) => {
+  await login(page, COACH);
+  await setLang(page, "es");
+  const team = await newTeam(page, "Alta Directa");
+
+  // The team page leads to it, not to the invite code.
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.locator("main")).toContainText("Aún no hay alumnos. Agrégalos con su nombre: no necesitan cuenta.");
+  await expect(page.locator("main")).toContainText("Solo si el alumno usará la app");
+  await page.locator("header").getByRole("link", { name: "+ Agregar alumnos" }).click();
+  await expect(page).toHaveURL(new RegExp(`/teams/${team.id}/roster#add-player`));
+
+  const form = page.locator("#add-player");
+  // A name is required; nothing else is.
+  await form.getByRole("button", { name: "Agregar alumno" }).click();
+  await expect(page.locator('li[data-player]')).toHaveCount(0);
+
+  await form.locator('input[name="new-name"]').fill("Mendoza Jesús");
+  await form.locator('input[name="new-number"]').fill("9");
+  await form.locator('input[name="new-birthDate"]').fill("2013-04-02");
+  await form.locator('input[name="new-curp"]').fill("mejj130402hjcnss09");
+  await form.locator('input[name="new-guardian1Name"]').fill("María Mendoza");
+  await form.locator('input[name="new-guardian1Phone"]').fill("33 1234 5678");
+  await form.getByRole("button", { name: "Agregar alumno" }).click();
+  await expect(form).toContainText("Se agregó a Mendoza Jesús.");
+  await expect(form.locator('input[name="new-name"]')).toHaveValue("");
+
+  const row = page.locator('li[data-player="Mendoza Jesús"]');
+  await expect(row).toContainText("Sin cuenta");
+  await expect(row).toContainText("2013-04-02 · MEJJ130402HJCNSS09 · María Mendoza · 33 1234 5678");
+  await expect(row).toContainText("9");
+
+  // A second one with just a name, and a bad CURP is refused with the reason.
+  const bad = await api(page, `/api/teams/${team.id}/roster`, { player: { name: "García Sofía", curp: "123" } });
+  expect(bad.status).toBe(400);
+  await form.locator('input[name="new-name"]').fill("García Sofía");
+  await form.getByRole("button", { name: "Agregar alumno" }).click();
+  await expect(page.locator('li[data-player="García Sofía"]')).toBeVisible();
+
+  // They are on the register right away.
+  await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
+  await expect(page.getByRole("radiogroup", { name: "Mendoza Jesús" })).toBeVisible();
+  await expect(page.getByRole("radiogroup", { name: "García Sofía" })).toBeVisible();
+
+  await send(page, `/api/teams/${team.id}`, "DELETE");
+});

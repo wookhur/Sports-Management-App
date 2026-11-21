@@ -2,7 +2,8 @@ import { loadTeamPage, rosterOf } from "@/lib/teamPage";
 import { tl } from "@/lib/teamLogText";
 import { TEAM_TIME_ZONES, teamTimeZone } from "@/lib/teamAccess";
 import TeamLogShell from "@/components/teamlog/TeamLogShell";
-import RosterEditor, { AddPlayersForm, TeamDetailsForm } from "@/components/teamlog/RosterEditor";
+import RosterEditor, { AddPlayersForm, NewPlayerForm, TeamDetailsForm } from "@/components/teamlog/RosterEditor";
+import { bt } from "@/lib/bitacoraText";
 
 export const dynamic = "force-dynamic";
 
@@ -16,14 +17,11 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
   return (
     <TeamLogShell team={team} active="roster" code={isOwner ? "B1" : undefined} isOwner={isOwner} lang={lang} title={s.roster.title} sub={s.roster.sub}>
       <div className="space-y-6">
-        <TeamDetailsForm
-          teamId={id}
-          lang={lang}
-          initial={{ category: team.category ?? "", branch: team.branch ?? "", timeZone: tz }}
-          timeZones={TEAM_TIME_ZONES.includes(tz as (typeof TEAM_TIME_ZONES)[number]) ? TEAM_TIME_ZONES : [tz, ...TEAM_TIME_ZONES]}
-        />
+        {/* Adding a student comes first: it is what a coach does most here,
+            and no student needs an account for it. */}
+        <NewPlayerForm teamId={id} lang={lang} />
         {roster.length === 0 ? (
-          <div className="card p-6 text-center text-sm text-slate-600">{s.common.noMembers}</div>
+          <div className="card p-6 text-center text-sm text-slate-600">{bt(lang).addStudent.emptyOwner}</div>
         ) : (
           <RosterEditor
             teamId={id}
@@ -45,6 +43,12 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
           />
         )}
         <AddPlayersForm teamId={id} lang={lang} />
+        <TeamDetailsForm
+          teamId={id}
+          lang={lang}
+          initial={{ category: team.category ?? "", branch: team.branch ?? "", timeZone: tz }}
+          timeZones={TEAM_TIME_ZONES.includes(tz as (typeof TEAM_TIME_ZONES)[number]) ? TEAM_TIME_ZONES : [tz, ...TEAM_TIME_ZONES]}
+        />
       </div>
     </TeamLogShell>
   );

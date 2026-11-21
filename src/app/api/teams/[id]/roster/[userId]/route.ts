@@ -4,23 +4,13 @@ import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { failT, failIssue } from "@/lib/apiText";
 import { teamRole } from "@/lib/teamAccess";
-import { isDayKey } from "@/lib/season";
-
-const text = (max: number) => z.string().trim().max(max).optional();
+import { rosterDetailData, rosterDetailFields } from "@/lib/rosterFields";
 
 // Empty strings clear a field. The player's display name can be changed here
 // only for roster-only players; people with accounts own their own name.
 const schema = z.object({
   name: z.string().trim().min(1).max(60).optional(),
-  number: z.union([z.number().int().min(0).max(999), z.null()]).optional(),
-  birthDate: z.union([z.string().refine(isDayKey, "pickDate"), z.literal("")]).optional(),
-  curp: z.union([z.string().trim().toUpperCase().regex(/^[A-Z0-9]{18}$/, "curp"), z.literal("")]).optional(),
-  guardian1Name: text(80),
-  guardian1Email: z.union([z.string().trim().email("checkEmail").max(120), z.literal("")]).optional(),
-  guardian1Phone: text(40),
-  guardian2Name: text(80),
-  guardian2Email: z.union([z.string().trim().email("checkEmail").max(120), z.literal("")]).optional(),
-  guardian2Phone: text(40),
+  ...rosterDetailFields,
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string; userId: string }> }) {
@@ -39,8 +29,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!parsed.success) return await failIssue(parsed.error.issues);
   const { name, ...fields } = parsed.data;
 
-  const data: Record<string, string | number | null> = {};
-  for (const [k, v] of Object.entries(fields)) if (v !== undefined) data[k] = v === "" ? null : v;
+  const data = rosterDetailData(fields);
   await prisma.teamMember.update({ where: { id: member.id }, data });
   if (name && member.user.managed) await prisma.user.update({ where: { id: userId }, data: { name } });
   return ok({ userId });
