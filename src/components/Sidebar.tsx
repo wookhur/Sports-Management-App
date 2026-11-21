@@ -29,6 +29,8 @@ import {
 export interface SidebarUser {
   name: string;
   role: "ATHLETE" | "COACH";
+  /** An operator named in ADMIN_EMAILS; only they get the overview. */
+  isAdmin?: boolean;
 }
 
 export interface SidebarPet {
@@ -211,13 +213,6 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
                 label={s.coachDashboard}
                 onNavigate={onNavigate}
               />
-              <NavItem
-                href="/admin"
-                active={pathname.startsWith("/admin")}
-                icon={<ChartIcon className="h-5 w-5" />}
-                label={s.admin}
-                onNavigate={onNavigate}
-              />
             </>
           ) : (
             <NavItem
@@ -234,6 +229,15 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
               active={pathname.startsWith("/teams")}
               icon={<PennantIcon className="h-5 w-5" />}
               label={s.teams}
+              onNavigate={onNavigate}
+            />
+          )}
+          {user.isAdmin && (
+            <NavItem
+              href="/admin"
+              active={pathname.startsWith("/admin")}
+              icon={<ChartIcon className="h-5 w-5" />}
+              label={s.admin}
               onNavigate={onNavigate}
             />
           )}

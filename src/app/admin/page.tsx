@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import { formatDate } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { isAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +118,9 @@ const L: Record<
 export default async function AdminPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "COACH") redirect("/");
+  // Lists other people's email addresses: operators only, and to everyone
+  // else the page does not exist.
+  if (!(await isAdmin(session.userId))) notFound();
 
   const lang = await getLang();
   const s = L[lang];

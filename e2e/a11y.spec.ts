@@ -102,7 +102,9 @@ test("text meets AA contrast on the coach routes too", async ({ page }) => {
 test("a team page is accessible and readable", async ({ page }) => {
   await login(page, COACH);
   await page.goto("/coach", { waitUntil: "networkidle" });
-  const href = await page.locator('a[href^="/teams/"]').first().getAttribute("href");
+  // On a fresh database the coach has no team yet; skip rather than wait.
+  const link = page.locator('a[href^="/teams/"]').first();
+  const href = (await link.count()) ? await link.getAttribute("href") : null;
   test.skip(!href, "the coach has no teams to open");
 
   expect(await contrastProblems(page, [href!]), "contrast violations").toEqual([]);

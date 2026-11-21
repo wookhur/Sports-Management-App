@@ -90,3 +90,24 @@ test("the seeded coach has an accepted athlete, not a pending one", async ({ pag
   await page.goto("/coach", { waitUntil: "networkidle" });
   await expect(page.locator("main")).not.toContainText(/연결된 선수가 없어요|no athletes connected|no hay atletas/i);
 });
+
+// The overview lists other people's email addresses. Anyone can sign up as a
+// coach, so only the operators named in ADMIN_EMAILS may see it.
+test("the operations overview is for operators, not every coach", async ({ page }) => {
+  await login(page, COACH);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(page.locator('aside a[href="/admin"]').first()).toBeVisible();
+  await page.context().clearCookies();
+
+  const username = `coach${process.pid}${Date.now().toString(36)}`;
+  const res = await page.request.post("/api/auth/signup", {
+    data: { username, email: `${username}@example.com`, password: "password123", role: "COACH", termsAccepted: true, minor: false },
+  });
+  expect(res.status()).toBe(201);
+  await page.goto("/");
+  await expect(page.locator('aside a[href="/teams"]').first()).toBeVisible();
+  await expect(page.locator('aside a[href="/admin"]')).toHaveCount(0);
+  const admin = await page.goto("/admin");
+  expect(admin?.status()).toBe(404);
+  await expect(page.locator("body")).not.toContainText("coach@example.com");
+});

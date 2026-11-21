@@ -29,7 +29,8 @@ export default defineConfig({
   webServer: {
     command: `npx next start -p ${PORT}`,
     // Keep the suite hermetic: no third-party font fetch on every navigation.
-    env: { NEXT_PUBLIC_NO_WEBFONT: "1" },
+    // The seeded coach is the operator; any other coach is not.
+    env: { NEXT_PUBLIC_NO_WEBFONT: "1", ADMIN_EMAILS: "coach@example.com" },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

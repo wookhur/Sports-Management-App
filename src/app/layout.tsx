@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLang } from "@/lib/getLang";
 import { getSession } from "@/lib/auth";
 import Sidebar, { type SidebarPet } from "@/components/Sidebar";
+import { isAdmin } from "@/lib/admin";
 import FontLink from "@/components/FontLink";
 import { SidebarProvider } from "@/components/SidebarContext";
 import { getShellData } from "@/lib/shell";
@@ -68,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {session ? (
           <SidebarProvider>
             <div className="lg:flex">
-              <Sidebar lang={lang} user={{ name: session.name, role: session.role }} pet={pet} />
+              <Sidebar lang={lang} user={{ name: session.name, role: session.role, isAdmin: await isAdmin(session.userId) }} pet={pet} />
               <div className="min-w-0 flex-1">{children}</div>
             </div>
           </SidebarProvider>
