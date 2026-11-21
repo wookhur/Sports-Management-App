@@ -9,19 +9,22 @@ import es from "@/data/content/es.json";
 // translation.
 
 type Text = { title: string; excerpt?: string; body: string; source: string };
+// Titles typed in the app can carry stray spaces; they don't make it a different article.
+const same = (a: string, b: string) => a.replace(/\s+/g, " ").trim() === b.replace(/\s+/g, " ").trim();
+
 const ES = es as { guides: Record<string, Text>; blog: Record<string, Text>; board: Record<string, Text & { title: string | null }> };
 
 /** A star athlete article in the reader's language, where a translation fits. */
 export function localizeGuide<T extends { slug: string; title: string; excerpt: string; body?: string }>(g: T, lang: Lang): T {
   const tr = lang === "es" ? ES.guides[g.slug] : undefined;
-  if (!tr || tr.source !== g.title) return g;
+  if (!tr || !same(tr.source, g.title)) return g;
   return { ...g, title: tr.title, excerpt: tr.excerpt ?? g.excerpt, ...(g.body !== undefined && { body: tr.body }) };
 }
 
 /** A blog post in the reader's language, where a translation fits. */
 export function localizeBlog<T extends { slug: string; title: string; excerpt: string; body?: string }>(p: T, lang: Lang): T {
   const tr = lang === "es" ? ES.blog[p.slug] : undefined;
-  if (!tr || tr.source !== p.title) return p;
+  if (!tr || !same(tr.source, p.title)) return p;
   return { ...p, title: tr.title, excerpt: tr.excerpt ?? p.excerpt, ...(p.body !== undefined && { body: tr.body }) };
 }
 
