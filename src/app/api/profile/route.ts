@@ -2,16 +2,16 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession, createSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
-import { failT } from "@/lib/apiText";
+import { failIssue, failT } from "@/lib/apiText";
 import { EXPERIENCE_LEVELS, GRADE_OPTIONS } from "@/lib/onboarding";
 import { SPORTS } from "@/lib/sports";
 
 const schema = z.object({
-  name: z.string().min(1, "이름을 입력하세요").max(40),
+  name: z.string().min(1, "enterName").max(40),
   username: z
     .string()
     .max(30)
-    .regex(/^[a-z0-9._-]*$/i, "아이디는 영문/숫자/._-만 쓸 수 있어요")
+    .regex(/^[a-z0-9._-]*$/i, "usernameCharsProfile")
     .optional(),
   school: z.string().max(60).optional(),
   grade: z.string().optional(),
@@ -25,7 +25,7 @@ export async function PATCH(req: Request) {
   if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
+  if (!parsed.success) return failIssue(parsed.error.issues);
 
   const { name, username, school, grade, dob, experienceLevel, sportInterests } = parsed.data;
 

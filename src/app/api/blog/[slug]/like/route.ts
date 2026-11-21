@@ -1,17 +1,18 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 
 type Params = { params: Promise<{ slug: string }> };
 
 /** Toggle my like on a post. Returns the new state + total. */
 export async function POST(_req: Request, { params }: Params) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const { slug } = await params;
   const post = await prisma.blogPost.findUnique({ where: { slug }, select: { id: true, published: true } });
-  if (!post || !post.published) return fail("글을 찾을 수 없습니다", 404);
+  if (!post || !post.published) return failT("postNotFound", 404);
 
   const key = { postId_userId: { postId: post.id, userId: session.userId } };
   const existing = await prisma.blogLike.findUnique({ where: key });

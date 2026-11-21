@@ -45,3 +45,23 @@ export async function rosterOf(teamId: string) {
     (a, b) => (a.number ?? 1e6) - (b.number ?? 1e6) || a.user.name.localeCompare(b.user.name),
   );
 }
+
+/**
+ * Roster-only students who left the team: no longer members, but with
+ * attendance, matches or evaluations recorded here, which stay in the log.
+ */
+export async function departedOf(teamId: string) {
+  return prisma.user.findMany({
+    where: {
+      managed: true,
+      teamMemberships: { none: { teamId } },
+      OR: [
+        { attendance: { some: { teamId } } },
+        { matchesPlayed: { some: { match: { teamId } } } },
+        { evaluations: { some: { teamId } } },
+      ],
+    },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+}

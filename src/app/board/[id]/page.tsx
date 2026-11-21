@@ -8,6 +8,7 @@ import { formatRelative } from "@/lib/format";
 import { embedUrl } from "@/lib/board";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { localizeBoard } from "@/lib/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
   const s = t(lang).board;
   const { id } = await params;
 
-  const post = await prisma.boardPost.findUnique({
+  const stored = await prisma.boardPost.findUnique({
     where: { id },
     include: {
       author: { select: { id: true, name: true } },
@@ -30,7 +31,8 @@ export default async function BoardPostPage({ params }: { params: Promise<{ id: 
       likes: { select: { userId: true } },
     },
   });
-  if (!post) notFound();
+  if (!stored) notFound();
+  const post = localizeBoard(stored, lang);
 
   // Bump view count (fire-and-forget; not part of the render data).
   await prisma.boardPost.update({ where: { id }, data: { views: { increment: 1 } } });

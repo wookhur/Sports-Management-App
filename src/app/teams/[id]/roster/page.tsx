@@ -1,8 +1,8 @@
-import { loadTeamPage, rosterOf } from "@/lib/teamPage";
+import { departedOf, loadTeamPage, rosterOf } from "@/lib/teamPage";
 import { tl } from "@/lib/teamLogText";
 import { TEAM_TIME_ZONES, teamTimeZone } from "@/lib/teamAccess";
 import TeamLogShell from "@/components/teamlog/TeamLogShell";
-import RosterEditor, { AddPlayersForm, NewPlayerForm, TeamDetailsForm } from "@/components/teamlog/RosterEditor";
+import RosterEditor, { AddPlayersForm, DepartedList, NewPlayerForm, TeamDetailsForm } from "@/components/teamlog/RosterEditor";
 import { bt } from "@/lib/bitacoraText";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const { lang, team, isOwner } = await loadTeamPage(id, { ownerOnly: true });
   const s = tl(lang);
-  const roster = await rosterOf(id);
+  const [roster, departed] = await Promise.all([rosterOf(id), departedOf(id)]);
   const tz = teamTimeZone(team);
 
   return (
@@ -43,6 +43,7 @@ export default async function RosterPage({ params }: { params: Promise<{ id: str
           />
         )}
         <AddPlayersForm teamId={id} lang={lang} />
+        <DepartedList teamId={id} lang={lang} people={departed} />
         <TeamDetailsForm
           teamId={id}
           lang={lang}

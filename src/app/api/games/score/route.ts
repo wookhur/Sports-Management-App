@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { isGameId, maxScore } from "@/lib/games";
 
 const schema = z.object({
@@ -11,15 +12,15 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("잘못된 요청입니다");
+  if (!parsed.success) return failT("invalid");
 
   const { game, score } = parsed.data;
-  if (!isGameId(game)) return fail("알 수 없는 게임입니다", 404);
+  if (!isGameId(game)) return failT("unknownGame", 404);
   // Reject impossible scores (basic anti-tamper; the game is client-side).
-  if (score > maxScore(game)) return fail("점수가 올바르지 않습니다");
+  if (score > maxScore(game)) return failT("badScore");
 
   const existing = await prisma.gameScore.findUnique({
     where: { userId_game: { userId: session.userId, game } },

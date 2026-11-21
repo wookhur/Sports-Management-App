@@ -45,22 +45,22 @@ const COACH_STEPS_EN: OnboardingStep[] = [
   {
     emoji: "🏅",
     title: "Welcome to Sideline365!",
-    body: "A coach dashboard for reviewing your athletes' records and leaving feedback. The tour takes just a minute.",
+    body: "Your coach's log in one place: roster, attendance, matches and evaluations. The tour takes just a minute.",
   },
   {
-    emoji: "📋",
-    title: "Add athletes to your roster",
-    body: "Enter an athlete's email on the coach dashboard to add them to your roster and see the records they share.",
+    emoji: "👥",
+    title: "Create your team and add students",
+    body: "On your team, tap “+ Add students” and type their names. Students don't need an account.",
   },
   {
-    emoji: "📈",
-    title: "Review shared records",
-    body: "Records your athletes share are gathered on the dashboard — see personal bests and trends at a glance.",
+    emoji: "✅",
+    title: "Take the register and log matches",
+    body: "At each session mark attendance (present, absent, late, incident or excused), and record each match player by player in B3.",
   },
   {
-    emoji: "💬",
-    title: "Leave feedback",
-    body: "Leave coaching points as comments under a record and your athlete will see them right away. Ready to get started?",
+    emoji: "📄",
+    title: "Download the official log",
+    body: "In “Season log” you fill in the school's sheets and download the official Excel, ready to hand in. Ready to start?",
   },
 ];
 
@@ -96,22 +96,22 @@ const COACH_STEPS_ES: OnboardingStep[] = [
   {
     emoji: "🏅",
     title: "¡Bienvenido a Sideline365!",
-    body: "Un panel para entrenadores donde revisas las marcas de tus atletas y dejas comentarios. El recorrido toma solo un minuto.",
+    body: "Tu bitácora de entrenador en un solo lugar: plantilla, asistencia, partidos y evaluaciones. El recorrido toma solo un minuto.",
   },
   {
-    emoji: "📋",
-    title: "Agrega atletas a tu plantilla",
-    body: "Escribe el correo de un atleta en el panel del entrenador para agregarlo a tu plantilla y ver las marcas que comparta.",
+    emoji: "👥",
+    title: "Crea tu equipo y agrega alumnos",
+    body: "En tu equipo toca «+ Agregar alumnos» y escribe sus nombres. Los alumnos no necesitan cuenta.",
   },
   {
-    emoji: "📈",
-    title: "Revisa las marcas compartidas",
-    body: "Las marcas que comparten tus atletas se reúnen en el panel: verás mejores marcas y tendencias de un vistazo.",
+    emoji: "✅",
+    title: "Pasa lista y registra partidos",
+    body: "En cada entrenamiento marca la asistencia (Asistencia, Falta, Tarde, Incidente o Justificada) y registra cada partido alumno por alumno en B3.",
   },
   {
-    emoji: "💬",
-    title: "Deja comentarios",
-    body: "Deja puntos de coaching como comentarios bajo una marca y tu atleta los verá al instante. ¿Empezamos?",
+    emoji: "📄",
+    title: "Descarga la bitácora oficial",
+    body: "En «Bitácora» llenas las hojas de la escuela y descargas el Excel oficial, listo para entregar. ¿Empezamos?",
   },
 ];
 

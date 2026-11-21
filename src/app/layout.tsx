@@ -38,7 +38,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   // The companion rides along in the sidebar on every authenticated page.
   let pet: SidebarPet | null = null;
-  if (session) {
+  // The pet is the athlete's companion; a coach's sidebar has none.
+  if (session && session.role !== "COACH") {
     const u = await getShellData(session.userId);
     {
       const st = petState(u.petGrowth);

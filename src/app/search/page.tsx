@@ -10,6 +10,7 @@ import { L as loc, searchText } from "@/lib/localized";
 import { lacrosseSearchItems } from "@/lib/lacrosseProgram";
 import { searchGuides } from "@/lib/sports";
 import { getLang } from "@/lib/getLang";
+import { localizeBlog, localizeGuide } from "@/lib/contentText";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -105,7 +106,7 @@ export default async function SearchPage({
         },
         orderBy: { createdAt: "desc" },
         take: 8,
-      })
+      }).then((rows) => rows.map((g) => localizeGuide(g, lang)))
     : [];
   const posts = query
     ? await prisma.blogPost.findMany({
@@ -120,7 +121,7 @@ export default async function SearchPage({
         },
         orderBy: { createdAt: "desc" },
         take: 8,
-      })
+      }).then((rows) => rows.map((p) => localizeBlog(p, lang)))
     : [];
 
   const total =

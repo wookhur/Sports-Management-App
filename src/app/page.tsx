@@ -168,7 +168,10 @@ export default async function HomePage({
   const showTour = tutorial === "1" || !user?.onboarded;
   // Home-dashboard personalization: sections the user chose to hide.
   const hidden = new Set(user?.homeHidden ?? []);
-  const show = (key: string) => !hidden.has(key);
+  // A coach's home is their teams: the athlete's day-to-day widgets (week
+  // calendar, today's score, weekly totals, streak) have nothing of theirs in them.
+  const coachHidden = new Set(["calendar", "score", "weekly", "streak"]);
+  const show = (key: string) => !hidden.has(key) && !(isCoach && coachHidden.has(key));
 
   // Record today's visit and read the leaderboard (idempotent per day).
   const streak = await touchStreak(session.userId);
@@ -380,7 +383,7 @@ export default async function HomePage({
 
         {/* Above everything: a brand-new account has nothing else worth
             looking at, and this is the shortest path to it having something. */}
-        {firstRun.show && (
+        {firstRun.show && !isCoach && (
           <div className="mb-6">
             <FirstRunCard lang={lang} state={firstRun} />
           </div>
@@ -561,6 +564,7 @@ export default async function HomePage({
             the training data — the pet sat second on the page, above anything
             an athlete had actually done. They earn their place, but as their
             own zone rather than as interruptions. */}
+        {!isCoach && (
         <section className="mt-10">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
             {s.rewardsTitle}
@@ -594,6 +598,7 @@ export default async function HomePage({
             </div>
           )}
         </section>
+        )}
 
       </main>
     </>

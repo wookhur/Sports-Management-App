@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failT } from "@/lib/apiText";
 import { getMission, isMissionMet } from "@/lib/missions";
 import { seoulDayKey } from "@/lib/format";
 
@@ -9,16 +10,16 @@ const schema = z.object({ missionKey: z.string().min(1) });
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("잘못된 요청입니다");
+  if (!parsed.success) return failT("invalid");
 
   const def = getMission(parsed.data.missionKey);
-  if (!def) return fail("존재하지 않는 미션입니다", 404);
+  if (!def) return failT("unknownMission", 404);
 
   const met = await isMissionMet(session.userId, def.key);
-  if (!met) return fail("아직 미션을 완료하지 않았어요");
+  if (!met) return failT("missionNotDone");
 
   const day = seoulDayKey();
 
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       }),
     ]);
   } catch {
-    return fail("이미 오늘 받은 미션이에요");
+    return failT("missionClaimed");
   }
 
   const user = await prisma.user.findUnique({

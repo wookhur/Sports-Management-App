@@ -11,6 +11,7 @@ import { toEditableHtml } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { localizeGuide } from "@/lib/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -53,11 +54,12 @@ export default async function AthleteGuidePage({
 
   const sportName = SPORT_I18N[sportId]?.[lang]?.name ?? sport.name;
 
-  const guide = await prisma.athleteGuide.findUnique({
+  const stored = await prisma.athleteGuide.findUnique({
     where: { slug },
     include: { author: { select: { name: true } } },
   });
-  if (!guide || !guide.published || guide.sport !== sportId) notFound();
+  if (!stored || !stored.published || stored.sport !== sportId) notFound();
+  const guide = localizeGuide(stored, lang);
 
   const bodyHtml = sanitizeBlogHtml(toEditableHtml(guide.body));
 

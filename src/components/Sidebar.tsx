@@ -95,6 +95,19 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
         <SectionLabel>{s.menu}</SectionLabel>
         <div className="space-y-0.5">
           <NavItem href="/" active={pathname === "/"} icon={<HomeIcon className="h-5 w-5" />} label={s.home} onNavigate={onNavigate} />
+          {/* A coach's work is their teams; the athlete's game layer (journal,
+              missions, minigames, leaderboard) stays out of their menu. */}
+          {isCoach && (
+            <NavItem
+              href="/teams"
+              active={pathname.startsWith("/teams")}
+              icon={<PennantIcon className="h-5 w-5" />}
+              label={s.teams}
+              onNavigate={onNavigate}
+            />
+          )}
+          {!isCoach && (
+          <>
           <NavItem
             href="/journal"
             active={pathname.startsWith("/journal")}
@@ -110,19 +123,14 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
             onNavigate={onNavigate}
           />
           <NavItem
-            href="/board"
-            active={pathname.startsWith("/board")}
-            icon={<ChatIcon className="h-5 w-5" />}
-            label={s.board}
-            onNavigate={onNavigate}
-          />
-          <NavItem
             href="/games/bullseye"
             active={pathname.startsWith("/games")}
             icon={<CrosshairIcon className="h-5 w-5" />}
             label={s.games}
             onNavigate={onNavigate}
           />
+          </>
+          )}
           <NavItem
             href="/training"
             active={pathname.startsWith("/training")}
@@ -137,11 +145,20 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
             label={s.stars}
             onNavigate={onNavigate}
           />
+          {!isCoach && (
           <NavItem
             href="/leaderboard"
             active={pathname.startsWith("/leaderboard")}
             icon={<TrophyIcon className="h-5 w-5" />}
             label={s.leaderboard}
+            onNavigate={onNavigate}
+          />
+          )}
+          <NavItem
+            href="/board"
+            active={pathname.startsWith("/board")}
+            icon={<ChatIcon className="h-5 w-5" />}
+            label={s.board}
             onNavigate={onNavigate}
           />
           <NavItem href="/blog" active={pathname.startsWith("/blog")} icon={<PenIcon className="h-5 w-5" />} label={s.blog} onNavigate={onNavigate} />
@@ -211,13 +228,15 @@ function SidebarNav({ lang, user, pet, onNavigate }: SidebarProps & { onNavigate
               onNavigate={onNavigate}
             />
           )}
-          <NavItem
-            href="/teams"
-            active={pathname.startsWith("/teams")}
-            icon={<PennantIcon className="h-5 w-5" />}
-            label={s.teams}
-            onNavigate={onNavigate}
-          />
+          {!isCoach && (
+            <NavItem
+              href="/teams"
+              active={pathname.startsWith("/teams")}
+              icon={<PennantIcon className="h-5 w-5" />}
+              label={s.teams}
+              onNavigate={onNavigate}
+            />
+          )}
           <NavItem
             href="/connections"
             active={pathname.startsWith("/connections")}

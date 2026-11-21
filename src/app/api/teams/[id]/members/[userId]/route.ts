@@ -42,8 +42,6 @@ export async function DELETE(
   });
   if (!membership) return failT("notOnTeam", 404);
 
-  // A roster-only player exists only for this team, so taking them off it
-  // removes them entirely rather than leaving an account nobody can use.
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { managed: true, name: true } });
 
   const body = (await req.json().catch(() => null)) as { reason?: unknown } | null;
@@ -57,7 +55,9 @@ export async function DELETE(
     await prisma.teamSeasonDoc.upsert({ where, update: { data }, create: { teamId: id, year, kind: "report", data } });
   }
 
-  if (user?.managed && isOwner) await prisma.user.delete({ where: { id: userId } });
-  else await prisma.teamMember.delete({ where: { id: membership.id } });
+  // Only the membership goes. A roster-only student who leaves keeps their
+  // attendance, matches and evaluations, which belong to the school year's
+  // log; the roster page lists them under "dados de baja" to bring back.
+  await prisma.teamMember.delete({ where: { id: membership.id } });
   return ok({ teamId: id, userId });
 }

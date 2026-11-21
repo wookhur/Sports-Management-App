@@ -3,10 +3,10 @@ import { prisma } from "@/lib/db";
 import { usersByEmail } from "@/lib/email";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
-import { failT } from "@/lib/apiText";
+import { failIssue, failT } from "@/lib/apiText";
 import { notify } from "@/lib/notifyServer";
 
-const schema = z.object({ email: z.string().email("올바른 이메일을 입력하세요") });
+const schema = z.object({ email: z.string().email("checkEmail") });
 
 /**
  * Ask to link with a counterpart by email.
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   if (!session) return failT("signIn", 401);
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
+  if (!parsed.success) return failIssue(parsed.error.issues);
 
   const [counterpart] = await usersByEmail(parsed.data.email);
   if (!counterpart) return failT("noUserWithEmail", 404);
@@ -33,11 +33,7 @@ export async function POST(req: Request) {
 
   const wantRole = session.role === "COACH" ? "ATHLETE" : "COACH";
   if (counterpart.role !== wantRole) {
-    return fail(
-      session.role === "COACH"
-        ? "선수 계정만 로스터에 추가할 수 있습니다"
-        : "코치 계정만 연결할 수 있습니다",
-    );
+    return failT(session.role === "COACH" ? "onlyAthleteRoster" : "onlyCoachConnect");
   }
 
   const coachId = session.role === "COACH" ? session.userId : counterpart.id;

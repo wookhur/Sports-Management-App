@@ -8,6 +8,7 @@ import { formatRelative } from "@/lib/format";
 import { isBoardCategory } from "@/lib/board";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { localizeBoard } from "@/lib/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +27,17 @@ export default async function BoardPage({
   const { category } = await searchParams;
   const active = category && isBoardCategory(category) ? category : "all";
 
-  const posts = await prisma.boardPost.findMany({
-    where: active === "all" ? {} : { category: active },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    include: {
-      author: { select: { name: true } },
-      _count: { select: { likes: true, comments: true } },
-    },
-  });
+  const posts = (
+    await prisma.boardPost.findMany({
+      where: active === "all" ? {} : { category: active },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      include: {
+        author: { select: { name: true } },
+        _count: { select: { likes: true, comments: true } },
+      },
+    })
+  ).map((p) => localizeBoard(p, lang));
 
   const tabs: { key: string; label: string }[] = [
     { key: "all", label: s.catAll },

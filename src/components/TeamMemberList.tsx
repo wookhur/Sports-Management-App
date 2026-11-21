@@ -35,7 +35,7 @@ const L: Record<
       `${name} 선수를 '${team}' 팀에서 뺄까요? 기록과 계정은 그대로 남고, 초대 코드로 다시 들어올 수 있어요.`,
     leave: "팀 나가기",
     confirmRemoveManaged: (name) =>
-      `${name} 학생을 팀에서 뺄까요? 계정이 없는 학생이라 출석, 경기, 평가 기록도 함께 지워지고 되돌릴 수 없어요.`,
+      `${name} 학생을 팀에서 뺄까요? 명단과 출석부에서 빠지지만 출석·경기·평가 기록은 남고, 명단 화면에서 다시 넣을 수 있어요.`,
     reasonPrompt: "탈퇴 사유 (연말 보고서 R-FI에 들어가요). 해당 없으면 비워 두세요.",
     confirmLeave: (team) => `'${team}' 팀에서 나갈까요?`,
     errRemove: "팀에서 빼지 못했습니다",
@@ -47,7 +47,7 @@ const L: Record<
       `Remove ${name} from “${team}”? Their records and account are kept, and they can rejoin with the invite code.`,
     leave: "Leave team",
     confirmRemoveManaged: (name) =>
-      `Remove ${name} from the team? They have no account, so their attendance, matches and evaluations are deleted too. This can't be undone.`,
+      `Remove ${name} from the team? They leave the roster and the register; their attendance, matches and evaluations are kept, and you can bring them back from the roster.`,
     reasonPrompt: "Reason for leaving (goes on the year-end report, R-FI). Leave blank if it doesn't apply.",
     confirmLeave: (team) => `Leave “${team}”?`,
     errRemove: "Couldn't remove them from the team",
@@ -59,7 +59,7 @@ const L: Record<
       `¿Sacar a ${name} de «${team}»? Se conservan su cuenta y sus marcas, y puede volver a unirse con el código.`,
     leave: "Salir del equipo",
     confirmRemoveManaged: (name) =>
-      `¿Dar de baja a ${name}? Como no tiene cuenta, también se borran su asistencia, partidos y evaluaciones. No se puede deshacer.`,
+      `¿Dar de baja a ${name}? Sale de la plantilla y de la lista, pero su asistencia, partidos y evaluaciones se conservan. Puedes reincorporarlo desde la plantilla.`,
     reasonPrompt: "Motivo de la baja (aparece en el reporte final R-FI). Déjalo vacío si no aplica.",
     confirmLeave: (team) => `¿Salir de «${team}»?`,
     errRemove: "No se pudo sacar del equipo",

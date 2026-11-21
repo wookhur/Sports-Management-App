@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/format";
 import { toEditableHtml } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 import { getLang } from "@/lib/getLang";
+import { localizeBlog } from "@/lib/contentText";
 import type { Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -31,11 +32,12 @@ export default async function BlogPostPage({
   const s = L[lang];
   const { slug } = await params;
 
-  const post = await prisma.blogPost.findUnique({
+  const stored = await prisma.blogPost.findUnique({
     where: { slug },
     include: { author: { select: { id: true, name: true } } },
   });
-  if (!post || !post.published) notFound();
+  if (!stored || !stored.published) notFound();
+  const post = localizeBlog(stored, lang);
   const canManage = post.author?.id === session.userId || isCoach;
 
   const bodyHtml = sanitizeBlogHtml(toEditableHtml(post.body));

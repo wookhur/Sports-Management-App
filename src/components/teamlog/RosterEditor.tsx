@@ -200,6 +200,55 @@ export function NewPlayerForm({ teamId, lang }: { teamId: string; lang: Lang }) 
   );
 }
 
+/** Students who left, with their records kept, and a way back onto the roster. */
+export function DepartedList({ teamId, lang, people }: { teamId: string; lang: Lang; people: { id: string; name: string }[] }) {
+  const s = tl(lang);
+  const b = bt(lang).roster;
+  const router = useRouter();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  if (people.length === 0) return null;
+  return (
+    <section className="card p-5" aria-labelledby="departed-title">
+      <h2 id="departed-title" className="text-sm font-bold">
+        {b.departedTitle}
+      </h2>
+      <p className="mt-1 text-xs text-slate-600">{b.departedSub}</p>
+      <ul className="mt-3 divide-y divide-slate-100">
+        {people.map((p) => (
+          <li key={p.id} className="flex items-center justify-between gap-3 py-2 text-sm" data-departed={p.name}>
+            <span className="text-slate-700">{p.name}</span>
+            <button
+              type="button"
+              className="btn-ghost px-3 py-1 text-xs"
+              disabled={busy === p.id}
+              onClick={async () => {
+                setBusy(p.id);
+                setMsg(null);
+                const err = await send(`/api/teams/${teamId}/roster/${p.id}/restore`, "POST", {});
+                setBusy(null);
+                if (err) {
+                  setMsg({ ok: false, text: err === "error" ? s.common.errSave : err });
+                  return;
+                }
+                setMsg({ ok: true, text: b.restored(p.name) });
+                router.refresh();
+              }}
+            >
+              {b.restore}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {msg && (
+        <p className={`mt-2 text-xs ${msg.ok ? "text-emerald-700" : "text-red-700"}`} role={msg.ok ? "status" : "alert"}>
+          {msg.text}
+        </p>
+      )}
+    </section>
+  );
+}
+
 /** Paste a list of names to put players on the roster without accounts. */
 export function AddPlayersForm({ teamId, lang }: { teamId: string; lang: Lang }) {
   const s = tl(lang);

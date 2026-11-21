@@ -30,11 +30,15 @@ export default async function LoginPage() {
           <h1 className="mb-6 text-xl font-bold">{s.heading}</h1>
           <AuthForm lang={lang} />
         </div>
-        <div className="mt-4 rounded-xl bg-slate-800/90 p-4 text-xs text-slate-300">
-          <p className="font-semibold text-slate-100">{s.demoTitle}</p>
-          <p className="mt-1">{s.demoAthlete}</p>
-          <p>{s.demoCoach}</p>
-        </div>
+        {/* The demo logins are for trying the app out, not for the school's
+            live site: shown only where SHOW_DEMO_ACCOUNTS=1 is set. */}
+        {process.env.SHOW_DEMO_ACCOUNTS === "1" && (
+          <div className="mt-4 rounded-xl bg-slate-800/90 p-4 text-xs text-slate-300">
+            <p className="font-semibold text-slate-100">{s.demoTitle}</p>
+            <p className="mt-1">{s.demoAthlete}</p>
+            <p>{s.demoCoach}</p>
+          </div>
+        )}
       </div>
     </main>
   );

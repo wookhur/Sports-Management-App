@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { SPORT_LIST } from "@/lib/sports";
 import { ok, fail } from "@/lib/api";
-import { failT } from "@/lib/apiText";
+import { failIssue, failT } from "@/lib/apiText";
 import { minorFromDob } from "@/lib/consent";
 import { sendGuardianNotice } from "@/lib/guardianEmail";
 import { getLang } from "@/lib/getLang";
@@ -14,11 +14,11 @@ const sportIds = SPORT_LIST.map((s) => s.id) as [string, ...string[]];
 const schema = z.object({
   username: z
     .string()
-    .min(3, "아이디는 3자 이상이어야 합니다")
-    .max(20, "아이디는 20자 이하여야 합니다")
-    .regex(/^[a-zA-Z0-9_]+$/, "아이디는 영문/숫자/밑줄만 사용할 수 있습니다"),
-  email: z.string().trim().email("올바른 이메일을 입력하세요"),
-  password: z.string().min(6, "비밀번호는 6자 이상이어야 합니다").max(100),
+    .min(3, "usernameShort")
+    .max(20, "usernameLong")
+    .regex(/^[a-zA-Z0-9_]+$/, "usernameChars"),
+  email: z.string().trim().email("checkEmail"),
+  password: z.string().min(6, "passwordShort").max(100),
   role: z.enum(["ATHLETE", "COACH"]),
   school: z.string().max(100).optional(),
   sportInterests: z.array(z.enum(sportIds)).max(sportIds.length).optional(),
@@ -34,7 +34,7 @@ const schema = z.object({
   // birth date to decide from; a birth date always wins over this.
   minor: z.boolean().optional(),
   guardianName: z.string().trim().min(1).max(100).optional(),
-  guardianEmail: z.string().trim().email("Enter a valid email for the parent or guardian").optional(),
+  guardianEmail: z.string().trim().email("guardianEmail").optional(),
   guardianConsent: z.boolean().optional(),
 });
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
+    return failIssue(parsed.error.issues);
   }
   const {
     username, email, password, role, school, sportInterests, experienceLevel, dob, grade, researchConsent,

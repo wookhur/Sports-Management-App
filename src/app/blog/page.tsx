@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
 import { getLang } from "@/lib/getLang";
+import { localizeBlog } from "@/lib/contentText";
 import type { Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -62,14 +63,16 @@ export default async function BlogListPage() {
   const lang = await getLang();
   const s = L[lang];
 
-  const posts = await prisma.blogPost.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-    include: {
-      author: { select: { id: true, name: true } },
-      _count: { select: { likes: true, readerComments: true } },
-    },
-  });
+  const posts = (
+    await prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: { select: { id: true, name: true } },
+        _count: { select: { likes: true, readerComments: true } },
+      },
+    })
+  ).map((p) => localizeBlog(p, lang));
 
   const canManage = (authorId: string | null) => authorId === session.userId || isCoach;
   const score = (p: (typeof posts)[number]) => p._count.likes * 2 + p._count.readerComments;

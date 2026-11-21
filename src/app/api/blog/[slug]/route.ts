@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { failIssue, failT } from "@/lib/apiText";
 import { coverImageSchema } from "@/lib/blogSchemas";
 import { isBodyEmpty } from "@/lib/blogBody";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
@@ -11,8 +12,8 @@ import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 // rich-text HTML from the editor, so length is checked after sanitizing/
 // stripping tags rather than with a raw min() on the markup.
 const patchSchema = z.object({
-  title: z.string().min(2, "제목을 입력하세요").max(120),
-  excerpt: z.string().min(2, "요약을 입력하세요").max(200),
+  title: z.string().min(2, "enterTitle").max(120),
+  excerpt: z.string().min(2, "enterExcerpt").max(200),
   body: z.string().max(40000),
   emoji: z.string().max(8).optional(),
   tag: z.string().max(40).optional(),
@@ -23,22 +24,22 @@ type Params = { params: Promise<{ slug: string }> };
 
 export async function PATCH(req: Request, { params }: Params) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const { slug } = await params;
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
-  if (!existing) return fail("글을 찾을 수 없습니다", 404);
+  if (!existing) return failT("postNotFound", 404);
   // Author can edit their own post; coaches can moderate any post.
   if (existing.authorId !== session.userId && session.role !== "COACH") {
-    return fail("수정 권한이 없습니다", 403);
+    return failT("noEditPermission", 403);
   }
 
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "잘못된 요청입니다");
+  if (!parsed.success) return failIssue(parsed.error.issues);
 
   const { title, excerpt, emoji, tag, coverImage } = parsed.data;
   const body = sanitizeBlogHtml(parsed.data.body);
-  if (isBodyEmpty(body)) return fail("본문을 입력하세요");
+  if (isBodyEmpty(body)) return failT("writeBody");
 
   await prisma.blogPost.update({
     where: { slug },
@@ -56,13 +57,13 @@ export async function PATCH(req: Request, { params }: Params) {
 
 export async function DELETE(_req: Request, { params }: Params) {
   const session = await getSession();
-  if (!session) return fail("로그인이 필요합니다", 401);
+  if (!session) return failT("signIn", 401);
 
   const { slug } = await params;
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
-  if (!existing) return fail("글을 찾을 수 없습니다", 404);
+  if (!existing) return failT("postNotFound", 404);
   if (existing.authorId !== session.userId && session.role !== "COACH") {
-    return fail("삭제 권한이 없습니다", 403);
+    return failT("noDeletePermission", 403);
   }
 
   await prisma.blogPost.delete({ where: { slug } });

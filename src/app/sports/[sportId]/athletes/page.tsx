@@ -9,6 +9,7 @@ import DeletePostButton from "@/components/DeletePostButton";
 import { formatDate } from "@/lib/format";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { localizeGuide } from "@/lib/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -63,11 +64,13 @@ export default async function AthleteGuideListPage({
 
   const sportName = SPORT_I18N[sportId]?.[lang]?.name ?? sport.name;
 
-  const guides = await prisma.athleteGuide.findMany({
-    where: { sport: sportId, published: true },
-    orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
-  });
+  const guides = (
+    await prisma.athleteGuide.findMany({
+      where: { sport: sportId, published: true },
+      orderBy: { createdAt: "desc" },
+      include: { author: { select: { name: true } } },
+    })
+  ).map((g) => localizeGuide(g, lang));
 
   return (
     <>

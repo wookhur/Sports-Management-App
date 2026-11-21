@@ -644,6 +644,11 @@ test("a Spanish coach's new team runs on their own clock, and removing a student
 
     // A team of students without accounts: no announcement box to post into the void.
     await api(page, `/api/teams/${team.id}/roster`, { names: ["Ruiz Pablo"] });
+    const pablo = (await db.teamMember.findFirstOrThrow({ where: { teamId: team.id } })).userId;
+    const day = await page.evaluate(() =>
+      new Intl.DateTimeFormat("en-CA", { timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()),
+    );
+    await send(page, `/api/teams/${team.id}/attendance`, "PUT", { day, marks: [{ userId: pablo, status: "ASISTENCIA" }] });
     await page.goto(`/teams/${team.id}`, { waitUntil: "networkidle" });
     await expect(page.getByPlaceholder("Un aviso para todo el equipo…")).toHaveCount(0);
 
@@ -656,10 +661,20 @@ test("a Spanish coach's new team runs on their own clock, and removing a student
     });
     await page.getByRole("button", { name: "Sacar a Ruiz Pablo del equipo" }).click();
     await expect(page.getByRole("button", { name: "Sacar a Ruiz Pablo del equipo" })).toHaveCount(0);
-    expect(asked[0]).toContain("también se borran su asistencia, partidos y evaluaciones");
+    expect(asked[0]).toContain("su asistencia, partidos y evaluaciones se conservan");
     expect(asked[1]).toContain("Motivo de la baja");
     const report = await db.teamSeasonDoc.findFirst({ where: { teamId: team.id, kind: "report" } });
     expect(JSON.stringify(report?.data)).toContain("Cambio de escuela");
+
+    // Their record stays; the roster lists them as having left, and they can come back.
+    expect(await db.attendance.count({ where: { teamId: team.id, userId: pablo } })).toBe(1);
+    await page.goto(`/teams/${team.id}/roster`, { waitUntil: "networkidle" });
+    const departed = page.locator('li[data-departed="Ruiz Pablo"]');
+    await expect(departed).toBeVisible();
+    await expect(page.locator('li[data-player="Ruiz Pablo"]')).toHaveCount(0);
+    await departed.getByRole("button", { name: "Reincorporar" }).click();
+    await expect(page.locator('li[data-player="Ruiz Pablo"]')).toBeVisible();
+    await expect(page.locator('li[data-departed="Ruiz Pablo"]')).toHaveCount(0);
 
     // And a missing page says so in Spanish.
     await page.goto("/no-existe-esta-pagina");
@@ -670,4 +685,28 @@ test("a Spanish coach's new team runs on their own clock, and removing a student
     await db.$disconnect();
     await ctx.close();
   }
+});
+
+// The school's coach only uses teams and the log: the athlete's game layer is
+// kept out of their menu and home, content reads in Spanish, and the shared
+// demo logins are not advertised on the real login page.
+test("a Spanish-speaking coach sees a home and menu built around the log", async ({ page, context }) => {
+  await page.goto("/login");
+  await expect(page.getByText("Demo accounts")).toHaveCount(0);
+  await context.addCookies([{ name: "lang", value: "es", url: page.url().split("/").slice(0, 3).join("/") }]);
+  await login(page, COACH);
+  await page.goto("/");
+
+  const nav = page.locator("aside").first();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(nav.locator('a[href="/teams"]')).toHaveCount(1);
+  for (const href of ["/missions", "/games/bullseye", "/leaderboard", "/journal"]) {
+    await expect(nav.locator(`a[href="${href}"]`)).toHaveCount(0);
+  }
+  // No pet, streak or first-run checklist meant for athletes.
+  await expect(page.locator('main a[href="/connections"]')).toHaveCount(0);
+  await expect(page.getByText("Rachas", { exact: false })).toHaveCount(0);
+
+  await page.goto("/sports/basketball/athletes/basketball-lebron-james");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("método de entrenamiento");
 });

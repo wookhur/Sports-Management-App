@@ -8,6 +8,7 @@ import NavBar from "@/components/NavBar";
 import { formatDate } from "@/lib/format";
 import { SPORT_I18N, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/getLang";
+import { localizeGuide } from "@/lib/contentText";
 
 export const dynamic = "force-dynamic";
 
@@ -64,11 +65,13 @@ export default async function StarRoutinesPage({
   const { sport } = await searchParams;
   const activeSport = sport && SPORTS[sport] ? sport : undefined;
 
-  const guides = await prisma.athleteGuide.findMany({
-    where: { published: true, ...(activeSport ? { sport: activeSport } : {}) },
-    orderBy: [{ sport: "asc" }, { createdAt: "desc" }],
-    include: { author: { select: { name: true } } },
-  });
+  const guides = (
+    await prisma.athleteGuide.findMany({
+      where: { published: true, ...(activeSport ? { sport: activeSport } : {}) },
+      orderBy: [{ sport: "asc" }, { createdAt: "desc" }],
+      include: { author: { select: { name: true } } },
+    })
+  ).map((g) => localizeGuide(g, lang));
 
   const chips = [
     { key: undefined as string | undefined, label: t.all },
